@@ -1,0 +1,24 @@
+name: test-validation
+
+on:
+  push:
+    branches: [master, main]
+  pull_request:
+    branches: [master, main]
+
+jobs:
+  coverage:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install
+        run: |
+          python -m pip install --upgrade pip
+          pip install -e ".[test]"
+      - name: Pytest + coverage (validation Python)
+        run: |
+          python -m coverage erase
+          python -m pytest validation/tests --cov=./validation --cov-report=term-missing --cov-fail-under=99
