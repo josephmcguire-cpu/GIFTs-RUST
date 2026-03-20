@@ -18,7 +18,6 @@ import gifts
 
 
 class Daemon(object):
-
     def daemonize(self):
         """Create a daemon using UNIX double fork mechanism."""
 
@@ -119,6 +118,7 @@ class Dispatcher(FileSystemEventHandler):
             self.ext = 'xml'
 
         self.ticks = 0
+
     #
     # If you find that the daemon misses incoming TAC files, consider changing this function name from 'on_closed' to
     # 'on_modified'.
@@ -177,12 +177,18 @@ class Monitor(Daemon):
             raise SystemExit('Input and output directories should be different')
         #
         # Check to make sure the monitor can read these directories and modify their contents
-        if not os.path.exists(inputDirectory) or not os.path.isdir(inputDirectory) or \
-           not os.access(inputDirectory, (os.R_OK | os.W_OK | os.X_OK)):
+        if (
+            not os.path.exists(inputDirectory)
+            or not os.path.isdir(inputDirectory)
+            or not os.access(inputDirectory, (os.R_OK | os.W_OK | os.X_OK))
+        ):
             raise SystemExit(f'{inputDirectory} does not exist or unable to modify its contents')
 
-        if not os.path.exists(outputDirectory) or not os.path.isdir(outputDirectory) or \
-           not os.access(outputDirectory, (os.W_OK | os.X_OK)):
+        if (
+            not os.path.exists(outputDirectory)
+            or not os.path.isdir(outputDirectory)
+            or not os.access(outputDirectory, (os.W_OK | os.X_OK))
+        ):
             raise SystemExit(f'{outputDirectory} does not exist or unable to write to it')
         #
         # Set up the dispatcher to generate and write the IWXXM product
@@ -206,14 +212,12 @@ class Monitor(Daemon):
         self.observer.start()
         #
         # Begin watch . . .
-        while True:
-
+        while True:  # pragma: no cover
             time.sleep(0.1)
             self.dispatcher.ticks += 1
             #
             # After a period of no activity by the observer, check it . . .
             if self.dispatcher.ticks >= 600:
-
                 self.dispatcher.ticks = 0
                 if not self.observer.is_alive():
                     #
@@ -246,34 +250,37 @@ class Monitor(Daemon):
         raise SystemExit(0)
 
 
-if __name__ == '__main__':
-
+def main(argv=None):
+    """CLI entry: read config, configure logging, start directory monitor."""
     import configparser as cp
+
+    argv = argv if argv is not None else sys.argv
 
     try:
         settings = cp.ConfigParser()
-        if len(settings.read(sys.argv[1])) == 0:
-            SystemExit('Unrecognized format in configuration file')
+        if len(settings.read(argv[1])) == 0:
+            raise SystemExit('Unrecognized format in configuration file')
 
     except IndexError:
         raise SystemExit('Error: configuration file is needed as first argument')
 
     except FileNotFoundError:
-        raise SystemExit(f'File not found: {sys.argv[1]}')
+        raise SystemExit(f'File not found: {argv[1]}')
 
     except cp.ParsingError as err:
-        raise SystemExit(f'Error parsing {sys.argv[1]}: {str(err)}')
+        raise SystemExit(f'Error parsing {argv[1]}: {str(err)}')
     #
     # Select the requested TAC-to-XML encoder
     product = settings.get('internals', 'product')
-    try:
-        classPtr = {'metar': gifts.METAR.Encoder,
-                    'taf': gifts.TAF.Encoder,
-                    'tca': gifts.TCA.Encoder,
-                    'vaa': gifts.VAA.Encoder,
-                    'swa': gifts.SWA.Encoder}.get(product)
+    classPtr = {
+        'metar': gifts.METAR.Encoder,
+        'taf': gifts.TAF.Encoder,
+        'tca': gifts.TCA.Encoder,
+        'vaa': gifts.VAA.Encoder,
+        'swa': gifts.SWA.Encoder,
+    }.get(product)
 
-    except KeyError:
+    if classPtr is None:
         raise SystemExit(f'{product} is not one of: metar, taf, tca, vaa, swa')
     #
     # For METAR/SPECI and TAF products, read in the external database. This code assumes
@@ -297,34 +304,31 @@ if __name__ == '__main__':
     logfileDirectory = settings.get('directories', 'logs')
     #
     # Check the directory for use
-    if not os.path.exists(logfileDirectory) or not os.path.isdir(logfileDirectory) or \
-       not os.access(logfileDirectory, (os.W_OK | os.X_OK)):
+    if (
+        not os.path.exists(logfileDirectory)
+        or not os.path.isdir(logfileDirectory)
+        or not os.access(logfileDirectory, (os.W_OK | os.X_OK))
+    ):
         raise SystemExit(f'{logfileDirectory} does not exist or unable to write to it')
 
     logger = {
         'version': 1,
-
         'formatters': {
             'default': {
                 'format': '%(asctime)s %(levelname)-5s %(process)5d %(module)s: %(message)s',
                 'style': '%',
-                'validate': True
+                'validate': True,
             },
         },
-
         'handlers': {
             'file': {
                 'formatter': 'default',
                 '()': DOWFileHandler,
                 'directory': f'{logfileDirectory}',
-                'basename': f'{product}_iwxxmd'
+                'basename': f'{product}_iwxxmd',
             },
         },
-
-        'root': {
-            'level': 'INFO',
-            'handlers': ['file']
-        }
+        'root': {'level': 'INFO', 'handlers': ['file']},
     }
     logging.config.dictConfig(logger)
     #
@@ -333,11 +337,16 @@ if __name__ == '__main__':
         delete_flag = settings.get('internals', 'delete_after_read') == 'true'
         header = settings.get('internals', 'wmo_ahl_line') == 'true'
 
-        watchdog = Monitor(encoder, delete_flag, header, settings.get('directories', 'input'),
-                           settings.get('directories', 'output'))
+        watchdog = Monitor(
+            encoder, delete_flag, header, settings.get('directories', 'input'), settings.get('directories', 'output')
+        )
 
     except Exception as err:
         raise SystemExit(str(err))
     #
     # Start monitoring the directory in the background
     watchdog.start()
+
+
+if __name__ == '__main__':
+    main()

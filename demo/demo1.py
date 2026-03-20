@@ -14,11 +14,11 @@ import gifts
 
 
 class TextHandler(logging.Handler):
-
     def __init__(self, widget):
 
         logging.Handler.__init__(self)
         self.textWidget = widget
+
     #
     # Override base 'emit' method. Instead write the message to the text widget
 
@@ -37,7 +37,6 @@ class TextHandler(logging.Handler):
 
 
 class simpleGUI(object):
-
     def __init__(self):
         #
         # Build the GUI first
@@ -99,10 +98,12 @@ class simpleGUI(object):
         #
         # Regular expressions to identify TAC file contents based on WMO AHL line
         self.encoders = []
-        self.encoders.append((re.compile(r'^S(A|P)[A-Z][A-Z]\d\d\s+[A-Z]{4}\s+\d{6}', re.MULTILINE),
-                              gifts.METAR.Encoder(aerodromes)))
-        self.encoders.append((re.compile(r'^F(C|T)[A-Z][A-Z]\d\d\s+[A-Z]{4}\s+\d{6}', re.MULTILINE),
-                              gifts.TAF.Encoder(aerodromes)))
+        self.encoders.append(
+            (re.compile(r'^S(A|P)[A-Z][A-Z]\d\d\s+[A-Z]{4}\s+\d{6}', re.MULTILINE), gifts.METAR.Encoder(aerodromes))
+        )
+        self.encoders.append(
+            (re.compile(r'^F(C|T)[A-Z][A-Z]\d\d\s+[A-Z]{4}\s+\d{6}', re.MULTILINE), gifts.TAF.Encoder(aerodromes))
+        )
         self.encoders.append((re.compile(r'FK\w\w\d\d\s+[A-Z]{4}\s+\d{6}', re.MULTILINE), gifts.TCA.Encoder()))
         self.encoders.append((re.compile(r'FV\w\w\d\d\s+[A-Z]{4}\s+\d{6}', re.MULTILINE), gifts.VAA.Encoder()))
 
@@ -122,10 +123,8 @@ class simpleGUI(object):
             encoder = None
 
         if encoder is not None:
-
-            bulletin = encoder.encode(tacText[result.start():])
+            bulletin = encoder.encode(tacText[result.start() :])
             for xml in bulletin:
-
                 tree = ET.XML(ET.tostring(xml))
                 icaoID = tree.find('.//*{http://www.aixm.aero/schema/5.1.1}locationIndicatorICAO')
                 if icaoID is not None:
@@ -163,6 +162,5 @@ class simpleGUI(object):
 
 
 if __name__ == '__main__':
-
     gui = simpleGUI()
     gui.window.mainloop()
