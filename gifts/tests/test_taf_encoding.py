@@ -1,17 +1,16 @@
 import datetime
 import xml.etree.ElementTree as ET
 
-from gifts.TAF import Encoder as TE
-import gifts.tafDecoder as tD
-
 import gifts.common.xmlConfig as des
 import gifts.common.xmlUtilities as deu
+import gifts.tafDecoder as tD
+from gifts.TAF import Encoder as TE
 
 reqCodes = [des.WEATHER, des.CLDAMTS, des.CVCTNCLDS]
 codes = deu.parseCodeRegistryTables(des.CodesFilePath, reqCodes)
 
-iwxxm = '{%s}' % des.IWXXM_URI
-find_iwxxm = './/*%s' % iwxxm
+iwxxm = f'{{{des.IWXXM_URI}}}'
+find_iwxxm = f'.//*{iwxxm}'
 xhref = '{http://www.w3.org/1999/xlink}href'
 xtitle = '{http://www.w3.org/1999/xlink}title'
 
@@ -19,9 +18,7 @@ missing = codes[des.NIL][des.MSSG]
 nothingOfOperationalSignificance = codes[des.NIL][des.NOOPRSIG]
 noSignificantChange = codes[des.NIL][des.NOSIGC]
 
-database = {
-    'SBAF': 'AFONSOS ARPT MI|||-22.87 -43.37',
-    'VHHH': 'HONG KONG INTERNATIONAL AP|HKG||22.309 113.914 9'}
+database = {'SBAF': 'AFONSOS ARPT MI|||-22.87 -43.37', 'VHHH': 'HONG KONG INTERNATIONAL AP|HKG||22.309 113.914 9'}
 
 
 def PP(tree):
@@ -32,13 +29,14 @@ def PP(tree):
                 elem.text = i + "  "
             if not elem.tail or not elem.tail.strip():
                 elem.tail = i
-            for elem in elem:
-                indent(elem, level + 1)
-                if not elem.tail or not elem.tail.strip():
-                    elem.tail = i
+            for child in elem:
+                indent(child, level + 1)
+                if not child.tail or not child.tail.strip():
+                    child.tail = i
             else:
                 if level and (not elem.tail or not elem.tail.strip()):
                     elem.tail = i
+
     indent(tree)
     print(ET.tostring(tree).decode())
 
@@ -54,11 +52,11 @@ def test_tafFailureModes():
     bulletin = encoder.encode(test)
     assert len(bulletin) == test.count('\n') - 1
 
-    for cnt, result in enumerate(bulletin):
+    for _cnt, result in enumerate(bulletin):
         assert result.get('translationFailedTAC') is not None
         assert len(result) == 3
         for child, tag in zip(result, ['issueTime', 'aerodrome', 'validPeriod']):
-            assert child.tag == 'iwxxm:%s' % tag
+            assert child.tag == f'iwxxm:{tag}'
 
     test = """FTCN01 VHHH 311300
 TAF VHHH 31138Z= stops due to bad issue timestamp
@@ -68,11 +66,11 @@ TAF SBAF NIL= stops due to no issue timestamp
     bulletin = encoder.encode(test)
     assert len(bulletin) == test.count('\n') - 1
 
-    for cnt, result in enumerate(bulletin):
+    for _cnt, result in enumerate(bulletin):
         assert result.get('translationFailedTAC') is not None
         assert len(result) == 3
         for child, tag in zip(result, ['issueTime', 'aerodrome', 'validPeriod']):
-            assert child.tag == 'iwxxm:%s' % tag
+            assert child.tag == f'iwxxm:{tag}'
 
     test = """FTCN01 VHHH 311300
 TAF VHHH 311338Z COR= stops due to wrong order of elements
@@ -81,11 +79,11 @@ TAF VHHH 311338Z COR= stops due to wrong order of elements
     bulletin = encoder.encode(test)
     assert len(bulletin) == test.count('\n') - 1
 
-    for cnt, result in enumerate(bulletin):
+    for _cnt, result in enumerate(bulletin):
         assert result.get('translationFailedTAC') is not None
         assert len(result) == 3
         for child, tag in zip(result, ['issueTime', 'aerodrome', 'validPeriod']):
-            assert child.tag == 'iwxxm:%s' % tag
+            assert child.tag == f'iwxxm:{tag}'
 
     test = """FTCN01 VHHH 311900
 TAF VHHH 311938Z 3120/0202 REMARKS LIKE THIS ONE DO NOT BELONG IN ANNEX 3 TAFS=
@@ -94,11 +92,11 @@ TAF VHHH 311938Z 3120/0202 REMARKS LIKE THIS ONE DO NOT BELONG IN ANNEX 3 TAFS=
     bulletin = encoder.encode(test)
     assert len(bulletin) == test.count('\n') - 1
 
-    for cnt, result in enumerate(bulletin):
+    for _cnt, result in enumerate(bulletin):
         assert result.get('translationFailedTAC') is not None
         assert len(result) == 3
         for child, tag in zip(result, ['issueTime', 'aerodrome', 'validPeriod']):
-            assert child.tag == 'iwxxm:%s' % tag
+            assert child.tag == f'iwxxm:{tag}'
 
     test = """FTCN01 VHHH 311900
 TAF SBAF 302130Z 3100/3124 15003KT 9000 SHRA FEW015CB SCT018 FM311200 VRB02KT 9999 VCSH SCT022=
@@ -106,11 +104,11 @@ TAF SBAF 302130Z 3100/3124 15003KT 9000 SHRA FEW015CB SCT018 FM311200 VRB02KT 99
     bulletin = encoder.encode(test)
     assert len(bulletin) == test.count('\n') - 1
 
-    for cnt, result in enumerate(bulletin):
+    for _cnt, result in enumerate(bulletin):
         assert result.get('translationFailedTAC') is not None
         assert len(result) == 3
         for child, tag in zip(result, ['issueTime', 'aerodrome', 'validPeriod']):
-            assert child.tag == 'iwxxm:%s' % tag
+            assert child.tag == f'iwxxm:{tag}'
 
 
 def test_nil():
@@ -122,11 +120,11 @@ TAF SBAF 072000Z NIL=
     bulletin = encoder.encode(test)
     assert len(bulletin) == test.count('\n') - 1
 
-    for cnt, result in enumerate(bulletin):
+    for _cnt, result in enumerate(bulletin):
         assert result.get('translationFailedTAC') is None
         assert len(result) == 3
         for child, tag in zip(result, ['issueTime', 'aerodrome', 'baseForecast']):
-            assert child.tag == 'iwxxm:%s' % tag
+            assert child.tag == f'iwxxm:{tag}'
 
 
 def test_cnl():
@@ -140,7 +138,6 @@ TAF SBAF 072000Z 0715/0815 CNL=
     assert len(bulletin) == test.count('\n') - 1
 
     for cnt, result in enumerate(bulletin):
-
         assert result.get('translationFailedTAC') is None
         assert len(result) == 3
         assert result.get('isCancelReport') == 'true'
@@ -148,7 +145,7 @@ TAF SBAF 072000Z 0715/0815 CNL=
             assert result.get('reportStatus') == 'AMENDMENT'
 
         for child, tag in zip(result, ['issueTime', 'aerodrome', 'cancelledReportValidPeriod']):
-            assert child.tag == 'iwxxm:%s' % tag
+            assert child.tag == f'iwxxm:{tag}'
 
 
 def test_ignoreRmks():
@@ -163,7 +160,7 @@ TAF SBAF 072001Z 0715/0815 00000KT CAVOK RMK IS IGNORED=
     assert result.get('translationFailedTAC') is None
     assert len(result) == 4
     for child, tag in zip(result, ['issueTime', 'aerodrome', 'validPeriod', 'baseForecast']):
-        assert child.tag == 'iwxxm:%s' % tag
+        assert child.tag == f'iwxxm:{tag}'
 
 
 def test_offNominalCase():
@@ -197,32 +194,32 @@ TAF SBAF 071500Z 0718/0806 010130GP150KT CAVOK=
     for cnt, result in enumerate(bulletin):
         assert result.get('translationFailedTAC') is None
         tree = ET.XML(ET.tostring(result))
-        wind = tree.find('%sAerodromeSurfaceWindForecast' % find_iwxxm)
+        wind = tree.find(f'{find_iwxxm}AerodromeSurfaceWindForecast')
         if cnt == 0:
             assert wind.get('variableWindDirection') == 'true'
-            assert wind[0].tag == '%smeanWindSpeed' % iwxxm
+            assert wind[0].tag == f'{iwxxm}meanWindSpeed'
             assert wind[0].get('uom') == '[kn_i]'
             assert wind[0].text == '6'
         elif cnt == 1:
             assert wind.get('variableWindDirection') == 'false'
-            assert wind[0].tag == '%smeanWindDirection' % iwxxm
+            assert wind[0].tag == f'{iwxxm}meanWindDirection'
             assert wind[0].get('uom') == 'deg'
             assert wind[0].text == '10'
             assert wind[1].text == '6'
-            assert wind[2].tag == '%swindGustSpeed' % iwxxm
+            assert wind[2].tag == f'{iwxxm}windGustSpeed'
             assert wind[2].get('uom') == '[kn_i]'
             assert wind[2].text == '20'
         elif cnt == 2:
             assert wind[1].get('uom') == 'm/s'
             assert wind[1].text == '50'
-            assert wind[2].tag == '%smeanWindSpeedOperator' % iwxxm
+            assert wind[2].tag == f'{iwxxm}meanWindSpeedOperator'
             assert wind[2].text == 'ABOVE'
         elif cnt == 3:
             assert wind[1].get('uom') == '[kn_i]'
             assert wind[1].text == '130'
-            assert wind[2].tag == '%swindGustSpeed' % iwxxm
+            assert wind[2].tag == f'{iwxxm}windGustSpeed'
             assert wind[2].text == '150'
-            assert wind[3].tag == '%swindGustSpeedOperator' % iwxxm
+            assert wind[3].tag == f'{iwxxm}windGustSpeedOperator'
             assert wind[3].text == 'ABOVE'
 
 
@@ -243,27 +240,27 @@ TAF SBAF 071500Z 0718/0806 00000KT 1/4SM FEW025=
     for cnt, result in enumerate(bulletin):
         assert result.get('translationFailedTAC') is None
         tree = ET.XML(ET.tostring(result))
-        vsby = tree.find('%sprevailingVisibility' % find_iwxxm)
+        vsby = tree.find(f'{find_iwxxm}prevailingVisibility')
         if cnt < 2:
             assert vsby.get('uom') == 'm'
             assert vsby.text == '10000'
-            oper = tree.find('%sprevailingVisibilityOperator' % find_iwxxm)
+            oper = tree.find(f'{find_iwxxm}prevailingVisibilityOperator')
             assert oper is not None
             assert oper.text == 'ABOVE'
         elif cnt < 4:
             assert vsby.get('uom') == 'm'
             assert vsby.text == '0'
-            oper = tree.find('%sprevailingVisibilityOperator' % find_iwxxm)
+            oper = tree.find(f'{find_iwxxm}prevailingVisibilityOperator')
             assert oper is None
         elif cnt < 6:
             assert vsby.get('uom') == 'm'
             assert vsby.text == '4000'
-            oper = tree.find('%sprevailingVisibilityOperator' % find_iwxxm)
+            oper = tree.find(f'{find_iwxxm}prevailingVisibilityOperator')
             assert oper is None
         else:
             assert vsby.get('uom') == 'm'
             assert vsby.text == '400'
-            oper = tree.find('%sprevailingVisibilityOperator' % find_iwxxm)
+            oper = tree.find(f'{find_iwxxm}prevailingVisibilityOperator')
             assert oper is None
 
 
@@ -281,7 +278,7 @@ TAF SBAF 071500Z 0718/0806 00000KT P6SM BLSN BR FEW025=
     for cnt, result in enumerate(bulletin):
         assert result.get('translationFailedTAC') is None
         tree = ET.XML(ET.tostring(result))
-        pcpnList = tree.findall('%sweather' % find_iwxxm)
+        pcpnList = tree.findall(f'{find_iwxxm}weather')
         if cnt == 0:
             assert len(pcpnList) == 3
             assert pcpnList[0].get(xhref) == codes[des.WEATHER]['-FZRA'][0]
@@ -312,19 +309,19 @@ TAF SBAF 071500Z 0718/0806 00000KT 9999 VV001=
 TAF SBAF 071500Z 0718/0806 00000KT 9999 NSC=
 """
 
-    des.TITLES = (des.CloudAmt | des.CloudType)
+    des.TITLES = des.CloudAmt | des.CloudType
     bulletin = encoder.encode(test)
     assert len(bulletin) == test.count('\n') - 1
     for cnt, result in enumerate(bulletin):
         assert result.get('translationFailedTAC') is None
         tree = ET.XML(ET.tostring(result))
-        cldLyrList = tree.findall('%sCloudLayer' % find_iwxxm)
+        cldLyrList = tree.findall(f'{find_iwxxm}CloudLayer')
         if cnt == 0:
             assert len(cldLyrList) == 4
 
-            assert cldLyrList[0][0].tag == '%samount' % iwxxm
-            assert cldLyrList[0][1].tag == '%sbase' % iwxxm
-            assert cldLyrList[0][2].tag == '%scloudType' % iwxxm
+            assert cldLyrList[0][0].tag == f'{iwxxm}amount'
+            assert cldLyrList[0][1].tag == f'{iwxxm}base'
+            assert cldLyrList[0][2].tag == f'{iwxxm}cloudType'
             assert cldLyrList[0][0].get(xhref) == codes[des.CLDAMTS]['FEW'][0]
             assert cldLyrList[0][0].get(xtitle) == codes[des.CLDAMTS]['FEW'][1]
             assert cldLyrList[1][0].get(xhref) == codes[des.CLDAMTS]['SCT'][0]
@@ -348,19 +345,19 @@ TAF SBAF 071500Z 0718/0806 00000KT 9999 NSC=
 
         elif cnt == 1:
             assert len(cldLyrList) == 0
-            vvFcst = tree.find('%sverticalVisibility' % find_iwxxm)
+            vvFcst = tree.find(f'{find_iwxxm}verticalVisibility')
             assert vvFcst.get('uom') == 'N/A'
             assert vvFcst.get('nilReason') == codes[des.NIL][des.MSSG][0]
 
         elif cnt == 2:
             assert len(cldLyrList) == 0
-            vvFcst = tree.find('%sverticalVisibility' % find_iwxxm)
+            vvFcst = tree.find(f'{find_iwxxm}verticalVisibility')
             assert vvFcst.get('uom') == '[ft_i]'
             assert vvFcst.text == '100'
 
         elif cnt == 3:
             assert len(cldLyrList) == 0
-            nosigCloud = tree.find('%scloud' % find_iwxxm)
+            nosigCloud = tree.find(f'{find_iwxxm}cloud')
             assert nosigCloud.get('nilReason') == codes[des.NIL][des.NOOPRSIG][0]
 
 
@@ -376,7 +373,7 @@ TAF SBAF 071500Z 0718/0806 00000KT CAVOK TN15/0106Z TX20/3018Z TX21/0817Z TN12/0
     for cnt, result in enumerate(bulletin):
         assert result.get('translationFailedTAC') is None
         tree = ET.XML(ET.tostring(result))
-        xTemps = tree.findall('%sAerodromeAirTemperatureForecast' % find_iwxxm)
+        xTemps = tree.findall(f'{find_iwxxm}AerodromeAirTemperatureForecast')
 
         if cnt == 0:
             assert len(xTemps) == 1
@@ -410,8 +407,8 @@ def test_chgGrps():
     t18 = datetime.datetime(year=now.year, month=now.month, day=now.day, hour=18, tzinfo=datetime.timezone.utc)
     p1h = datetime.timedelta(hours=1)
 
-    p12 = t18 + p1h*12
-    p30 = t18 + p1h*30
+    p12 = t18 + p1h * 12
+    p30 = t18 + p1h * 30
 
     template = """FTXX01 LFKJ 072000
 TAF SBAF {0}1500Z {0}18/{1}06 00000KT 4000 -SHRA BR OVC010 FM{0}2200 00000KT CAVOK=
@@ -429,7 +426,7 @@ TAF SBAF {0}1500Z {0}18/{2}06 00000KT CAVOK PROB30 TEMPO {2}00/{2}02 3000 OVC040
     for cnt, result in enumerate(bulletin):
         assert result.get('translationFailedTAC') is None
         tree = ET.XML(ET.tostring(result))
-        chgFcstList = tree.findall('%sMeteorologicalAerodromeForecast' % find_iwxxm)
+        chgFcstList = tree.findall(f'{find_iwxxm}MeteorologicalAerodromeForecast')
         assert len(chgFcstList) == 2
         chgFcstList.pop(0)
         chgFcst = chgFcstList.pop(0)
@@ -502,32 +499,32 @@ TAF SBAF 071938Z 0720/0723 27010KT CAVOK TEMPO 0720/0722 4SM -SHRASN BR OVC015 B
     for cnt, result in enumerate(bulletin):
         assert result.get('translationFailedTAC') is None
         tree = ET.XML(ET.tostring(result))
-        chgFcstList = tree.findall('%sMeteorologicalAerodromeForecast' % find_iwxxm)
+        chgFcstList = tree.findall(f'{find_iwxxm}MeteorologicalAerodromeForecast')
         if cnt == 0:
             assert len(chgFcstList) == 2
             lastChngGrp = chgFcstList[-1]
             assert lastChngGrp.get('cloudAndVisibilityOK') == 'false'
-            assert lastChngGrp[1].tag == '%sprevailingVisibility' % iwxxm
+            assert lastChngGrp[1].tag == f'{iwxxm}prevailingVisibility'
             assert lastChngGrp[1].text == '10000'
-            assert lastChngGrp[2].tag == '%sprevailingVisibilityOperator' % iwxxm
+            assert lastChngGrp[2].tag == f'{iwxxm}prevailingVisibilityOperator'
             assert lastChngGrp[2].text == 'ABOVE'
 
         elif cnt == 1:
             assert len(chgFcstList) == 2
             lastChngGrp = chgFcstList[1]
             assert lastChngGrp.get('cloudAndVisibilityOK') == 'false'
-            assert lastChngGrp[1].tag == '%sprevailingVisibility' % iwxxm
+            assert lastChngGrp[1].tag == f'{iwxxm}prevailingVisibility'
             assert lastChngGrp[1].text == '2000'
-            assert lastChngGrp[4].tag == '%scloud' % iwxxm
+            assert lastChngGrp[4].tag == f'{iwxxm}cloud'
             assert lastChngGrp[4].get('nilReason') == codes[des.NIL][des.NOOPRSIG][0]
 
         elif cnt == 2:
             assert len(chgFcstList) == 3
             lastChngGrp = chgFcstList[-1]
             assert lastChngGrp.get('cloudAndVisibilityOK') == 'false'
-            assert lastChngGrp[1].tag == '%sprevailingVisibility' % iwxxm
+            assert lastChngGrp[1].tag == f'{iwxxm}prevailingVisibility'
             assert lastChngGrp[1].text == '10000'
-            assert lastChngGrp[2].tag == '%sprevailingVisibilityOperator' % iwxxm
+            assert lastChngGrp[2].tag == f'{iwxxm}prevailingVisibilityOperator'
             assert lastChngGrp[2].text == 'ABOVE'
 
     test = """TAF SBAF 301500Z 3018/3106 00000KT CAVOK BECMG 3020/3022 4000 DZ -SHRA BR BKN025=
@@ -541,7 +538,6 @@ TAF AMD SBAF 111550Z 1115/1212 29010KT CAVOK BECMG 1118/1120 VRB02KT 9999 BECMG 
 
 
 if __name__ == '__main__':
-
     test_tafFailureModes()
     test_nil()
     test_cnl()

@@ -1,16 +1,29 @@
 import time
+
+import gifts.common.xmlConfig as des
 import gifts.SWA as SWAE
 import gifts.swaDecoder as SD
 import gifts.swaEncoder as SE
-import gifts.common.xmlConfig as des
 
 SWAEncoder = SWAE.Encoder()
 decoder = SD.Decoder()
 encoder = SE.Encoder()
 des.TRANSLATOR = True
 
-first_siblings = ['issueTime', 'issuingSpaceWeatherCentre', 'advisoryNumber', 'phenomenon', 'phenomenon', 'analysis',
-                  'analysis', 'analysis', 'analysis', 'analysis', 'remarks', 'nextAdvisoryTime']
+first_siblings = [
+    'issueTime',
+    'issuingSpaceWeatherCentre',
+    'advisoryNumber',
+    'phenomenon',
+    'phenomenon',
+    'analysis',
+    'analysis',
+    'analysis',
+    'analysis',
+    'analysis',
+    'remarks',
+    'nextAdvisoryTime',
+]
 
 
 def test_swaFailureModes():
@@ -177,13 +190,14 @@ NXT ADVISORY:       WILL BE ISSUED BY 20161108/0100Z"""
     result = encoder(result, text)
 
     first_siblings.insert(3, 'replacedAdvisoryNumber')
+    old_join_bands = des.JOIN_BANDS
+    try:
+        for num, child in enumerate(result):
+            assert child.tag == first_siblings[num]
 
-    for num, child in enumerate(result):
-        assert child.tag == first_siblings[num]
+        des.JOIN_BANDS = True
 
-    des.JOIN_BANDS = True
-
-    text = """FNXX01 KWNP 110100
+        text = """FNXX01 KWNP 110100
 SWX ADVISORY
 DTG:                20161108/0100Z
 SWXC:               DONLON
@@ -199,19 +213,22 @@ RMK:                LOW LVL GEOMAGNETIC STORMING CAUSING INCREASED AURORAL ACT A
 AND HF COM AVBL IN THE AURORAL ZONE. THIS STORMING EXP TO SUBSIDE IN THE FCST PERIOD. SEE WWW.SPACEWEATHERPROVIDER.WEB
 NXT ADVISORY:       WILL BE ISSUED BY 20161108/0100Z"""
 
-    result = decoder(text)
-    assert 'err_msg' not in result
-    assert 'status' not in result
+        result = decoder(text)
+        assert 'err_msg' not in result
+        assert 'status' not in result
 
-    result['translatedBulletinReceptionTime'] = time.strftime('%Y-%m-%dT%H:%M:%SZ')
-    result['translatedBulletinID'] = text.split('\n')[0].replace(' ', '')
-    result = encoder(result, text)
+        result['translatedBulletinReceptionTime'] = time.strftime('%Y-%m-%dT%H:%M:%SZ')
+        result['translatedBulletinID'] = text.split('\n')[0].replace(' ', '')
+        result = encoder(result, text)
 
-    for num, child in enumerate(result):
-        assert child.tag == first_siblings[num]
+        for num, child in enumerate(result):
+            assert child.tag == first_siblings[num]
 
-    bulletin = SWAEncoder.encode(text)
-    assert len(bulletin) == 1
+        bulletin = SWAEncoder.encode(text)
+        assert len(bulletin) == 1
+    finally:
+        des.JOIN_BANDS = old_join_bands
+        first_siblings.pop(3)
 
 
 def test_multipleAdvisoryStrings():
@@ -240,7 +257,6 @@ NXT ADVISORY:       20161108/0700Z="""
 
 
 if __name__ == '__main__':
-
     test_swaFailureModes()
     test_swaTest()
     test_swaExercise()

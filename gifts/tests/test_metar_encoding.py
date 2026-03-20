@@ -1,20 +1,28 @@
 import time
 import xml.etree.ElementTree as ET
 
+import gifts.common.xmlConfig as des
+import gifts.common.xmlUtilities as deu
 import gifts.METAR as ME
 import gifts.metarDecoder as mD
 import gifts.metarEncoder as mE
-import gifts.common.xmlConfig as des
-import gifts.common.xmlUtilities as deu
 
-reqCodes = [des.WEATHER, des.SEACNDS, des.RWYFRCTN, des.RWYCNTMS, des.RWYDEPST, des.RECENTWX, des.CVCTNCLDS,
-            des.CLDAMTS]
+reqCodes = [
+    des.WEATHER,
+    des.SEACNDS,
+    des.RWYFRCTN,
+    des.RWYCNTMS,
+    des.RWYDEPST,
+    des.RECENTWX,
+    des.CVCTNCLDS,
+    des.CLDAMTS,
+]
 
 codes = deu.parseCodeRegistryTables(des.CodesFilePath, reqCodes)
 
 aixm = './/*{http://www.aixm.aero/schema/5.1.1}'
-iwxxm = '{%s}' % des.IWXXM_URI
-find_iwxxm = './/*%s' % iwxxm
+iwxxm = f'{{{des.IWXXM_URI}}}'
+find_iwxxm = f'.//*{iwxxm}'
 xhref = '{http://www.w3.org/1999/xlink}href'
 xtitle = '{http://www.w3.org/1999/xlink}title'
 
@@ -30,7 +38,8 @@ withheld = codes[des.NIL][des.WTHLD]
 database = {
     'BIAR': 'AKUREYRI|AEY|AKI|65.67 -18.07 27',
     'USRR': 'SURGUT|SGC|SURGUT|61.33 73.42  44',
-    'USTR': 'TYUMEN/ROSCHINO|TJM||57.17 65.31  115'}
+    'USTR': 'TYUMEN/ROSCHINO|TJM||57.17 65.31  115',
+}
 
 encoder = ME.Encoder(database)
 
@@ -168,24 +177,28 @@ def test_aerodrome():
     des.useElevation = True
     tree = ET.XML(ET.tostring(Annex3Encoder(result, test)))
 
-    assert tree.find('%slocationIndicatorICAO' % aixm).text == result['ident']['str']
-    assert tree.find('%sdesignatorIATA' % aixm).text == result['ident']['iataID']
-    assert tree.find('%sdesignator' % aixm).text == result['ident']['alternate']
-    assert tree.find('%sname' % aixm).text == result['ident']['name']
-    assert tree.find('.//*{http://www.opengis.net/gml/3.2}pos').text == ' '.join(result['ident']['position'].split()[:2])  # noqa: E501
-    assert tree.find('%selevation' % aixm).text == result['ident']['position'].split()[2]
+    assert tree.find(f'{aixm}locationIndicatorICAO').text == result['ident']['str']
+    assert tree.find(f'{aixm}designatorIATA').text == result['ident']['iataID']
+    assert tree.find(f'{aixm}designator').text == result['ident']['alternate']
+    assert tree.find(f'{aixm}name').text == result['ident']['name']
+    assert tree.find('.//*{http://www.opengis.net/gml/3.2}pos').text == ' '.join(
+        result['ident']['position'].split()[:2]
+    )  # noqa: E501
+    assert tree.find(f'{aixm}elevation').text == result['ident']['position'].split()[2]
 
     result['ident']['position'] = '33.67 -101.82'
     tree = ET.XML(ET.tostring(Annex3Encoder(result, test)))
-    assert tree.find('%selevation' % aixm) is None
+    assert tree.find(f'{aixm}elevation') is None
 
     des.useElevation = False
 
     tree = ET.XML(ET.tostring(Annex3Encoder(result, test)))
 
-    assert tree.find('%slocationIndicatorICAO' % aixm).text == result['ident']['str']
-    assert tree.find('.//*{http://www.opengis.net/gml/3.2}pos').text == ' '.join(result['ident']['position'].split()[:2])  # noqa: E501
-    assert tree.find('%selevation' % aixm) is None
+    assert tree.find(f'{aixm}locationIndicatorICAO').text == result['ident']['str']
+    assert tree.find('.//*{http://www.opengis.net/gml/3.2}pos').text == ' '.join(
+        result['ident']['position'].split()[:2]
+    )  # noqa: E501
+    assert tree.find(f'{aixm}elevation') is None
 
 
 def test_ignoreRMK():
@@ -212,9 +225,16 @@ METAR BIAR 290000Z /////KT //// // ////// ///// Q////=
     tree = ET.XML(ET.tostring(result))
 
     #  Non-domestic observations are done first
-    for element in ['surfaceWind', 'visibility', 'layer', 'presentWeather', 'airTemperature', 'dewpointTemperature',
-                    'qnh']:
-        fullname = '%s%s' % (find_iwxxm, element)
+    for element in [
+        'surfaceWind',
+        'visibility',
+        'layer',
+        'presentWeather',
+        'airTemperature',
+        'dewpointTemperature',
+        'qnh',
+    ]:
+        fullname = f'{find_iwxxm}{element}'
         assert tree.find(fullname).get('nilReason') == notObservable[0]
 
 
@@ -238,12 +258,12 @@ METAR BIAR 290000Z 26010MPS 280V010 //// // ////// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    assert tree.find('%sAerodromeSurfaceWind' % find_iwxxm).get('variableWindDirection') == 'false'
-    assert tree.find('%smeanWindDirection' % find_iwxxm).get('nilReason') == notObservable[0]
-    assert tree.find('%smeanWindDirection' % find_iwxxm).get('uom') == 'N/A'
-    assert tree.find('%smeanWindSpeed' % find_iwxxm).text == '10'
-    assert tree.find('%smeanWindSpeed' % find_iwxxm).get('uom') == '[kn_i]'
-    assert tree.find('%swindSpeedGust' % find_iwxxm) is None
+    assert tree.find(f'{find_iwxxm}AerodromeSurfaceWind').get('variableWindDirection') == 'false'
+    assert tree.find(f'{find_iwxxm}meanWindDirection').get('nilReason') == notObservable[0]
+    assert tree.find(f'{find_iwxxm}meanWindDirection').get('uom') == 'N/A'
+    assert tree.find(f'{find_iwxxm}meanWindSpeed').text == '10'
+    assert tree.find(f'{find_iwxxm}meanWindSpeed').get('uom') == '[kn_i]'
+    assert tree.find(f'{find_iwxxm}windSpeedGust') is None
 
     #  METAR BIAR 290000Z 260//KT
 
@@ -251,12 +271,12 @@ METAR BIAR 290000Z 26010MPS 280V010 //// // ////// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    assert tree.find('%sAerodromeSurfaceWind' % find_iwxxm).get('variableWindDirection') == 'false'
-    assert tree.find('%smeanWindDirection' % find_iwxxm).text == '260'
-    assert tree.find('%smeanWindDirection' % find_iwxxm).get('uom') == 'deg'
-    assert tree.find('%smeanWindSpeed' % find_iwxxm).get('nilReason') == notObservable[0]
-    assert tree.find('%smeanWindSpeed' % find_iwxxm).get('uom') == 'N/A'
-    assert tree.find('%swindSpeedGust' % find_iwxxm) is None
+    assert tree.find(f'{find_iwxxm}AerodromeSurfaceWind').get('variableWindDirection') == 'false'
+    assert tree.find(f'{find_iwxxm}meanWindDirection').text == '260'
+    assert tree.find(f'{find_iwxxm}meanWindDirection').get('uom') == 'deg'
+    assert tree.find(f'{find_iwxxm}meanWindSpeed').get('nilReason') == notObservable[0]
+    assert tree.find(f'{find_iwxxm}meanWindSpeed').get('uom') == 'N/A'
+    assert tree.find(f'{find_iwxxm}windSpeedGust') is None
 
     #  METAR BIAR 290000Z VRB03KT
 
@@ -264,10 +284,10 @@ METAR BIAR 290000Z 26010MPS 280V010 //// // ////// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    assert tree.find('%sAerodromeSurfaceWind' % find_iwxxm).get('variableWindDirection') == 'true'
-    assert tree.find('%smeanWindDirection' % find_iwxxm) is None
-    assert tree.find('%smeanWindSpeed' % find_iwxxm).text == '3'
-    assert tree.find('%swindSpeedGust' % find_iwxxm) is None
+    assert tree.find(f'{find_iwxxm}AerodromeSurfaceWind').get('variableWindDirection') == 'true'
+    assert tree.find(f'{find_iwxxm}meanWindDirection') is None
+    assert tree.find(f'{find_iwxxm}meanWindSpeed').text == '3'
+    assert tree.find(f'{find_iwxxm}windSpeedGust') is None
 
     #  METAR BIAR 290000Z VRB03G50KT
 
@@ -275,11 +295,11 @@ METAR BIAR 290000Z 26010MPS 280V010 //// // ////// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    assert tree.find('%sAerodromeSurfaceWind' % find_iwxxm).get('variableWindDirection') == 'true'
-    assert tree.find('%smeanWindDirection' % find_iwxxm) is None
-    assert tree.find('%smeanWindSpeed' % find_iwxxm).text == '3'
-    assert tree.find('%swindGustSpeed' % find_iwxxm).text == '50'
-    assert tree.find('%swindGustSpeed' % find_iwxxm).get('uom') == '[kn_i]'
+    assert tree.find(f'{find_iwxxm}AerodromeSurfaceWind').get('variableWindDirection') == 'true'
+    assert tree.find(f'{find_iwxxm}meanWindDirection') is None
+    assert tree.find(f'{find_iwxxm}meanWindSpeed').text == '3'
+    assert tree.find(f'{find_iwxxm}windGustSpeed').text == '50'
+    assert tree.find(f'{find_iwxxm}windGustSpeed').get('uom') == '[kn_i]'
 
     #  METAR BIAR 290000Z 260P10KT
 
@@ -287,10 +307,10 @@ METAR BIAR 290000Z 26010MPS 280V010 //// // ////// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    assert tree.find('%smeanWindDirection' % find_iwxxm).text == '260'
-    assert tree.find('%smeanWindSpeed' % find_iwxxm).text == '10'
-    assert tree.find('%smeanWindSpeedOperator' % find_iwxxm).text == 'ABOVE'
-    assert tree.find('%swindGustSpeed' % find_iwxxm) is None
+    assert tree.find(f'{find_iwxxm}meanWindDirection').text == '260'
+    assert tree.find(f'{find_iwxxm}meanWindSpeed').text == '10'
+    assert tree.find(f'{find_iwxxm}meanWindSpeedOperator').text == 'ABOVE'
+    assert tree.find(f'{find_iwxxm}windGustSpeed') is None
 
     #  METAR BIAR 290000Z 260P10G20KT
 
@@ -298,10 +318,10 @@ METAR BIAR 290000Z 26010MPS 280V010 //// // ////// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    assert tree.find('%smeanWindDirection' % find_iwxxm).text == '260'
-    assert tree.find('%smeanWindSpeed' % find_iwxxm).text == '10'
-    assert tree.find('%smeanWindSpeedOperator' % find_iwxxm).text == 'ABOVE'
-    assert tree.find('%swindGustSpeed' % find_iwxxm).text == '20'
+    assert tree.find(f'{find_iwxxm}meanWindDirection').text == '260'
+    assert tree.find(f'{find_iwxxm}meanWindSpeed').text == '10'
+    assert tree.find(f'{find_iwxxm}meanWindSpeedOperator').text == 'ABOVE'
+    assert tree.find(f'{find_iwxxm}windGustSpeed').text == '20'
 
     #  METAR BIAR 290000Z 26010GP20KT
 
@@ -309,10 +329,10 @@ METAR BIAR 290000Z 26010MPS 280V010 //// // ////// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    assert tree.find('%smeanWindDirection' % find_iwxxm).text == '260'
-    assert tree.find('%smeanWindSpeed' % find_iwxxm).text == '10'
-    assert tree.find('%swindGustSpeed' % find_iwxxm).text == '20'
-    assert tree.find('%swindGustSpeedOperator' % find_iwxxm).text == 'ABOVE'
+    assert tree.find(f'{find_iwxxm}meanWindDirection').text == '260'
+    assert tree.find(f'{find_iwxxm}meanWindSpeed').text == '10'
+    assert tree.find(f'{find_iwxxm}windGustSpeed').text == '20'
+    assert tree.find(f'{find_iwxxm}windGustSpeedOperator').text == 'ABOVE'
 
     #  METAR BIAR 290000Z 26010MPS
 
@@ -320,9 +340,9 @@ METAR BIAR 290000Z 26010MPS 280V010 //// // ////// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    assert tree.find('%smeanWindDirection' % find_iwxxm).text == '260'
-    assert tree.find('%smeanWindSpeed' % find_iwxxm).text == '10'
-    assert tree.find('%smeanWindSpeed' % find_iwxxm).get('uom') == 'm/s'
+    assert tree.find(f'{find_iwxxm}meanWindDirection').text == '260'
+    assert tree.find(f'{find_iwxxm}meanWindSpeed').text == '10'
+    assert tree.find(f'{find_iwxxm}meanWindSpeed').get('uom') == 'm/s'
 
     #  METAR BIAR 290000Z 26010MPS 280V010
 
@@ -330,8 +350,8 @@ METAR BIAR 290000Z 26010MPS 280V010 //// // ////// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    assert tree.find('%sextremeClockwiseWindDirection' % find_iwxxm).text == '10'
-    assert tree.find('%sextremeCounterClockwiseWindDirection' % find_iwxxm).text == '280'
+    assert tree.find(f'{find_iwxxm}extremeClockwiseWindDirection').text == '10'
+    assert tree.find(f'{find_iwxxm}extremeCounterClockwiseWindDirection').text == '280'
 
 
 def test_temperatures():
@@ -349,29 +369,29 @@ METAR BIAR 290000Z /////KT //// // ////// -05/-07 Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    assert tree.find('%sairTemperature' % find_iwxxm).text == '20'
-    assert tree.find('%sdewpointTemperature' % find_iwxxm).text == '20'
+    assert tree.find(f'{find_iwxxm}airTemperature').text == '20'
+    assert tree.find(f'{find_iwxxm}dewpointTemperature').text == '20'
 
     result = bulletin.pop()
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    assert tree.find('%sairTemperature' % find_iwxxm).text == '-20'
-    assert tree.find('%sdewpointTemperature' % find_iwxxm).get('nilReason') == notObservable[0]
+    assert tree.find(f'{find_iwxxm}airTemperature').text == '-20'
+    assert tree.find(f'{find_iwxxm}dewpointTemperature').get('nilReason') == notObservable[0]
 
     result = bulletin.pop()
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    assert tree.find('%sairTemperature' % find_iwxxm).get('nilReason') == notObservable[0]
-    assert tree.find('%sdewpointTemperature' % find_iwxxm).text == '-20'
+    assert tree.find(f'{find_iwxxm}airTemperature').get('nilReason') == notObservable[0]
+    assert tree.find(f'{find_iwxxm}dewpointTemperature').text == '-20'
 
     result = bulletin.pop()
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    assert tree.find('%sairTemperature' % find_iwxxm).text == '-5'
-    assert tree.find('%sdewpointTemperature' % find_iwxxm).text == '-7'
+    assert tree.find(f'{find_iwxxm}airTemperature').text == '-5'
+    assert tree.find(f'{find_iwxxm}dewpointTemperature').text == '-7'
 
 
 def test_altimeters():
@@ -389,22 +409,22 @@ METAR BIAR 290000Z /////KT //// // ////// ///// Q1013 A//// BUT NOT THIS ONE=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    assert tree.find('%sqnh' % find_iwxxm).text == '1013'
-    assert tree.find('%sqnh' % find_iwxxm).get('uom') == 'hPa'
+    assert tree.find(f'{find_iwxxm}qnh').text == '1013'
+    assert tree.find(f'{find_iwxxm}qnh').get('uom') == 'hPa'
 
     result = bulletin.pop()
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    assert tree.find('%sqnh' % find_iwxxm).text == '1013.2'
-    assert tree.find('%sqnh' % find_iwxxm).get('uom') == 'hPa'
+    assert tree.find(f'{find_iwxxm}qnh').text == '1013.2'
+    assert tree.find(f'{find_iwxxm}qnh').get('uom') == 'hPa'
 
     result = bulletin.pop()
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    assert tree.find('%sqnh' % find_iwxxm).text == '1013'
-    assert tree.find('%sqnh' % find_iwxxm).get('uom') == 'hPa'
+    assert tree.find(f'{find_iwxxm}qnh').text == '1013'
+    assert tree.find(f'{find_iwxxm}qnh').get('uom') == 'hPa'
 
     result = bulletin.pop()
     assert result.get('translationFailedTAC') is not None
@@ -430,9 +450,9 @@ METAR BIAR 290000Z /////KT 7SM // ////// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    assert tree.find('%sprevailingVisibility' % find_iwxxm).text == '10000'
-    assert tree.find('%sprevailingVisibility' % find_iwxxm).get('uom') == 'm'
-    assert tree.find('%sprevailingVisibilityOperator' % find_iwxxm).text == 'ABOVE'
+    assert tree.find(f'{find_iwxxm}prevailingVisibility').text == '10000'
+    assert tree.find(f'{find_iwxxm}prevailingVisibility').get('uom') == 'm'
+    assert tree.find(f'{find_iwxxm}prevailingVisibilityOperator').text == 'ABOVE'
 
     # METAR BIAR 290000Z /////KT 3000NDV // ////// ///// Q////=
 
@@ -440,8 +460,8 @@ METAR BIAR 290000Z /////KT 7SM // ////// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    assert tree.find('%sprevailingVisibility' % find_iwxxm).text == '3000'
-    assert tree.find('%sminimumVisibility' % find_iwxxm) is None
+    assert tree.find(f'{find_iwxxm}prevailingVisibility').text == '3000'
+    assert tree.find(f'{find_iwxxm}minimumVisibility') is None
 
     # METAR BIAR 290000Z /////KT 4000 0150N // ////// ///// Q////=
 
@@ -449,9 +469,9 @@ METAR BIAR 290000Z /////KT 7SM // ////// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    assert tree.find('%sprevailingVisibility' % find_iwxxm).text == '4000'
-    assert tree.find('%sminimumVisibility' % find_iwxxm).text == '150'
-    assert tree.find('%sminimumVisibilityDirection' % find_iwxxm).text == '360'
+    assert tree.find(f'{find_iwxxm}prevailingVisibility').text == '4000'
+    assert tree.find(f'{find_iwxxm}minimumVisibility').text == '150'
+    assert tree.find(f'{find_iwxxm}minimumVisibilityDirection').text == '360'
 
     # METAR BIAR 290000Z /////KT 0400 0050 // ////// ///// Q////=
 
@@ -459,10 +479,10 @@ METAR BIAR 290000Z /////KT 7SM // ////// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    assert tree.find('%sprevailingVisibility' % find_iwxxm).text == '400'
-    assert tree.find('%sminimumVisibility' % find_iwxxm).text == '50'
-    assert tree.find('%sminimumVisibilityDirection' % find_iwxxm) is None
-    assert tree.find('%srvr' % find_iwxxm).get('nilReason') == missing[0]
+    assert tree.find(f'{find_iwxxm}prevailingVisibility').text == '400'
+    assert tree.find(f'{find_iwxxm}minimumVisibility').text == '50'
+    assert tree.find(f'{find_iwxxm}minimumVisibilityDirection') is None
+    assert tree.find(f'{find_iwxxm}rvr').get('nilReason') == missing[0]
 
     # METAR BIAR 290000Z /////KT 1/16SM // ////// ///// Q////=
 
@@ -470,8 +490,8 @@ METAR BIAR 290000Z /////KT 7SM // ////// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    assert tree.find('%sprevailingVisibility' % find_iwxxm).text == '100'
-    assert tree.find('%sprevailingVisibility' % find_iwxxm).get('uom') == 'm'
+    assert tree.find(f'{find_iwxxm}prevailingVisibility').text == '100'
+    assert tree.find(f'{find_iwxxm}prevailingVisibility').get('uom') == 'm'
 
     # METAR BIAR 290000Z /////KT M1/4SM // ////// ///// Q////=
 
@@ -479,8 +499,8 @@ METAR BIAR 290000Z /////KT 7SM // ////// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    assert tree.find('%sprevailingVisibility' % find_iwxxm).text == '400'
-    assert tree.find('%sprevailingVisibilityOperator' % find_iwxxm).text == 'BELOW'
+    assert tree.find(f'{find_iwxxm}prevailingVisibility').text == '400'
+    assert tree.find(f'{find_iwxxm}prevailingVisibilityOperator').text == 'BELOW'
 
     # METAR BIAR 290000Z /////KT 1SM // ////// ///// Q////=
 
@@ -488,8 +508,8 @@ METAR BIAR 290000Z /////KT 7SM // ////// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    assert tree.find('%sprevailingVisibility' % find_iwxxm).text == '1600'
-    assert tree.find('%sprevailingVisibility' % find_iwxxm).get('uom') == 'm'
+    assert tree.find(f'{find_iwxxm}prevailingVisibility').text == '1600'
+    assert tree.find(f'{find_iwxxm}prevailingVisibility').get('uom') == 'm'
 
     # METAR BIAR 290000Z /////KT 1 1/2SM // ////// ///// Q////=
 
@@ -497,7 +517,7 @@ METAR BIAR 290000Z /////KT 7SM // ////// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    assert tree.find('%sprevailingVisibility' % find_iwxxm).text == '2400'
+    assert tree.find(f'{find_iwxxm}prevailingVisibility').text == '2400'
 
     # METAR BIAR 290000Z /////KT 7SM // ////// ///// Q////=
 
@@ -505,8 +525,8 @@ METAR BIAR 290000Z /////KT 7SM // ////// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    assert tree.find('%sprevailingVisibility' % find_iwxxm).text == '10000'
-    assert tree.find('%sprevailingVisibilityOperator' % find_iwxxm).text == 'ABOVE'
+    assert tree.find(f'{find_iwxxm}prevailingVisibility').text == '10000'
+    assert tree.find(f'{find_iwxxm}prevailingVisibilityOperator').text == 'ABOVE'
 
 
 def test_rvrs():
@@ -534,11 +554,11 @@ METAR BIAR 290000Z /////KT 1000 R01R/M0500FT/N ////// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    runway = tree.find('%sAerodromeRunwayVisualRange' % find_iwxxm)
+    runway = tree.find(f'{find_iwxxm}AerodromeRunwayVisualRange')
     assert runway.get('pastTendency') == 'MISSING_VALUE'
-    assert runway.find('%sdesignator' % aixm).get('nilReason') == 'missing'
-    assert tree.find('%smeanRVR' % find_iwxxm).get('nilReason') == notObservable[0]
-    assert tree.find('%smeanRVR' % find_iwxxm).get('uom') == 'N/A'
+    assert runway.find(f'{aixm}designator').get('nilReason') == 'missing'
+    assert tree.find(f'{find_iwxxm}meanRVR').get('nilReason') == notObservable[0]
+    assert tree.find(f'{find_iwxxm}meanRVR').get('uom') == 'N/A'
 
     #  METAR BIAR 290000Z /////KT 1000 R01/////FT ////// ///// Q////=
 
@@ -546,9 +566,9 @@ METAR BIAR 290000Z /////KT 1000 R01R/M0500FT/N ////// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    runway = tree.find('%sAerodromeRunwayVisualRange' % find_iwxxm)
-    assert runway.find('%sdesignator' % aixm).text == '01'
-    assert tree.find('%smeanRVR' % find_iwxxm).get('nilReason') == notObservable[0]
+    runway = tree.find(f'{find_iwxxm}AerodromeRunwayVisualRange')
+    assert runway.find(f'{aixm}designator').text == '01'
+    assert tree.find(f'{find_iwxxm}meanRVR').get('nilReason') == notObservable[0]
 
     #  METAR BIAR 290000Z /////KT 1000 R01C/4000FT ////// ///// Q////=
 
@@ -556,10 +576,10 @@ METAR BIAR 290000Z /////KT 1000 R01R/M0500FT/N ////// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    runway = tree.find('%sAerodromeRunwayVisualRange' % find_iwxxm)
-    assert runway.find('%sdesignator' % aixm).text == '01C'
-    assert tree.find('%smeanRVR' % find_iwxxm).text == '1200'
-    assert tree.find('%smeanRVR' % find_iwxxm).get('uom') == 'm'
+    runway = tree.find(f'{find_iwxxm}AerodromeRunwayVisualRange')
+    assert runway.find(f'{aixm}designator').text == '01C'
+    assert tree.find(f'{find_iwxxm}meanRVR').text == '1200'
+    assert tree.find(f'{find_iwxxm}meanRVR').get('uom') == 'm'
 
     #  METAR BIAR 290000Z /////KT 1000 R01L/P4000FT ////// ///// Q////=
 
@@ -567,12 +587,12 @@ METAR BIAR 290000Z /////KT 1000 R01R/M0500FT/N ////// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    runway = tree.find('%sAerodromeRunwayVisualRange' % find_iwxxm)
+    runway = tree.find(f'{find_iwxxm}AerodromeRunwayVisualRange')
     assert runway.get('pastTendency') == 'MISSING_VALUE'
-    assert runway.find('%sdesignator' % aixm).text == '01L'
-    assert tree.find('%smeanRVR' % find_iwxxm).text == '1200'
-    assert tree.find('%smeanRVR' % find_iwxxm).get('uom') == 'm'
-    assert tree.find('%smeanRVROperator' % find_iwxxm).text == 'ABOVE'
+    assert runway.find(f'{aixm}designator').text == '01L'
+    assert tree.find(f'{find_iwxxm}meanRVR').text == '1200'
+    assert tree.find(f'{find_iwxxm}meanRVR').get('uom') == 'm'
+    assert tree.find(f'{find_iwxxm}meanRVROperator').text == 'ABOVE'
 
     #  METAR BIAR 290000Z /////KT 1000 R01R/M0500FT ////// ///// Q////=
 
@@ -580,12 +600,12 @@ METAR BIAR 290000Z /////KT 1000 R01R/M0500FT/N ////// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    runway = tree.find('%sAerodromeRunwayVisualRange' % find_iwxxm)
+    runway = tree.find(f'{find_iwxxm}AerodromeRunwayVisualRange')
     assert runway.get('pastTendency') == 'MISSING_VALUE'
-    assert runway.find('%sdesignator' % aixm).text == '01R'
-    assert tree.find('%smeanRVR' % find_iwxxm).text == '150'
-    assert tree.find('%smeanRVR' % find_iwxxm).get('uom') == 'm'
-    assert tree.find('%smeanRVROperator' % find_iwxxm).text == 'BELOW'
+    assert runway.find(f'{aixm}designator').text == '01R'
+    assert tree.find(f'{find_iwxxm}meanRVR').text == '150'
+    assert tree.find(f'{find_iwxxm}meanRVR').get('uom') == 'm'
+    assert tree.find(f'{find_iwxxm}meanRVROperator').text == 'BELOW'
 
     #  METAR BIAR 290000Z /////KT 1000 R36/1000U ////// ///// Q////=
 
@@ -593,11 +613,11 @@ METAR BIAR 290000Z /////KT 1000 R01R/M0500FT/N ////// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    runway = tree.find('%sAerodromeRunwayVisualRange' % find_iwxxm)
+    runway = tree.find(f'{find_iwxxm}AerodromeRunwayVisualRange')
     assert runway.get('pastTendency') == 'UPWARD'
-    assert runway.find('%sdesignator' % aixm).text == '36'
-    assert tree.find('%smeanRVR' % find_iwxxm).text == '1000'
-    assert tree.find('%smeanRVR' % find_iwxxm).get('uom') == 'm'
+    assert runway.find(f'{aixm}designator').text == '36'
+    assert tree.find(f'{find_iwxxm}meanRVR').text == '1000'
+    assert tree.find(f'{find_iwxxm}meanRVR').get('uom') == 'm'
 
     #  METAR BIAR 290000Z /////KT 1000 R36L/1000D ////// ///// Q////=
 
@@ -605,9 +625,9 @@ METAR BIAR 290000Z /////KT 1000 R01R/M0500FT/N ////// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    runway = tree.find('%sAerodromeRunwayVisualRange' % find_iwxxm)
+    runway = tree.find(f'{find_iwxxm}AerodromeRunwayVisualRange')
     assert runway.get('pastTendency') == 'DOWNWARD'
-    assert runway.find('%sdesignator' % aixm).text == '36L'
+    assert runway.find(f'{aixm}designator').text == '36L'
 
     #  METAR BIAR 290000Z /////KT 1000 R36R/1000N////// ///// Q////=
 
@@ -615,9 +635,9 @@ METAR BIAR 290000Z /////KT 1000 R01R/M0500FT/N ////// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    runway = tree.find('%sAerodromeRunwayVisualRange' % find_iwxxm)
+    runway = tree.find(f'{find_iwxxm}AerodromeRunwayVisualRange')
     assert runway.get('pastTendency') == 'NO_CHANGE'
-    assert runway.find('%sdesignator' % aixm).text == '36R'
+    assert runway.find(f'{aixm}designator').text == '36R'
 
     #  METAR BIAR 290000Z /////KT 1000 R36C/1000 ////// ///// Q////=
 
@@ -625,9 +645,9 @@ METAR BIAR 290000Z /////KT 1000 R01R/M0500FT/N ////// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    runway = tree.find('%sAerodromeRunwayVisualRange' % find_iwxxm)
+    runway = tree.find(f'{find_iwxxm}AerodromeRunwayVisualRange')
     assert runway.get('pastTendency') == 'MISSING_VALUE'
-    assert runway.find('%sdesignator' % aixm).text == '36C'
+    assert runway.find(f'{aixm}designator').text == '36C'
 
     #  METAR BIAR 290000Z /////KT 1000 R01C/4000FT/U ////// ///// Q////=
 
@@ -635,9 +655,9 @@ METAR BIAR 290000Z /////KT 1000 R01R/M0500FT/N ////// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    runway = tree.find('%sAerodromeRunwayVisualRange' % find_iwxxm)
+    runway = tree.find(f'{find_iwxxm}AerodromeRunwayVisualRange')
     assert runway.get('pastTendency') == 'UPWARD'
-    assert runway.find('%sdesignator' % aixm).text == '01C'
+    assert runway.find(f'{aixm}designator').text == '01C'
 
     #  METAR BIAR 290000Z /////KT 1000 R01L/4000FT/D ////// ///// Q////=
 
@@ -645,9 +665,9 @@ METAR BIAR 290000Z /////KT 1000 R01R/M0500FT/N ////// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    runway = tree.find('%sAerodromeRunwayVisualRange' % find_iwxxm)
+    runway = tree.find(f'{find_iwxxm}AerodromeRunwayVisualRange')
     assert runway.get('pastTendency') == 'DOWNWARD'
-    assert runway.find('%sdesignator' % aixm).text == '01L'
+    assert runway.find(f'{aixm}designator').text == '01L'
 
     #  METAR BIAR 290000Z /////KT 1000 R01R/P4000FT/N ////// ///// Q////=
 
@@ -655,9 +675,9 @@ METAR BIAR 290000Z /////KT 1000 R01R/M0500FT/N ////// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    runway = tree.find('%sAerodromeRunwayVisualRange' % find_iwxxm)
+    runway = tree.find(f'{find_iwxxm}AerodromeRunwayVisualRange')
     assert runway.get('pastTendency') == 'NO_CHANGE'
-    assert runway.find('%sdesignator' % aixm).text == '01R'
+    assert runway.find(f'{aixm}designator').text == '01R'
 
     test = """SAXX99 XXXX 151200
 METAR BIAR 290000Z /////KT 1000 R01/1000N R02/1000D R03/1000U R04/1000 ////// ///// Q////="""
@@ -668,24 +688,24 @@ METAR BIAR 290000Z /////KT 1000 R01/1000N R02/1000D R03/1000U R04/1000 ////// //
 
     tree = ET.XML(ET.tostring(result))
 
-    rvrs = tree.findall('%srvr' % find_iwxxm)
+    rvrs = tree.findall(f'{find_iwxxm}rvr')
     assert len(rvrs) == 4
 
     for rvr in rvrs:
-        rwy = rvr.find('%sdesignator' % aixm).text
+        rwy = rvr.find(f'{aixm}designator').text
         if rwy == '01':
-            rvr[0].get('pastTendency') == 'NO_CHANGE'
+            assert rvr[0].get('pastTendency') == 'NO_CHANGE'
         elif rwy == '02':
-            rvr[0].get('pastTendency') == 'DOWNWARD'
+            assert rvr[0].get('pastTendency') == 'DOWNWARD'
         elif rwy == '03':
-            rvr[0].get('pastTendency') == 'UPWARD'
+            assert rvr[0].get('pastTendency') == 'UPWARD'
         elif rwy == '04':
-            rvr[0].get('pastTendency') == 'MISSING_VALUE'
+            assert rvr[0].get('pastTendency') == 'MISSING_VALUE'
         else:
             assert True is False
 
-        assert tree.find('%smeanRVR' % find_iwxxm).text == '1000'
-        assert tree.find('%smeanRVR' % find_iwxxm).get('uom') == 'm'
+        assert tree.find(f'{find_iwxxm}meanRVR').text == '1000'
+        assert tree.find(f'{find_iwxxm}meanRVR').get('uom') == 'm'
 
 
 def test_wx_phenomena():
@@ -708,7 +728,7 @@ METAR BIAR 290000Z /////KT //// TS    ////// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    wx = tree.find('%spresentWeather' % find_iwxxm)
+    wx = tree.find(f'{find_iwxxm}presentWeather')
     url, title = codes[des.WEATHER]['-TSRA']
     assert wx.get(xhref) == url
     assert wx.get(xtitle) == title
@@ -717,7 +737,7 @@ METAR BIAR 290000Z /////KT //// TS    ////// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    wx = tree.find('%spresentWeather' % find_iwxxm)
+    wx = tree.find(f'{find_iwxxm}presentWeather')
     url, title = codes[des.WEATHER]['VCFG']
     assert wx.get(xhref) == url
     assert wx.get(xtitle) == title
@@ -726,7 +746,7 @@ METAR BIAR 290000Z /////KT //// TS    ////// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    wx = tree.find('%spresentWeather' % find_iwxxm)
+    wx = tree.find(f'{find_iwxxm}presentWeather')
     url, title = codes[des.WEATHER]['+SS']
     assert wx.get(xhref) == url
     assert wx.get(xtitle) == title
@@ -735,7 +755,7 @@ METAR BIAR 290000Z /////KT //// TS    ////// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    wx = tree.find('%spresentWeather' % find_iwxxm)
+    wx = tree.find(f'{find_iwxxm}presentWeather')
     url, title = codes[des.WEATHER]['UP']
     assert wx.get(xhref) == url
     assert wx.get(xtitle) == title
@@ -744,7 +764,7 @@ METAR BIAR 290000Z /////KT //// TS    ////// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    wx = tree.find('%spresentWeather' % find_iwxxm)
+    wx = tree.find(f'{find_iwxxm}presentWeather')
     url, title = codes[des.WEATHER]['+SHUP']
     assert wx.get(xhref) == url
     assert wx.get(xtitle) == title
@@ -753,7 +773,7 @@ METAR BIAR 290000Z /////KT //// TS    ////// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    wx = tree.find('%spresentWeather' % find_iwxxm)
+    wx = tree.find(f'{find_iwxxm}presentWeather')
     url, title = codes[des.WEATHER]['TS']
     assert wx.get(xhref) == url
     assert wx.get(xtitle) == title
@@ -769,7 +789,7 @@ METAR BIAR 290000Z /////KT //// ////// ///// Q//// RE// RETS RERASN=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    wxrs = tree.findall('%srecentWeather' % find_iwxxm)
+    wxrs = tree.findall(f'{find_iwxxm}recentWeather')
     assert len(wxrs) == 3
 
     for cnt, wx in enumerate(wxrs):
@@ -793,21 +813,21 @@ METAR BIAR 290000Z /////KT //// ////// ///// Q//// TEMPO MIFG=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    assert tree[-1].tag == '%strendForecast' % iwxxm
+    assert tree[-1].tag == f'{iwxxm}trendForecast'
     assert tree[-1].get('nilReason') == noSignificantChange[0]
 
     result = bulletin.pop()
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    element = tree.find('%sMeteorologicalAerodromeTrendForecast' % find_iwxxm)
+    element = tree.find(f'{find_iwxxm}MeteorologicalAerodromeTrendForecast')
     assert element.get('changeIndicator') == 'BECOMING'
     assert element.get('cloudAndVisibilityOK') == 'true'
-    assert element[1][0].tag == '%sAerodromeSurfaceWindTrendForecast' % iwxxm
-    assert element[1][0][0].tag == '%smeanWindDirection' % iwxxm
+    assert element[1][0].tag == f'{iwxxm}AerodromeSurfaceWindTrendForecast'
+    assert element[1][0][0].tag == f'{iwxxm}meanWindDirection'
     assert element[1][0][0].text == '210'
     assert element[1][0][0].get('uom') == 'deg'
-    assert element[1][0][1].tag == '%smeanWindSpeed' % iwxxm
+    assert element[1][0][1].tag == f'{iwxxm}meanWindSpeed'
     assert element[1][0][1].text == '15'
     assert element[1][0][1].get('uom') == 'm/s'
 
@@ -815,7 +835,7 @@ METAR BIAR 290000Z /////KT //// ////// ///// Q//// TEMPO MIFG=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    element = tree.find('%sMeteorologicalAerodromeTrendForecast' % find_iwxxm)
+    element = tree.find(f'{find_iwxxm}MeteorologicalAerodromeTrendForecast')
 
     assert element.get('changeIndicator') == 'TEMPORARY_FLUCTUATIONS'
     assert element.get('cloudAndVisibilityOK') == 'false'
@@ -841,7 +861,7 @@ METAR BIAR 290000Z /////KT //// FEW050 SCT100 BKN110CB OVC120/// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    element = tree.find('%scloud' % find_iwxxm)
+    element = tree.find(f'{find_iwxxm}cloud')
     assert element.get('nilReason') == nothingOfOperationalSignificance[0]
     assert tree.get('automatedStation') == 'false'
 
@@ -851,7 +871,7 @@ METAR BIAR 290000Z /////KT //// FEW050 SCT100 BKN110CB OVC120/// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    element = tree.find('%scloud' % find_iwxxm)
+    element = tree.find(f'{find_iwxxm}cloud')
     assert element.get('nilReason') == notDetectedByAutoSystem[0]
     assert tree.get('automatedStation') == 'true'
 
@@ -861,7 +881,7 @@ METAR BIAR 290000Z /////KT //// FEW050 SCT100 BKN110CB OVC120/// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    element = tree.find('%scloud' % find_iwxxm)
+    element = tree.find(f'{find_iwxxm}cloud')
     assert element.get('nilReason') == notDetectedByAutoSystem[0]
 
     # METAR BIAR 290000Z /////KT //// ///050 BKN/// //////CB //////TCU ///// Q////=
@@ -870,7 +890,7 @@ METAR BIAR 290000Z /////KT //// FEW050 SCT100 BKN110CB OVC120/// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    layers = tree.findall('%sCloudLayer' % find_iwxxm)
+    layers = tree.findall(f'{find_iwxxm}CloudLayer')
     assert len(layers) == 4
 
     for cnt, layer in enumerate(layers):
@@ -904,7 +924,7 @@ METAR BIAR 290000Z /////KT //// FEW050 SCT100 BKN110CB OVC120/// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    layer = tree.find('%sverticalVisibility' % find_iwxxm)
+    layer = tree.find(f'{find_iwxxm}verticalVisibility')
     assert layer.get('nilReason') == notObservable[0]
     assert layer.get('uom') == 'N/A'
 
@@ -914,7 +934,7 @@ METAR BIAR 290000Z /////KT //// FEW050 SCT100 BKN110CB OVC120/// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    layer = tree.find('%sverticalVisibility' % find_iwxxm)
+    layer = tree.find(f'{find_iwxxm}verticalVisibility')
     assert layer.text == '100'
     assert layer.get('uom') == '[ft_i]'
 
@@ -924,7 +944,7 @@ METAR BIAR 290000Z /////KT //// FEW050 SCT100 BKN110CB OVC120/// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    layers = tree.findall('%sCloudLayer' % find_iwxxm)
+    layers = tree.findall(f'{find_iwxxm}CloudLayer')
     assert len(layers) == 4
 
     for cnt, layer in enumerate(layers):
@@ -950,7 +970,7 @@ METAR BIAR 290000Z /////KT //// FEW050 SCT100 BKN110CB OVC120/// ///// Q////=
             assert layer[0].get(xhref) == codes[des.CLDAMTS]['OVC'][0]
             assert layer[1].text == '12000'
             assert layer[1].get('uom') == '[ft_i]'
-            assert layer[2].tag == '%scloudType' % iwxxm
+            assert layer[2].tag == f'{iwxxm}cloudType'
             assert layer[2].get('nilReason') == notObservable[0]
 
     test = """SAXX99 XXXX 151200
@@ -970,7 +990,7 @@ METAR BIAR 290000Z AUTO /////KT //// ///015/// ///// Q////=
 
     tree = ET.XML(ET.tostring(result))
     assert tree.get('automatedStation') == 'true'
-    assert tree.find('%slayer' % find_iwxxm).get('nilReason') == notDetectedByAutoSystem[0]
+    assert tree.find(f'{find_iwxxm}layer').get('nilReason') == notDetectedByAutoSystem[0]
 
     #  METAR BIAR 290000Z AUTO /////KT //// ///050 BKN/// //////CB //////TCU ///// Q////="""
 
@@ -979,7 +999,7 @@ METAR BIAR 290000Z AUTO /////KT //// ///015/// ///// Q////=
 
     tree = ET.XML(ET.tostring(result))
     assert tree.get('automatedStation') == 'true'
-    layers = tree.findall('%sCloudLayer' % find_iwxxm)
+    layers = tree.findall(f'{find_iwxxm}CloudLayer')
     assert len(layers) == 4
 
     for cnt, layer in enumerate(layers):
@@ -1011,7 +1031,7 @@ METAR BIAR 290000Z AUTO /////KT //// ///015/// ///// Q////=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    layers = tree.findall('%sCloudLayer' % find_iwxxm)
+    layers = tree.findall(f'{find_iwxxm}CloudLayer')
     assert len(layers) == 1
 
     for cnt, layer in enumerate(layers):
@@ -1037,8 +1057,8 @@ METAR BIAR 290000Z /////KT //// // ////// ///// Q//// WS R01C=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    assert len(tree.find('%sAerodromeWindShear' % find_iwxxm)) == 0
-    assert tree.find('%sAerodromeWindShear' % find_iwxxm).get('allRunways') == 'true'
+    assert len(tree.find(f'{find_iwxxm}AerodromeWindShear')) == 0
+    assert tree.find(f'{find_iwxxm}AerodromeWindShear').get('allRunways') == 'true'
 
     #  METAR BIAR 290000Z /////KT //// // ////// ///// Q//// WS R01C=
 
@@ -1046,8 +1066,8 @@ METAR BIAR 290000Z /////KT //// // ////// ///// Q//// WS R01C=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    ws = tree.find('%sAerodromeWindShear' % find_iwxxm)
-    assert ws.find('%sdesignator' % aixm).text == '01C'
+    ws = tree.find(f'{find_iwxxm}AerodromeWindShear')
+    assert ws.find(f'{aixm}designator').text == '01C'
 
 
 def test_seastates():
@@ -1066,8 +1086,8 @@ METAR BIAR 290000Z /////KT //// // ////// ///// Q//// W22/H75=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    assert tree.find('%sseaSurfaceTemperature' % find_iwxxm).text == '-2'
-    ss = tree.find('%sseaState' % find_iwxxm)
+    assert tree.find(f'{find_iwxxm}seaSurfaceTemperature').text == '-2'
+    ss = tree.find(f'{find_iwxxm}seaState')
     url, title = codes[des.SEACNDS]['2']
     assert ss.get(xhref) == url
     assert ss.get(xtitle) == title
@@ -1078,8 +1098,8 @@ METAR BIAR 290000Z /////KT //// // ////// ///// Q//// W22/H75=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    assert tree.find('%sseaSurfaceTemperature' % find_iwxxm).text == '22'
-    wh = tree.find('%ssignificantWaveHeight' % find_iwxxm)
+    assert tree.find(f'{find_iwxxm}seaSurfaceTemperature').text == '22'
+    wh = tree.find(f'{find_iwxxm}significantWaveHeight')
     assert wh.text == '7.5'
     assert wh.get('uom') == 'm'
 
@@ -1096,15 +1116,15 @@ METAR BIAR 290000Z /////KT //// // ////// ///// Q//// W///H//=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    assert tree.find('%sseaSurfaceTemperature' % find_iwxxm).get('nilReason') == notObservable[0]
-    ss = tree.find('%sseaState' % find_iwxxm)
+    assert tree.find(f'{find_iwxxm}seaSurfaceTemperature').get('nilReason') == notObservable[0]
+    ss = tree.find(f'{find_iwxxm}seaState')
     assert ss.get('nilReason') == notObservable[0]
 
     result = bulletin.pop()
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    wh = tree.find('%ssignificantWaveHeight' % find_iwxxm)
+    wh = tree.find(f'{find_iwxxm}significantWaveHeight')
     assert wh.get('nilReason') == notObservable[0]
 
 
@@ -1129,7 +1149,7 @@ METAR BIAR 290000Z /////KT //// // ////// ///// Q//// R99/CLRD//=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    assert tree.find('%srunwayState' % find_iwxxm).get('nilReason') == des.NIL_SNOCLO_URL
+    assert tree.find(f'{find_iwxxm}runwayState').get('nilReason') == des.NIL_SNOCLO_URL
 
     #  METAR BIAR 290000Z /////KT //// // ////// ///// Q//// R/CLRD//=
 
@@ -1137,7 +1157,7 @@ METAR BIAR 290000Z /////KT //// // ////// ///// Q//// R99/CLRD//=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    rs = tree.find('%srunwayState' % find_iwxxm)
+    rs = tree.find(f'{find_iwxxm}runwayState')
     assert rs[0].get('allRunways') == 'true'
     assert rs[0].get('cleared') == 'true'
 
@@ -1147,13 +1167,13 @@ METAR BIAR 290000Z /////KT //// // ////// ///// Q//// R99/CLRD//=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    rs = tree.find('%srunwayState' % find_iwxxm)
+    rs = tree.find(f'{find_iwxxm}runwayState')
     assert rs[0].get('allRunways') == 'false'
-    assert rs.find('%sdesignator' % aixm).text == '01'
-    assert rs.find('%sdepositType' % find_iwxxm) is None
-    assert rs.find('%scontamination' % find_iwxxm) is None
-    assert rs.find('%sdepthOfDeposit' % find_iwxxm).get('nilReason') == nothingOfOperationalSignificance[0]
-    assert rs.find('%sestimatedSurfaceFrictionOrBrakingAction' % find_iwxxm) is None
+    assert rs.find(f'{aixm}designator').text == '01'
+    assert rs.find(f'{find_iwxxm}depositType') is None
+    assert rs.find(f'{find_iwxxm}contamination') is None
+    assert rs.find(f'{find_iwxxm}depthOfDeposit').get('nilReason') == nothingOfOperationalSignificance[0]
+    assert rs.find(f'{find_iwxxm}estimatedSurfaceFrictionOrBrakingAction') is None
 
     #  METAR BIAR 290000Z /////KT //// // ////// ///// Q//// R02/999491=
 
@@ -1161,14 +1181,14 @@ METAR BIAR 290000Z /////KT //// // ////// ///// Q//// R99/CLRD//=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    rs = tree.find('%srunwayState' % find_iwxxm)
+    rs = tree.find(f'{find_iwxxm}runwayState')
     assert rs[0].get('allRunways') == 'false'
-    assert rs.find('%sdesignator' % aixm).text == '02'
-    assert rs.find('%sdepositType' % find_iwxxm).get(xhref) == codes[des.RWYDEPST]['9'][0]
-    assert rs.find('%scontamination' % find_iwxxm).get(xhref) == codes[des.RWYCNTMS]['9'][0]
-    assert rs.find('%sdepthOfDeposit' % find_iwxxm).text == '200'
-    assert rs.find('%sdepthOfDeposit' % find_iwxxm).get('uom') == 'mm'
-    friction = rs.find('%sestimatedSurfaceFrictionOrBrakingAction' % find_iwxxm)
+    assert rs.find(f'{aixm}designator').text == '02'
+    assert rs.find(f'{find_iwxxm}depositType').get(xhref) == codes[des.RWYDEPST]['9'][0]
+    assert rs.find(f'{find_iwxxm}contamination').get(xhref) == codes[des.RWYCNTMS]['9'][0]
+    assert rs.find(f'{find_iwxxm}depthOfDeposit').text == '200'
+    assert rs.find(f'{find_iwxxm}depthOfDeposit').get('uom') == 'mm'
+    friction = rs.find(f'{find_iwxxm}estimatedSurfaceFrictionOrBrakingAction')
     assert friction.get(xhref) == codes[des.RWYFRCTN]['91'][0]
 
     #  METAR BIAR 290000Z /////KT //// // ////// ///// Q//// R88/CLRD//=
@@ -1177,7 +1197,7 @@ METAR BIAR 290000Z /////KT //// // ////// ///// Q//// R99/CLRD//=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    rs = tree.find('%srunwayState' % find_iwxxm)
+    rs = tree.find(f'{find_iwxxm}runwayState')
     assert rs[0].get('allRunways') == 'true'
     assert rs[0].get('cleared') == 'true'
 
@@ -1187,7 +1207,7 @@ METAR BIAR 290000Z /////KT //// // ////// ///// Q//// R99/CLRD//=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    rs = tree.find('%srunwayState' % find_iwxxm)
+    rs = tree.find(f'{find_iwxxm}runwayState')
     assert rs[0].get('fromPreviousReport') == 'true'
     assert rs[0].get('cleared') == 'true'
 
@@ -1208,17 +1228,17 @@ METAR BIAR 302351Z /////KT //// ////// ///// Q//// BECMG AT0000 CAVOK=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    element = tree.find('%sMeteorologicalAerodromeTrendForecast' % find_iwxxm)
+    element = tree.find(f'{find_iwxxm}MeteorologicalAerodromeTrendForecast')
 
     #  METAR BIAR 302351Z /////KT //// ////// ///// Q//// BECMG 9999 NSW=
 
     assert element.get('changeIndicator') == 'BECOMING'
-    assert element[0].tag == '%sphenomenonTime' % iwxxm
+    assert element[0].tag == f'{iwxxm}phenomenonTime'
     assert element[0].get('nilReason') == missing[0]
-    vis = tree.find('%sprevailingVisibility' % find_iwxxm)
+    vis = tree.find(f'{find_iwxxm}prevailingVisibility')
     assert vis.text == '10000'
     assert vis.get('uom') == 'm'
-    oper = tree.find('%sprevailingVisibilityOperator' % find_iwxxm)
+    oper = tree.find(f'{find_iwxxm}prevailingVisibilityOperator')
     oper.text = 'ABOVE'
 
     #  METAR BIAR 302351Z /////KT //// ////// ///// Q//// BECMG FM0000 TL0030 1/16SM FG=
@@ -1227,14 +1247,14 @@ METAR BIAR 302351Z /////KT //// ////// ///// Q//// BECMG AT0000 CAVOK=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    vis = tree.find('%sprevailingVisibility' % find_iwxxm)
+    vis = tree.find(f'{find_iwxxm}prevailingVisibility')
     assert vis.text == '100'
     assert vis.get('uom') == 'm'
 
-    element = tree.find('%sMeteorologicalAerodromeTrendForecast' % find_iwxxm)
+    element = tree.find(f'{find_iwxxm}MeteorologicalAerodromeTrendForecast')
     assert element.get('changeIndicator') == 'BECOMING'
-    assert element[0].tag == '%sphenomenonTime' % iwxxm
-    assert element[1].tag == '%stimeIndicator' % iwxxm
+    assert element[0].tag == f'{iwxxm}phenomenonTime'
+    assert element[1].tag == f'{iwxxm}timeIndicator'
     assert element[1].text == 'FROM_UNTIL'
 
     #  METAR BIAR 302351Z /////KT //// ////// ///// Q//// BECMG TL0030 CAVOK=
@@ -1243,10 +1263,10 @@ METAR BIAR 302351Z /////KT //// ////// ///// Q//// BECMG AT0000 CAVOK=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    element = tree.find('%sMeteorologicalAerodromeTrendForecast' % find_iwxxm)
+    element = tree.find(f'{find_iwxxm}MeteorologicalAerodromeTrendForecast')
     assert element.get('changeIndicator') == 'BECOMING'
-    assert element[0].tag == '%sphenomenonTime' % iwxxm
-    assert element[1].tag == '%stimeIndicator' % iwxxm
+    assert element[0].tag == f'{iwxxm}phenomenonTime'
+    assert element[1].tag == f'{iwxxm}timeIndicator'
     assert element[1].text == 'UNTIL'
 
     #  METAR BIAR 302351Z /////KT //// ////// ///// Q//// BECMG FM0000 CAVOK=
@@ -1255,10 +1275,10 @@ METAR BIAR 302351Z /////KT //// ////// ///// Q//// BECMG AT0000 CAVOK=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    element = tree.find('%sMeteorologicalAerodromeTrendForecast' % find_iwxxm)
+    element = tree.find(f'{find_iwxxm}MeteorologicalAerodromeTrendForecast')
     assert element.get('changeIndicator') == 'BECOMING'
-    assert element[0].tag == '%sphenomenonTime' % iwxxm
-    assert element[1].tag == '%stimeIndicator' % iwxxm
+    assert element[0].tag == f'{iwxxm}phenomenonTime'
+    assert element[1].tag == f'{iwxxm}timeIndicator'
     assert element[1].text == 'FROM'
 
     #  METAR BIAR 302351Z /////KT //// ////// ///// Q//// BECMG AT0000 CAVOK=
@@ -1267,10 +1287,10 @@ METAR BIAR 302351Z /////KT //// ////// ///// Q//// BECMG AT0000 CAVOK=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    element = tree.find('%sMeteorologicalAerodromeTrendForecast' % find_iwxxm)
+    element = tree.find(f'{find_iwxxm}MeteorologicalAerodromeTrendForecast')
     assert element.get('changeIndicator') == 'BECOMING'
-    assert element[0].tag == '%sphenomenonTime' % iwxxm
-    assert element[1].tag == '%stimeIndicator' % iwxxm
+    assert element[0].tag == f'{iwxxm}phenomenonTime'
+    assert element[1].tag == f'{iwxxm}timeIndicator'
     assert element[1].text == 'AT'
 
     test = """SAXX99 XXXX 151200
@@ -1289,9 +1309,9 @@ METAR BIAR 302351Z /////KT //// ////// ///// Q//// TEMPO FM0000 FC=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    element = tree.find('%sMeteorologicalAerodromeTrendForecast' % find_iwxxm)
+    element = tree.find(f'{find_iwxxm}MeteorologicalAerodromeTrendForecast')
     assert element.get('changeIndicator') == 'TEMPORARY_FLUCTUATIONS'
-    assert element[0].tag == '%sphenomenonTime' % iwxxm
+    assert element[0].tag == f'{iwxxm}phenomenonTime'
     assert element[0].get('nilReason') == missing[0]
 
     #  METAR BIAR 302351Z /////KT //// ////// ///// Q//// TEMPO FM0000 TL030 +FC=
@@ -1300,10 +1320,10 @@ METAR BIAR 302351Z /////KT //// ////// ///// Q//// TEMPO FM0000 FC=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    element = tree.find('%sMeteorologicalAerodromeTrendForecast' % find_iwxxm)
+    element = tree.find(f'{find_iwxxm}MeteorologicalAerodromeTrendForecast')
     assert element.get('changeIndicator') == 'TEMPORARY_FLUCTUATIONS'
-    assert element[0].tag == '%sphenomenonTime' % iwxxm
-    assert element[1].tag == '%stimeIndicator' % iwxxm
+    assert element[0].tag == f'{iwxxm}phenomenonTime'
+    assert element[1].tag == f'{iwxxm}timeIndicator'
     assert element[1].text == 'FROM_UNTIL'
 
     #  METAR BIAR 302351Z /////KT //// ////// ///// Q//// TEMPO TL0030 +FC=
@@ -1312,10 +1332,10 @@ METAR BIAR 302351Z /////KT //// ////// ///// Q//// TEMPO FM0000 FC=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    element = tree.find('%sMeteorologicalAerodromeTrendForecast' % find_iwxxm)
+    element = tree.find(f'{find_iwxxm}MeteorologicalAerodromeTrendForecast')
     assert element.get('changeIndicator') == 'TEMPORARY_FLUCTUATIONS'
-    assert element[0].tag == '%sphenomenonTime' % iwxxm
-    assert element[1].tag == '%stimeIndicator' % iwxxm
+    assert element[0].tag == f'{iwxxm}phenomenonTime'
+    assert element[1].tag == f'{iwxxm}timeIndicator'
     assert element[1].text == 'UNTIL'
 
     #  METAR BIAR 302351Z /////KT //// ////// ///// Q//// TEMPO FM0000 +FC=
@@ -1324,10 +1344,10 @@ METAR BIAR 302351Z /////KT //// ////// ///// Q//// TEMPO FM0000 FC=
     assert result.get('translationFailedTAC') is None
 
     tree = ET.XML(ET.tostring(result))
-    element = tree.find('%sMeteorologicalAerodromeTrendForecast' % find_iwxxm)
+    element = tree.find(f'{find_iwxxm}MeteorologicalAerodromeTrendForecast')
     assert element.get('changeIndicator') == 'TEMPORARY_FLUCTUATIONS'
-    assert element[0].tag == '%sphenomenonTime' % iwxxm
-    assert element[1].tag == '%stimeIndicator' % iwxxm
+    assert element[0].tag == f'{iwxxm}phenomenonTime'
+    assert element[1].tag == f'{iwxxm}timeIndicator'
     assert element[1].text == 'FROM'
 
 
@@ -1340,7 +1360,7 @@ METAR BIAR 290000Z /////MPS //// R01C/2000 ////// ///// Q//// WS R01C R01C/99949
     assert len(bulletin) == test.count('\n') - 1
 
     tree = ET.XML(ET.tostring(bulletin.pop()))
-    runways = tree.findall('%srunway' % find_iwxxm)
+    runways = tree.findall(f'{find_iwxxm}runway')
     assert len(runways) == 3
     #
     # First runway shall have the id that is shared with the rest
@@ -1370,17 +1390,16 @@ METAR BIAR 31200Z 00000KT CAVOK 19/16 Q1019=
 
     tree = ET.XML(ET.tostring(bulletin.pop()))
     assert tree.get('translationFailedTAC') is None
-    obTime = tree.find('%sobservationTime' % iwxxm)
+    obTime = tree.find(f'{iwxxm}observationTime')
     assert obTime.get(xhref) is not None
 
     tree = ET.XML(ET.tostring(bulletin.pop()))
     assert tree.get('translationFailedTAC') is not None
-    obTime = tree.find('%sobservationTime' % iwxxm)
+    obTime = tree.find(f'{iwxxm}observationTime')
     assert obTime.get(xhref) is None
 
 
 if __name__ == '__main__':
-
     test_failModes()
     test_metarNil()
     test_auto()

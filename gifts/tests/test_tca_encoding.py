@@ -1,21 +1,31 @@
 import xml.etree.ElementTree as ET
 
-import gifts.TCA as TCAE
-
 import gifts.common.xmlConfig as des
 import gifts.common.xmlUtilities as deu
+import gifts.TCA as TCAE
 
 encoder = TCAE.Encoder()
 
-first_siblings = ['issueTime', 'issuingTropicalCycloneAdvisoryCentre', 'tropicalCycloneName', 'advisoryNumber',
-                  'observation', 'forecast', 'forecast', 'forecast', 'forecast', 'remarks', 'nextAdvisoryTime']
+first_siblings = [
+    'issueTime',
+    'issuingTropicalCycloneAdvisoryCentre',
+    'tropicalCycloneName',
+    'advisoryNumber',
+    'observation',
+    'forecast',
+    'forecast',
+    'forecast',
+    'forecast',
+    'remarks',
+    'nextAdvisoryTime',
+]
 
 aixm = '{http://www.aixm.aero/schema/5.1.1}'
-find_aixm = './/*%s' % aixm
+find_aixm = f'.//*{aixm}'
 gml = '{http://www.opengis.net/gml/3.2}'
-find_gml = './/*%s' % gml
-iwxxm = '{%s}' % des.IWXXM_URI
-find_iwxxm = './/*%s' % iwxxm
+find_gml = f'.//*{gml}'
+iwxxm = f'{{{des.IWXXM_URI}}}'
+find_iwxxm = f'.//*{iwxxm}'
 xhref = '{http://www.w3.org/1999/xlink}href'
 xtitle = '{http://www.w3.org/1999/xlink}title'
 
@@ -28,13 +38,14 @@ def PP(tree):
                 elem.text = i + "  "
             if not elem.tail or not elem.tail.strip():
                 elem.tail = i
-            for elem in elem:
-                indent(elem, level + 1)
-                if not elem.tail or not elem.tail.strip():
-                    elem.tail = i
+            for child in elem:
+                indent(child, level + 1)
+                if not child.tail or not child.tail.strip():
+                    child.tail = i
             else:
                 if level and (not elem.tail or not elem.tail.strip()):
                     elem.tail = i
+
     indent(tree)
     print(ET.tostring(tree).decode())
 
@@ -46,6 +57,7 @@ missing = codes[des.NIL][des.MSSG]
 def test_tcaFailureModes():
 
     import gifts.tcaDecoder as tD
+
     decoder = tD.Decoder()
 
     test = """FKNT23 KNHC 151247
@@ -136,16 +148,16 @@ NXT MSG:              BFR 20180912/0000Z=
 
     for num, child in enumerate(first_siblings):
         if num != 5:
-            element = tree.find('%s%s' % (iwxxm, child))
+            element = tree.find(f'{iwxxm}{child}')
         else:
-            elementList = tree.findall('%s%s' % (iwxxm, child))
+            elementList = tree.findall(f'{iwxxm}{child}')
 
         if num == 0:
             subelement = element.find('.//*{http://www.opengis.net/gml/3.2}timePosition')
             assert subelement.text == '2018-09-11T18:00:00Z'
 
         elif num == 1:
-            subelement = element.find('%sUnitTimeSlice' % find_aixm)
+            subelement = element.find(f'{find_aixm}UnitTimeSlice')
             assert subelement[2].text == 'OTHER:TCAC'
             assert subelement[3].text == 'TOKYO'
 
@@ -157,35 +169,34 @@ NXT MSG:              BFR 20180912/0000Z=
             assert element.text == '2018/19'
 
         elif num == 4:
-            time = element.find('%stimePosition' % find_gml)
+            time = element.find(f'{find_gml}timePosition')
             assert time.text == '2018-09-11T18:00:00Z'
-            position = element.find('%spos' % find_gml)
+            position = element.find(f'{find_gml}pos')
             assert position.text == '14.000 137.417'
-            uprLimit = element.find('%supperLimit' % find_aixm)
+            uprLimit = element.find(f'{find_aixm}upperLimit')
             assert uprLimit.text == '450'
-            circle = element.find('%sCircleByCenterPoint' % find_gml)
+            circle = element.find(f'{find_gml}CircleByCenterPoint')
             assert circle[0].text == '14.000 137.417'
             assert circle[1].text == '180'
             assert circle[1].get('uom') == '[nm_i]'
-            movement = element.find('%smovement' % find_iwxxm)
+            movement = element.find(f'{find_iwxxm}movement')
             assert movement.text == 'MOVING'
-            movement = element.find('%smovementDirection' % find_iwxxm)
+            movement = element.find(f'{find_iwxxm}movementDirection')
             assert movement.text == '270'
-            movement = element.find('%smovementSpeed' % find_iwxxm)
+            movement = element.find(f'{find_iwxxm}movementSpeed')
             assert movement.text == '12'
-            intensityChg = element.find('%sintensityChange' % find_iwxxm)
+            intensityChg = element.find(f'{find_iwxxm}intensityChange')
             assert intensityChg.text == 'INTENSIFY'
-            pressure = element.find('%scentralPressure' % find_iwxxm)
+            pressure = element.find(f'{find_iwxxm}centralPressure')
             assert pressure.text == '905'
-            maxWSpeed = element.find('%smaximumSurfaceWindSpeed' % find_iwxxm)
+            maxWSpeed = element.find(f'{find_iwxxm}maximumSurfaceWindSpeed')
             assert maxWSpeed.text == '110'
 
         elif num == 5:
-
             for fcnt, forecast in enumerate(elementList):
-                time = forecast.find('%stimePosition' % find_gml)
-                position = forecast.find('%spos' % find_gml)
-                maxWSpeed = forecast.find('%smaximumSurfaceWindSpeed' % find_iwxxm)
+                time = forecast.find(f'{find_gml}timePosition')
+                position = forecast.find(f'{find_gml}pos')
+                maxWSpeed = forecast.find(f'{find_iwxxm}maximumSurfaceWindSpeed')
 
                 if fcnt == 0:
                     assert time.text == '2018-09-12T00:00:00Z'
@@ -207,7 +218,7 @@ NXT MSG:              BFR 20180912/0000Z=
         elif num == 9:
             assert element.get('nilReason') == codes[des.NIL][des.NA][0]
         elif num == 10:
-            time = element.find('%stimePosition' % find_gml)
+            time = element.find(f'{find_gml}timePosition')
             assert time.text == '2018-09-12T00:00:00Z'
             assert time.get('indeterminatePosition') == 'before'
 
@@ -256,9 +267,9 @@ NXT MSG:                  20180912/0000Z="""
     assert result.get('permissibleUsageReason') is None
 
     tree = ET.XML(ET.tostring(result))
-    element = tree.find('%sobservation' % iwxxm)
-    cblocation = element.find('%scumulonimbusCloudLocation' % find_iwxxm)
-    polygon = cblocation.find('%sposList' % find_gml)
+    element = tree.find(f'{iwxxm}observation')
+    cblocation = element.find(f'{find_iwxxm}cumulonimbusCloudLocation')
+    polygon = cblocation.find(f'{find_gml}posList')
     assert polygon.get('count') == '5'
     assert polygon.text == '33.533 -36.333 33.417 -36.283 34.000 -35.000 34.100 -36.683 33.533 -36.333'
 
@@ -314,16 +325,16 @@ $$
     tree = ET.XML(ET.tostring(result))
     for num, child in enumerate(first_siblings):
         if num != 5:
-            element = tree.find('%s%s' % (iwxxm, child))
+            element = tree.find(f'{iwxxm}{child}')
         else:
-            elementList = tree.findall('%s%s' % (iwxxm, child))
+            elementList = tree.findall(f'{iwxxm}{child}')
 
         if num == 0:
             subelement = element.find('.//*{http://www.opengis.net/gml/3.2}timePosition')
             assert subelement.text == '2021-06-15T15:00:00Z'
 
         elif num == 1:
-            subelement = element.find('%sUnitTimeSlice' % find_aixm)
+            subelement = element.find(f'{find_aixm}UnitTimeSlice')
             assert subelement[2].text == 'OTHER:TCAC'
             assert subelement[3].text == 'KNHC'
 
@@ -335,28 +346,28 @@ $$
             assert element.text == '2021/005'
 
         elif num == 4:
-            time = element.find('%stimePosition' % find_gml)
+            time = element.find(f'{find_gml}timePosition')
             assert time.text == '2021-06-15T15:00:00Z'
-            position = element.find('%spos' % find_gml)
+            position = element.find(f'{find_gml}pos')
             assert position.text == '40.500 -62.000'
-            movement = element.find('%smovement' % find_iwxxm)
+            movement = element.find(f'{find_iwxxm}movement')
             assert movement.text == 'MOVING'
-            movement = element.find('%smovementDirection' % find_iwxxm)
+            movement = element.find(f'{find_iwxxm}movementDirection')
             assert movement.text == '45'
-            movement = element.find('%smovementSpeed' % find_iwxxm)
+            movement = element.find(f'{find_iwxxm}movementSpeed')
             assert movement.text == '33'
-            intensityChg = element.find('%sintensityChange' % find_iwxxm)
+            intensityChg = element.find(f'{find_iwxxm}intensityChange')
             assert intensityChg.text == 'NO_CHANGE'
-            pressure = element.find('%scentralPressure' % find_iwxxm)
+            pressure = element.find(f'{find_iwxxm}centralPressure')
             assert pressure.text == '998'
-            maxWSpeed = element.find('%smaximumSurfaceWindSpeed' % find_iwxxm)
+            maxWSpeed = element.find(f'{find_iwxxm}maximumSurfaceWindSpeed')
             assert maxWSpeed.text == '50'
 
         elif num == 5:
             for fcnt, forecast in enumerate(elementList):
-                time = forecast.find('%stimePosition' % find_gml)
-                position = forecast.find('%spos' % find_gml)
-                maxWSpeed = forecast.find('%smaximumSurfaceWindSpeed' % find_iwxxm)
+                time = forecast.find(f'{find_gml}timePosition')
+                position = forecast.find(f'{find_gml}pos')
+                maxWSpeed = forecast.find(f'{find_iwxxm}maximumSurfaceWindSpeed')
 
                 if fcnt == 0:
                     assert time.text == '2021-06-15T18:00:00Z'
@@ -372,19 +383,19 @@ $$
                     assert maxWSpeed.text == '45'
                 elif fcnt == 3:
                     assert time.text == '2021-06-16T12:00:00Z'
-                    position = forecast.find('%stropicalCyclonePosition' % find_iwxxm)
+                    position = forecast.find(f'{find_iwxxm}tropicalCyclonePosition')
                     assert position.get('nilReason') == codes[des.NIL][des.NA][0]
                     assert maxWSpeed.get('nilReason') == codes[des.NIL][des.NOOPRSIG][0]
                 elif fcnt == 4:
                     assert time.text == '2021-06-16T18:00:00Z'
-                    position = forecast.find('%stropicalCyclonePosition' % find_iwxxm)
+                    position = forecast.find(f'{find_iwxxm}tropicalCyclonePosition')
                     assert position.get('nilReason') == codes[des.NIL][des.NA][0]
                     assert maxWSpeed.get('nilReason') == codes[des.NIL][des.NOOPRSIG][0]
 
         elif num == 10:
             assert len(element.text) > 0
         elif num == 11:
-            time = element.find('%stimePosition' % find_gml)
+            time = element.find(f'{find_gml}timePosition')
             assert time.text == '2021-06-15T21:00:00Z'
     #
     # So remaining tests with the older format still work.
@@ -430,16 +441,16 @@ NXT MSG:              20180912/0000Z =
 
     for num, child in enumerate(first_siblings):
         if num != 5:
-            element = tree.find('%s%s' % (iwxxm, child))
+            element = tree.find(f'{iwxxm}{child}')
         else:
-            elementList = tree.findall('%s%s' % (iwxxm, child))
+            elementList = tree.findall(f'{iwxxm}{child}')
 
         if num == 0:
             subelement = element.find('.//*{http://www.opengis.net/gml/3.2}timePosition')
             assert subelement.text == '2018-09-11T18:00:00Z'
 
         elif num == 1:
-            subelement = element.find('%sUnitTimeSlice' % find_aixm)
+            subelement = element.find(f'{find_aixm}UnitTimeSlice')
             assert subelement[2].text == 'OTHER:TCAC'
             assert subelement[3].text == 'TOKYO'
 
@@ -451,36 +462,35 @@ NXT MSG:              20180912/0000Z =
             assert element.text == '2018/19'
 
         elif num == 4:
-            time = element.find('%stimePosition' % find_gml)
+            time = element.find(f'{find_gml}timePosition')
             assert time.text == '2018-09-11T18:00:00Z'
-            position = element.find('%spos' % find_gml)
+            position = element.find(f'{find_gml}pos')
             assert position.text == '14.000 137.417'
-            uprLimit = element.find('%supperLimit' % find_aixm)
+            uprLimit = element.find(f'{find_aixm}upperLimit')
             assert uprLimit.text == '450'
-            circle = element.find('%sCircleByCenterPoint' % find_gml)
+            circle = element.find(f'{find_gml}CircleByCenterPoint')
             assert circle[0].text == '14.000 137.417'
             assert circle[1].text == '180'
             assert circle[1].get('uom') == 'km'
-            movement = element.find('%smovement' % find_iwxxm)
+            movement = element.find(f'{find_iwxxm}movement')
             assert movement.text == 'MOVING'
-            movement = element.find('%smovementDirection' % find_iwxxm)
+            movement = element.find(f'{find_iwxxm}movementDirection')
             assert movement.text == '270'
-            movement = element.find('%smovementSpeed' % find_iwxxm)
+            movement = element.find(f'{find_iwxxm}movementSpeed')
             assert movement.text == '20'
-            intensityChg = element.find('%sintensityChange' % find_iwxxm)
+            intensityChg = element.find(f'{find_iwxxm}intensityChange')
             assert intensityChg.text == 'NO_CHANGE'
-            pressure = element.find('%scentralPressure' % find_iwxxm)
+            pressure = element.find(f'{find_iwxxm}centralPressure')
             assert pressure.text == '905'
-            maxWSpeed = element.find('%smaximumSurfaceWindSpeed' % find_iwxxm)
+            maxWSpeed = element.find(f'{find_iwxxm}maximumSurfaceWindSpeed')
             assert maxWSpeed.text == '150'
             assert maxWSpeed.get('uom') == 'm/s'
 
         elif num == 5:
-
             for fcnt, forecast in enumerate(elementList):
-                time = forecast.find('%stimePosition' % find_gml)
-                position = forecast.find('%spos' % find_gml)
-                maxWSpeed = forecast.find('%smaximumSurfaceWindSpeed' % find_iwxxm)
+                time = forecast.find(f'{find_gml}timePosition')
+                position = forecast.find(f'{find_gml}pos')
+                maxWSpeed = forecast.find(f'{find_iwxxm}maximumSurfaceWindSpeed')
 
                 assert maxWSpeed.text == '50'
                 assert maxWSpeed.get('uom') == 'm/s'
@@ -501,7 +511,7 @@ NXT MSG:              20180912/0000Z =
         elif num == 9:
             assert element.get('nilReason') == codes[des.NIL][des.NA][0]
         elif num == 10:
-            time = element.find('%stimePosition' % find_gml)
+            time = element.find(f'{find_gml}timePosition')
             assert time.text == '2018-09-12T00:00:00Z'
 
 
@@ -543,16 +553,16 @@ NXT MSG:              NO MSG EXP"""
 
     for num, child in enumerate(first_siblings):
         if num != 5:
-            element = tree.find('%s%s' % (iwxxm, child))
+            element = tree.find(f'{iwxxm}{child}')
         else:
-            elementList = tree.findall('%s%s' % (iwxxm, child))
+            elementList = tree.findall(f'{iwxxm}{child}')
 
         if num == 0:
             subelement = element.find('.//*{http://www.opengis.net/gml/3.2}timePosition')
             assert subelement.text == '2020-01-09T00:00:00Z'
 
         elif num == 1:
-            subelement = element.find('%sUnitTimeSlice' % find_aixm)
+            subelement = element.find(f'{find_aixm}UnitTimeSlice')
             assert subelement[2].text == 'OTHER:TCAC'
             assert subelement[3].text == 'DARWIN'
 
@@ -564,35 +574,34 @@ NXT MSG:              NO MSG EXP"""
             assert element.text == '2020/2'
 
         elif num == 4:
-            time = element.find('%stimePosition' % find_gml)
+            time = element.find(f'{find_gml}timePosition')
             assert time.text == '2020-01-09T00:00:00Z'
-            position = element.find('%spos' % find_gml)
+            position = element.find(f'{find_gml}pos')
             assert position.text == '-12.200 134.100'
-            uprLimit = element.find('%supperLimit' % find_aixm)
+            uprLimit = element.find(f'{find_aixm}upperLimit')
             assert uprLimit.text == '600'
-            circle = element.find('%sCircleByCenterPoint' % find_gml)
+            circle = element.find(f'{find_gml}CircleByCenterPoint')
             assert circle[0].text == '-12.200 134.100'
             assert circle[1].text == '60'
             assert circle[1].get('uom') == '[nm_i]'
-            movement = element.find('%smovement' % find_iwxxm)
+            movement = element.find(f'{find_iwxxm}movement')
             assert movement.text == 'MOVING'
-            movement = element.find('%smovementDirection' % find_iwxxm)
+            movement = element.find(f'{find_iwxxm}movementDirection')
             assert movement.text == '225'
-            movement = element.find('%smovementSpeed' % find_iwxxm)
+            movement = element.find(f'{find_iwxxm}movementSpeed')
             assert movement.text == '6'
-            intensityChg = element.find('%sintensityChange' % find_iwxxm)
+            intensityChg = element.find(f'{find_iwxxm}intensityChange')
             assert intensityChg.text == 'WEAKEN'
-            pressure = element.find('%scentralPressure' % find_iwxxm)
+            pressure = element.find(f'{find_iwxxm}centralPressure')
             assert pressure.text == '999'
-            maxWSpeed = element.find('%smaximumSurfaceWindSpeed' % find_iwxxm)
+            maxWSpeed = element.find(f'{find_iwxxm}maximumSurfaceWindSpeed')
             assert maxWSpeed.text == '30'
 
         elif num == 5:
-
             for fcnt, forecast in enumerate(elementList):
-                time = forecast.find('%stimePosition' % find_gml)
-                position = forecast.find('%spos' % find_gml)
-                maxWSpeed = forecast.find('%smaximumSurfaceWindSpeed' % find_iwxxm)
+                time = forecast.find(f'{find_gml}timePosition')
+                position = forecast.find(f'{find_gml}pos')
+                maxWSpeed = forecast.find(f'{find_iwxxm}maximumSurfaceWindSpeed')
 
                 if fcnt == 0:
                     assert time.text == '2020-01-09T06:00:00Z'
@@ -663,16 +672,16 @@ NXT MSG:                  NO MSG EXP
 
     for num, child in enumerate(first_siblings):
         if num != 5:
-            element = tree.find('%s%s' % (iwxxm, child))
+            element = tree.find(f'{iwxxm}{child}')
         else:
-            elementList = tree.findall('%s%s' % (iwxxm, child))
+            elementList = tree.findall(f'{iwxxm}{child}')
 
         if num == 0:
             subelement = element.find('.//*{http://www.opengis.net/gml/3.2}timePosition')
             assert subelement.text == '2019-07-23T15:00:00Z'
 
         elif num == 1:
-            subelement = element.find('%sUnitTimeSlice' % find_aixm)
+            subelement = element.find(f'{find_aixm}UnitTimeSlice')
             assert subelement[2].text == 'OTHER:TCAC'
             assert subelement[3].text == 'KNHC'
 
@@ -684,28 +693,28 @@ NXT MSG:                  NO MSG EXP
             assert element.text == '2019/004'
 
         elif num == 4:
-            time = element.find('%stimePosition' % find_gml)
+            time = element.find(f'{find_gml}timePosition')
             assert time.text == '2019-07-23T15:00:00Z'
-            position = element.find('%spos' % find_gml)
+            position = element.find(f'{find_gml}pos')
             assert position.text == '29.000 -80.000'
-            movement = element.find('%smovement' % find_iwxxm)
+            movement = element.find(f'{find_iwxxm}movement')
             assert movement.text == 'MOVING'
-            movement = element.find('%smovementDirection' % find_iwxxm)
+            movement = element.find(f'{find_iwxxm}movementDirection')
             assert movement.text == '22.5'
-            movement = element.find('%smovementSpeed' % find_iwxxm)
+            movement = element.find(f'{find_iwxxm}movementSpeed')
             assert movement.text == '15'
-            intensityChg = element.find('%sintensityChange' % find_iwxxm)
+            intensityChg = element.find(f'{find_iwxxm}intensityChange')
             assert intensityChg.text == 'WEAKEN'
-            pressure = element.find('%scentralPressure' % find_iwxxm)
+            pressure = element.find(f'{find_iwxxm}centralPressure')
             assert pressure.text == '1014'
-            maxWSpeed = element.find('%smaximumSurfaceWindSpeed' % find_iwxxm)
+            maxWSpeed = element.find(f'{find_iwxxm}maximumSurfaceWindSpeed')
             assert maxWSpeed.text == '30'
 
         elif num == 5:
             for fcnt, forecast in enumerate(elementList):
-                time = forecast.find('%stimePosition' % find_gml)
-                position = forecast.find('%spos' % find_gml)
-                maxWSpeed = forecast.find('%smaximumSurfaceWindSpeed' % find_iwxxm)
+                time = forecast.find(f'{find_gml}timePosition')
+                position = forecast.find(f'{find_gml}pos')
+                maxWSpeed = forecast.find(f'{find_iwxxm}maximumSurfaceWindSpeed')
 
                 if fcnt == 0:
                     assert time.text == '2019-07-23T21:00:00Z'
@@ -719,7 +728,7 @@ NXT MSG:                  NO MSG EXP
                     assert time.text == '2019-07-24T09:00:00Z'
                     assert position is None
                     assert maxWSpeed.text == '25'
-                    position = forecast.find('%stropicalCyclonePosition' % find_iwxxm)
+                    position = forecast.find(f'{find_iwxxm}tropicalCyclonePosition')
                     assert position.get('nilReason') == codes[des.NIL][des.NA][0]
                 elif fcnt == 3:
                     assert time.text == '2019-07-24T15:00:00Z'
@@ -735,6 +744,7 @@ NXT MSG:                  NO MSG EXP
 def test_multipleAdvisoryStrings():
 
     import gifts.tcaDecoder as tD
+
     decoder = tD.Decoder()
 
     test = """FKPQ30 RJTD 111800
@@ -766,7 +776,6 @@ NXT MSG:              BFR 20180912/0000Z=
 
 
 if __name__ == '__main__':
-
     test_tcaFailureModes()
     test_tcaTest()
     test_tcaExercise()

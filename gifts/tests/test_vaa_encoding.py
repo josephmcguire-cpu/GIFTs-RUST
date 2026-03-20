@@ -6,14 +6,27 @@ from gifts.common import xmlUtilities as deu
 
 encoder = VAAE.Encoder()
 
-first_siblings = ['issueTime', 'issuingVolcanicAshAdvisoryCentre', 'volcano', 'stateOrRegion', 'sourceElevationAMSL',
-                  'advisoryNumber', 'informationSource', 'eruptionDetails', 'observation', 'forecast',
-                  'forecast', 'forecast', 'remarks', 'nextAdvisoryTime']
+first_siblings = [
+    'issueTime',
+    'issuingVolcanicAshAdvisoryCentre',
+    'volcano',
+    'stateOrRegion',
+    'sourceElevationAMSL',
+    'advisoryNumber',
+    'informationSource',
+    'eruptionDetails',
+    'observation',
+    'forecast',
+    'forecast',
+    'forecast',
+    'remarks',
+    'nextAdvisoryTime',
+]
 
 aixm = '{http://www.aixm.aero/schema/5.1.1}'
-find_aixm = './/*%s' % aixm
+find_aixm = f'.//*{aixm}'
 find_gml = './/*{http://www.opengis.net/gml/3.2}'
-iwxxm = '{%s}' % des.IWXXM_URI
+iwxxm = f'{{{des.IWXXM_URI}}}'
 
 exercise = """FVAU03 ADRM 150252
 VA ADVISORY
@@ -97,6 +110,7 @@ des.TRANSLATOR = True
 def test_vaaFailureModes():
 
     import gifts.vaaDecoder as vD
+
     decoder = vD.Decoder()
 
     text = """FVXX23 KNES 151247
@@ -163,14 +177,14 @@ STATUS: TEST"""
         #
         # issueTime
         if cnt == 0:
-            timePosition = element.find('%stimePosition' % find_gml)
+            timePosition = element.find(f'{find_gml}timePosition')
             assert timePosition.text == '2025-12-15T00:00:00Z'
         #
         # issuing centre
         elif cnt == 1:
-            name = element.find('%sname' % find_aixm)
+            name = element.find(f'{find_aixm}name')
             assert name.text == 'NONE'
-            mwotype = element.find('%stype' % find_aixm)
+            mwotype = element.find(f'{find_aixm}type')
             assert mwotype.text == 'OTHER:VAAC'
         #
         # volcano details
@@ -207,14 +221,14 @@ STATUS: TEST"""
         elif cnt == 8:
             assert len(element) == 1
             # conditions estimated
-            conditions = element.find('%sVolcanicAshObservedOrEstimatedConditions' % iwxxm)
+            conditions = element.find(f'{iwxxm}VolcanicAshObservedOrEstimatedConditions')
             assert conditions.get('status') == 'NOT_PROVIDED'
             assert conditions.get('isEstimated') == 'true'
         #
         # forecasts
         elif 8 < cnt < 12:
-            condition = element.find('%sVolcanicAshForecastConditions' % iwxxm)
-            timePosition = element.find('%stimePosition' % find_gml)
+            condition = element.find(f'{iwxxm}VolcanicAshForecastConditions')
+            timePosition = element.find(f'{find_gml}timePosition')
             if cnt == 9:
                 assert condition.get('status') == 'NOT_PROVIDED'
                 assert timePosition.text == '2025-12-15T06:00:00Z'
@@ -363,9 +377,14 @@ def test_remarks():
     result = bulletin.pop()
 
     remarks = result[12]
-    assert remarks.text == ' '.join(['VA NOT DETECTED ON STLT DUE TO WX CLDS IN SUMMIT AREA.',
-                                     'VA EMS LIKELY CONTINUE GIVEN RECENT ACTVTY.',
-                                     'NO CHG FCST TO MDL WINDS AT FL NXT 18 HR.', '...KONON'])
+    assert remarks.text == ' '.join(
+        [
+            'VA NOT DETECTED ON STLT DUE TO WX CLDS IN SUMMIT AREA.',
+            'VA EMS LIKELY CONTINUE GIVEN RECENT ACTVTY.',
+            'NO CHG FCST TO MDL WINDS AT FL NXT 18 HR.',
+            '...KONON',
+        ]
+    )
 
 
 def test_nextTime():
@@ -536,7 +555,6 @@ def test_vaCldNotFound():
 
 
 if __name__ == '__main__':
-
     test_vaaFailureModes()
     test_nonOperationalMessages()
     test_sourceElevation()

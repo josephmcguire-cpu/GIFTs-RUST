@@ -1,11 +1,12 @@
-import os
-import pytest
-import tempfile
 import gzip
+import os
+import tempfile
+
+import pytest
 
 import gifts.common.bulletin as bulletin
-from gifts.TCA import Encoder as TE
 from gifts.SWA import Encoder as SE
+from gifts.TCA import Encoder as TE
 
 tcaEncoder = TE()
 swaEncoder = SE()
@@ -208,7 +209,7 @@ $$
     #
     # Verify default - no WMO AHL line
     fn = collective.write()
-    _fh = open(fn, 'r')
+    _fh = open(fn)
     first_line = _fh.readline()
     assert first_line != 'LKNT22 KNHC 151436\n'
     _fh.close()
@@ -221,7 +222,7 @@ $$
     _fh.close()
 
     # Verify first line is the WMO AHL
-    _fh = open(filename, 'r')
+    _fh = open(filename)
     first_line = _fh.readline()
     assert first_line == 'LKNT22 KNHC 151436\n'
     _fh.close()
@@ -235,7 +236,7 @@ $$
     # XML document is still 'xml'
     assert collective2._internalBulletinId[-4:] == '.xml'
 
-    _fh = open(fn, 'r')
+    _fh = open(fn)
     first_line = _fh.readline()
     assert first_line == 'LKNT22 KNHC 151436\n'
     _fh.close()
@@ -289,7 +290,7 @@ NXT MSG:                  NO MSG EXP
     try:
         _fh = gzip.open(fn)
     except Exception as exc:
-        assert False, "Attempt to open gzip file failed: %s" % str(exc)
+        raise AssertionError(f"Attempt to open gzip file failed: {str(exc)}") from exc
 
     first_line = _fh.readline().decode('utf-8')
     assert first_line != 'LKNT23 KNHC 231458\n'
@@ -298,7 +299,6 @@ NXT MSG:                  NO MSG EXP
 
 
 if __name__ == '__main__':
-
     test_empty()
     test_unlike()
     test_realize()
