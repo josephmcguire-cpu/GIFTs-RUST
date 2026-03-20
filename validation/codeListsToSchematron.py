@@ -7,6 +7,7 @@ a codelist element's xlink:href is a member of the corresponding codelist.
 import os
 import sys
 from os.path import isfile, join
+
 # lxml is used instead of ElementTree because it tracks parent relationships
 from lxml import etree
 import requests
@@ -72,8 +73,9 @@ def run(cmdargs):
         sn[value] = key
     ns.update(sn)
 
-    xsdfiles = [join(schemaPath, f) for f in os.listdir(schemaPath)
-                if f.endswith(".xsd") and isfile(join(schemaPath, f))]
+    xsdfiles = [
+        join(schemaPath, f) for f in os.listdir(schemaPath) if f.endswith(".xsd") and isfile(join(schemaPath, f))
+    ]
 
     # dictionary mapping from XSD Type names such as 'AerodromeRecentWeatherType' to the path on codes.wmo.int
     # such as 'http://codes.wmo.int/49-2/AerodromeRecentWeather'
@@ -161,6 +163,7 @@ def parseLocalCodeListFile(codeListHttpPath):
 def symlink_ms(source, link_name):
 
     import ctypes
+
     csl = ctypes.windll.kernel32.CreateSymbolicLinkW
     csl.argtypes = (ctypes.c_wchar_p, ctypes.c_wchar_p, ctypes.c_uint32)
     csl.restype = ctypes.c_ubyte
@@ -172,8 +175,9 @@ def symlink_ms(source, link_name):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--version", "-v", help="IWXXM version major.minor number to validate against", type=str,
-                        default="3.0")
+    parser.add_argument(
+        "--version", "-v", help="IWXXM version major.minor number to validate against", type=str, default="3.0"
+    )
     cmdargs = parser.parse_args()
 
     run(cmdargs)

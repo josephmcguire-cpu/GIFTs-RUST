@@ -10,8 +10,9 @@ import codeListsToSchematron as codeLists
 def main(cmdargs):
 
     cwd = os.getcwd()
-    if not os.path.isfile(os.path.join(cwd, 'bin', 'crux-1.3-all.jar')) or \
-       not os.path.isdir(os.path.join(cwd, 'externalSchemas')):
+    if not os.path.isfile(os.path.join(cwd, 'bin', 'crux-1.3-all.jar')) or not os.path.isdir(
+        os.path.join(cwd, 'externalSchemas')
+    ):
         print("This script must be run from the top-level of the install directory and contain:")
         print("  the 'bin' subdirectory,")
         print("  the 'externalSchemas' subdirectory.")
@@ -27,11 +28,12 @@ def main(cmdargs):
         cwd = os.getcwd()
         schemaPath = os.path.join(cwd, 'schemas', cmdargs.version)
         schematronPath = os.path.join(cwd, 'schematrons', cmdargs.version)
-        if not os.path.isfile(os.path.join(schemaPath, 'iwxxm.xsd')) or \
-           not os.path.isfile(os.path.join(schematronPath, 'iwxxm.sch')):
+        if not os.path.isfile(os.path.join(schemaPath, 'iwxxm.xsd')) or not os.path.isfile(
+            os.path.join(schematronPath, 'iwxxm.sch')
+        ):
             print("Missing required %s files. Fetching them and running GML checks" % cmdargs.version)
             codeLists.run(cmdargs)
-            cmdargs.noGMLCheck = False
+            cmdargs.noGMLChecks = False
 
     returnCode = validate_xml_files(cmdargs)
     if returnCode > 0:
@@ -63,10 +65,17 @@ def validate_xml_files(cmdargs):
         print("Catalog file version %s already exists in directory. Using it for validation." % cmdargs.version)
         cmdargs.keep = True
 
-    print('Validating all XML files in %s with IWXXM XML schemas and schematron (version: %s)' % (cmdargs.directory,
-                                                                                                  cmdargs.version))
-    javacmd = 'java -jar %s -c %s -s %s %s%c*.xml' % (os.path.join(cwd, 'bin', 'crux-1.3-all.jar'), thisCatalogFile,
-                                                      schematronFile, cmdargs.directory, os.path.sep)
+    print(
+        'Validating all XML files in %s with IWXXM XML schemas and schematron (version: %s)'
+        % (cmdargs.directory, cmdargs.version)
+    )
+    javacmd = 'java -jar %s -c %s -s %s %s%c*.xml' % (
+        os.path.join(cwd, 'bin', 'crux-1.3-all.jar'),
+        thisCatalogFile,
+        schematronFile,
+        cmdargs.directory,
+        os.path.sep,
+    )
     validationResult = os.system(javacmd)
     if validationResult > 0:
         print('FAILED validation.  Continuing . . .')
@@ -96,17 +105,32 @@ def validate_xml_files(cmdargs):
 
 
 if __name__ == '__main__':
-
     parser = argparse.ArgumentParser(description="Rudimentary validation tool for IWXXM documents")
-    parser.add_argument("-f", "--fetch", help="fetch files from WMO Code Registry and WMO schema site",
-                        action="store_true", default=False)
-    parser.add_argument("-u", "--useInternet", help="when checking GML links, query WMO Code Registry for validation",
-                        action="store_true", default=False)
+    parser.add_argument(
+        "-f",
+        "--fetch",
+        help="fetch files from WMO Code Registry and WMO schema site",
+        action="store_true",
+        default=False,
+    )
+    parser.add_argument(
+        "-u",
+        "--useInternet",
+        help="when checking GML links, query WMO Code Registry for validation",
+        action="store_true",
+        default=False,
+    )
     parser.add_argument("--noGMLChecks", help="skip GML link checking", action="store_true", default=False)
-    parser.add_argument("-k", "--keep", help="do not delete catalog file when validation finishes",
-                        action="store_true", default=False)
-    parser.add_argument("-v", "--version", help="IWXXM version major.minor number to validate against, default '2023-1'",
-                        type=str, default="2023-1")
+    parser.add_argument(
+        "-k", "--keep", help="do not delete catalog file when validation finishes", action="store_true", default=False
+    )
+    parser.add_argument(
+        "-v",
+        "--version",
+        help="IWXXM version major.minor number to validate against, default '2023-1'",
+        type=str,
+        default="2023-1",
+    )
     parser.add_argument("directory", help="directory path containing IWXXM XML documents for validation", type=str)
     cmdargs = parser.parse_args()
 
