@@ -1,0 +1,34 @@
+# Local orchestration for gifts / validation / demo images.
+# Usage: `docker compose build` then `docker compose run --rm gifts` (etc.).
+services:
+  gifts:
+    build:
+      context: .
+      dockerfile: Dockerfile.gifts
+    volumes:
+      - .:/app:rw
+
+  validation:
+    build:
+      context: .
+      dockerfile: Dockerfile.validation
+    volumes:
+      - .:/app:rw
+    working_dir: /app/validation
+
+  demo:
+    build:
+      context: .
+      dockerfile: Dockerfile.demo
+    volumes:
+      - .:/app:rw
+
+  e2e:
+    build:
+      context: .
+      dockerfile: Dockerfile.gifts
+    command: ["python", "-m", "pytest", "tests/e2e", "-m", "e2e", "-v"]
+    volumes:
+      - .:/app:rw
+    profiles:
+      - e2e

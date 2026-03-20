@@ -1,0 +1,13 @@
+# Demo scripts (headless tests; GUI requires DISPLAY).
+FROM python:3.11-slim-bookworm
+WORKDIR /app
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libtk8.6 \
+    && rm -rf /var/lib/apt/lists/*
+COPY pyproject.toml setup.py MANIFEST.in LICENSE.md README.md ./
+COPY gifts ./gifts
+COPY demo ./demo
+RUN pip install --no-cache-dir pip setuptools wheel \
+    && pip install --no-cache-dir -e ".[test]" watchdog
+WORKDIR /app
+CMD ["python", "-m", "pytest", "demo/tests", "-q"]

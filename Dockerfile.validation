@@ -1,0 +1,13 @@
+# Validation service: Python + Java (CRUX) + local schema trees.
+FROM python:3.11-slim-bookworm
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends openjdk-17-jre-headless \
+    && rm -rf /var/lib/apt/lists/*
+WORKDIR /app
+COPY pyproject.toml setup.py MANIFEST.in LICENSE.md README.md ./
+COPY gifts ./gifts
+COPY validation ./validation
+RUN pip install --no-cache-dir pip setuptools wheel \
+    && pip install --no-cache-dir -e ".[test]"
+WORKDIR /app/validation
+CMD ["python", "-m", "pytest", "tests", "-q"]

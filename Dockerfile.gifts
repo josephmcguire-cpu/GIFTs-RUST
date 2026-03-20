@@ -1,0 +1,8 @@
+# Python environment for running gifts unit tests and library consumers.
+FROM python:3.11-slim-bookworm
+WORKDIR /app
+COPY pyproject.toml setup.py MANIFEST.in LICENSE.md README.md ./
+COPY gifts ./gifts
+RUN pip install --no-cache-dir pip setuptools wheel \
+    && pip install --no-cache-dir -e ".[test]"
+CMD ["python", "-m", "pytest", "gifts/tests", "-q", "--cov=gifts", "--cov-report=term-missing", "--cov-fail-under=99"]
