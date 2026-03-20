@@ -1,0 +1,118 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gifts"
+version = "1.5.1"
+description = "IWXXM encoders for Annex3 TAC products"
+readme = "README.md"
+license = { text = "Public Domain" }
+requires-python = ">=3.9"
+authors = [
+  { name = "Mark Oberfield - NOAA/NWS/OSTI/MDL/WIAD", email = "Mark.Oberfield@noaa.gov" },
+]
+maintainers = [
+  { name = "Mark Oberfield" },
+]
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "Operating System :: OS Independent",
+  "Topic :: Text Processing :: Markup :: XML",
+  "License :: Public Domain",
+]
+dependencies = [
+  "skyfield>=1.40,<2a0",
+]
+
+[project.optional-dependencies]
+test = [
+  "pytest>=8.3",
+  "pytest-cov>=4.0",
+  "pytest-benchmark>=4.0",
+  "ruff>=0.8.0",
+  "lxml>=4.9",
+  "requests>=2.28",
+  "watchdog>=3.0",
+]
+dev = [
+  "gifts[test]",
+  "build>=1.0",
+]
+
+[tool.setuptools]
+include-package-data = true
+zip-safe = false
+
+[tool.setuptools.packages.find]
+include = ["gifts*"]
+exclude = ["gifts.tests", "tests"]
+
+[tool.setuptools.package-data]
+gifts = ["data/codes.wmo.int-*.rdf"]
+
+[tool.pytest.ini_options]
+minversion = "8.0"
+addopts = "-v --strict-markers --import-mode=importlib"
+pythonpath = ["validation", "demo"]
+testpaths = [
+  "gifts/tests",
+  "validation/tests",
+  "demo/tests",
+  "tests/e2e",
+  "tests/perf",
+]
+markers = [
+  "e2e: cross-service end-to-end tests (root tests/)",
+  "integration: integration tests",
+  "perf: performance / benchmark tests",
+  "gui: requires Tk or display",
+  "daemon: long-running daemon tests",
+  "requires_docker: needs Docker / compose",
+]
+
+[tool.coverage.run]
+branch = false
+omit = [
+  "*/__pycache__/*",
+  "gifts/common/tpg.py",
+  "gifts/tests/*",
+  "validation/tests/*",
+  "validation/externalSchemas/*",
+  "demo/tests/*",
+]
+
+[tool.coverage.report]
+exclude_lines = [
+  "pragma: no cover",
+  "def __repr__",
+  "raise NotImplementedError",
+  "if __name__ == .__main__.:",
+  "if TYPE_CHECKING:",
+]
+skip_empty = true
+
+[tool.coverage.paths]
+source = ["gifts", "validation", "demo"]
+
+# Per-tree coverage gates: see Makefile `test-*` targets and `.github/workflows/test-*.yml` (≥99% line coverage per tree).
+
+[tool.ruff]
+target-version = "py39"
+line-length = 120
+extend-exclude = [
+  "validation/externalSchemas",
+  ".eggs",
+  "build",
+  "dist",
+]
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+ignore = [
+  "E501",
+  "B008",
+]
+
+[tool.ruff.format]
+quote-style = "preserve"
