@@ -1,6 +1,11 @@
 ------------------------------------------------------------------------------
 # Continuous Integration Status
-![Python package](https://github.com/mgoberfield/GIFTs/workflows/Python%20package/badge.svg)
+
+[![lint](https://github.com/josephmcguire-cpu/GIFTs-RUST/actions/workflows/lint.yml/badge.svg)](https://github.com/josephmcguire-cpu/GIFTs-RUST/actions/workflows/lint.yml)
+[![test-gifts](https://github.com/josephmcguire-cpu/GIFTs-RUST/actions/workflows/test-gifts.yml/badge.svg)](https://github.com/josephmcguire-cpu/GIFTs-RUST/actions/workflows/test-gifts.yml)
+[![test-validation](https://github.com/josephmcguire-cpu/GIFTs-RUST/actions/workflows/test-validation.yml/badge.svg)](https://github.com/josephmcguire-cpu/GIFTs-RUST/actions/workflows/test-validation.yml)
+[![test-demo](https://github.com/josephmcguire-cpu/GIFTs-RUST/actions/workflows/test-demo.yml/badge.svg)](https://github.com/josephmcguire-cpu/GIFTs-RUST/actions/workflows/test-demo.yml)
+[![e2e](https://github.com/josephmcguire-cpu/GIFTs-RUST/actions/workflows/e2e.yml/badge.svg)](https://github.com/josephmcguire-cpu/GIFTs-RUST/actions/workflows/e2e.yml)
 
 -------------------------------------------------------------------------------
 # Generate IWXXM From TAC
@@ -19,18 +24,28 @@ As XML--and creating XML documents--may be unfamiliar technology to those withou
 
 It should be understood that the software provided here is a short-term solution as TAC forms of these products will eventually cease to be a ICAO/WMO standard.
 
+## Testing & quality
+
+- **Layout**: unit tests under `gifts/tests/`, `validation/tests/`, `demo/tests/`; cross-area tests under `tests/e2e` and `tests/perf` (see `tests/README.md`).
+- **Lint**: Ruff on test trees (`make lint`); GitHub **lint** workflow is non-blocking (phase 1) until the whole repo is cleaned up.
+- **Coverage gates** (enforced CI baselines **≥99%** line coverage on each Python tree): `gifts/`, `validation/*.py`, `demo/*.py` — see `Makefile` `test-gifts` / `test-validation` / `test-demo` and `.github/workflows/test-*.yml`. Rare branches may be marked `# pragma: no cover` (see `scripts/annotate_coverage_misses.py` workflow).
+- **Docker**: `docker compose build` builds `Dockerfile.gifts`, `Dockerfile.validation`, `Dockerfile.demo` (see `docker-compose.yml`).
+
 ## Prequisites
 This software is written entirely in the Python language. Python interpreter v3.9 or better is required.
 
 ## Installation
 The following instructions assume you are using a computer with a Unix-based operating system. Installing this software on other operating systems may require some adjustments. These instructions install software which decodes the traditional alphanumeric code (TAC) forms of METAR, SPECI, TAF, Space Weather, Tropical Cyclone and Volcanic Ash advisories and encodes them into IWXXM equivalents.
 
-To install the GIFTs<sup>1</sup> package system-wide, use Python's setuptools package and issue the following commands:
+To install the GIFTs<sup>1</sup> package (editable dev install shown), use a virtual environment and `pip`:
 
 	$ cd /path/to/install/directory
 	$ git clone https://github.com/NOAA-MDL/GIFTs.git
 	$ cd GIFTs
-	$ python setup.py install
+	$ python3 -m venv .venv && source .venv/bin/activate
+	$ pip install -e ".[dev]"
+
+Build wheels/sdists with `python -m build` (see `Makefile` `build` target).
 
 If you do not have sufficient  permissions to modify your Python's site-packages directory, then update your PATH or PYTHONPATH environmental variable to include the directories where the source code resides.
 
