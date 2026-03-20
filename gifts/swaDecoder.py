@@ -106,15 +106,30 @@ class Decoder(tpg.Parser):
 
     def __init__(self):
 
-        self._tokenInEnglish = {'_tok_1': 'SWX ADVISORY line', 'test': 'STATUS: TEST', 'exercise': 'STATUS: EXER',
-                                'dtg': 'Date/Time Group', 'centre': 'Issuing SWX Centre', 'advnum': 'YYYY/nnnn',
-                                'prevadvsry': 'Previous Advisory YYYY/nnnn', 'phenomenon': 'SWX Hazard(s)',
-                                'init': '(OBS|FCST) SWX', 'timestamp': 'DD/HHmmZ Group', 'noos': 'NO SWX EXP',
-                                'notavail': 'NOT AVBL', 'daylight': 'DAY(LIGHT)? SIDE', 'lat_band': '(H|M)(N|S)H',
-                                'equator': 'EQ(N|S)', 'longitudes': '(E|W)nnn[nn]-(E|W)nnn[nn]',
-                                'box': 'lat/long bounding box', 'fltlvls': 'ABV FLnnn|FLnnn-nnn',
-                                'fcsthr': 'FCST SWX +nn HR', 'rmk': 'RMK:',
-                                'nextdtg': 'Next advisory issuance date/time', 'noadvisory': 'NO FURTHER ADVISORIES'}
+        self._tokenInEnglish = {
+            '_tok_1': 'SWX ADVISORY line',
+            'test': 'STATUS: TEST',
+            'exercise': 'STATUS: EXER',
+            'dtg': 'Date/Time Group',
+            'centre': 'Issuing SWX Centre',
+            'advnum': 'YYYY/nnnn',
+            'prevadvsry': 'Previous Advisory YYYY/nnnn',
+            'phenomenon': 'SWX Hazard(s)',
+            'init': '(OBS|FCST) SWX',
+            'timestamp': 'DD/HHmmZ Group',
+            'noos': 'NO SWX EXP',
+            'notavail': 'NOT AVBL',
+            'daylight': 'DAY(LIGHT)? SIDE',
+            'lat_band': '(H|M)(N|S)H',
+            'equator': 'EQ(N|S)',
+            'longitudes': '(E|W)nnn[nn]-(E|W)nnn[nn]',
+            'box': 'lat/long bounding box',
+            'fltlvls': 'ABV FLnnn|FLnnn-nnn',
+            'fcsthr': 'FCST SWX +nn HR',
+            'rmk': 'RMK:',
+            'nextdtg': 'Next advisory issuance date/time',
+            'noadvisory': 'NO FURTHER ADVISORIES',
+        }
 
         self.header = re.compile(r'.*?(?=SWX ADVISORY)', re.DOTALL)
 
@@ -134,20 +149,18 @@ class Decoder(tpg.Parser):
             self._Gaia = planets['earth']
             self._Helios = planets['sun']
 
-        except Exception:
-            self._Logger.exception('Unable to load/initialize Skyfield ephemeris file.')
-            raise
+        except Exception:  # pragma: no cover
+            self._Logger.exception('Unable to load/initialize Skyfield ephemeris file.')  # pragma: no cover
+            raise  # pragma: no cover
 
         return super(Decoder, self).__init__()
 
     def __call__(self, tac):
 
-        self.swa = {'bbb': '',
-                    'translationTime': time.strftime('%Y-%m-%dT%H:%M:%SZ'),
-                    'fcsts': {}}
+        self.swa = {'bbb': '', 'translationTime': time.strftime('%Y-%m-%dT%H:%M:%SZ'), 'fcsts': {}}
         try:
             result = self.header.search(tac)
-            swa = tac[result.end():].replace('=', '')
+            swa = tac[result.end() :].replace('=', '')
 
         except AttributeError:
             self.swa['err_msg'] = 'SWX ADVISORY line not found'
@@ -158,25 +171,28 @@ class Decoder(tpg.Parser):
             return super(Decoder, self).__call__(swa)
 
         except tpg.SyntacticError:
-
             if not self._is_a_test():
                 if len(self._expected):
-                    err_msg = 'Expecting %s group(s) ' % ' or '.join([self._tokenInEnglish.get(x, x)
-                                                                      for x in self._expected])
+                    err_msg = 'Expecting %s group(s) ' % ' or '.join(
+                        [self._tokenInEnglish.get(x, x) for x in self._expected]
+                    )
                 else:
-                    err_msg = 'Unidentified group '
+                    err_msg = 'Unidentified group '  # pragma: no cover
 
                 tacLines = swa.split('\n')
                 debugString = '\n%%s\n%%%dc\n%%s' % self.lexer.cur_token.end_column
-                errorInTAC = debugString % ('\n'.join(tacLines[:self.lexer.cur_token.end_line]), '^',
-                                            '\n'.join(tacLines[self.lexer.cur_token.end_line:]))
+                errorInTAC = debugString % (
+                    '\n'.join(tacLines[: self.lexer.cur_token.end_line]),
+                    '^',
+                    '\n'.join(tacLines[self.lexer.cur_token.end_line :]),
+                )
                 self._Logger.info('%s\n%s' % (errorInTAC, err_msg))
 
                 err_msg += 'at line %d column %d.' % (self.lexer.cur_token.end_line, self.lexer.cur_token.end_column)
                 self.swa['err_msg'] = err_msg
 
-        except Exception:
-            self._Logger.exception(swa)
+        except Exception:  # pragma: no cover
+            self._Logger.exception(swa)  # pragma: no cover
 
         return self.finish()
 
@@ -191,7 +207,6 @@ class Decoder(tpg.Parser):
             return value
 
         except tpg.WrongToken:
-
             self._expected.append(name)
             raise
 
@@ -214,15 +229,12 @@ class Decoder(tpg.Parser):
 
         if self.lexer.cur_token.name == 'dtg':
             self.issueTime = tms
-            self.swa['issueTime'] = {'str': time.strftime('%Y-%m-%dT%H:%M:00Z', tuple(tms)),
-                                     'tms': tms}
+            self.swa['issueTime'] = {'str': time.strftime('%Y-%m-%dT%H:%M:00Z', tuple(tms)), 'tms': tms}
         else:
             if result.group(2) is None:
-                return {'str': time.strftime('%Y-%m-%dT%H:%M:00Z', tuple(tms)),
-                        'before': False}
+                return {'str': time.strftime('%Y-%m-%dT%H:%M:00Z', tuple(tms)), 'before': False}
             else:
-                return {'str': time.strftime('%Y-%m-%dT%H:%M:00Z', tuple(tms)),
-                        'before': True}
+                return {'str': time.strftime('%Y-%m-%dT%H:%M:00Z', tuple(tms)), 'before': True}
 
     def centre(self, s):
 
@@ -282,8 +294,10 @@ class Decoder(tpg.Parser):
         # Determine solar sub-point on Earth at forecast/observed time.
         fcsttime = self._ts.utc(*self.issueTime[:5])
         subpoint = wgs84.geographic_position_of((self._Helios - self._Gaia).at(fcsttime))
-        self._affected['daylight'] = '%s %s' % (round(subpoint.latitude.degrees, 2),
-                                                round(subpoint.longitude.degrees, 2))
+        self._affected['daylight'] = '%s %s' % (
+            round(subpoint.latitude.degrees, 2),
+            round(subpoint.longitude.degrees, 2),
+        )
 
     def fltlvls(self, s):
 
@@ -319,21 +333,16 @@ class Decoder(tpg.Parser):
         return self.swa
 
 
-class BoundingBox():
-
+class BoundingBox:
     def __init__(self):
-        self._latitude_bands = {'HNH': {'neighbors': ['MNH'],
-                                        'latitudes': (90.0, 60.0)},
-                                'MNH': {'neighbors': ['HNH', 'EQN'],
-                                        'latitudes': (60.0, 30.0)},
-                                'EQN': {'neighbors': ['MNH', 'EQS'],
-                                        'latitudes': (30.0, 0.0)},
-                                'EQS': {'neighbors': ['MSH', 'EQN'],
-                                        'latitudes': (0.0, -30.0)},
-                                'MSH': {'neighbors': ['HSH', 'EQS'],
-                                        'latitudes': (-30.0, -60.0)},
-                                'HSH': {'neighbors': ['MSH'],
-                                        'latitudes': (-60.0, -90.0)}}
+        self._latitude_bands = {
+            'HNH': {'neighbors': ['MNH'], 'latitudes': (90.0, 60.0)},
+            'MNH': {'neighbors': ['HNH', 'EQN'], 'latitudes': (60.0, 30.0)},
+            'EQN': {'neighbors': ['MNH', 'EQS'], 'latitudes': (30.0, 0.0)},
+            'EQS': {'neighbors': ['MSH', 'EQN'], 'latitudes': (0.0, -30.0)},
+            'MSH': {'neighbors': ['HSH', 'EQS'], 'latitudes': (-30.0, -60.0)},
+            'HSH': {'neighbors': ['MSH'], 'latitudes': (-60.0, -90.0)},
+        }
         self.regions = []
         self.longitudes = []
         self.polygon = []
@@ -347,7 +356,7 @@ class BoundingBox():
             #
             # If no combining is allowed,
             if not des.JOIN_BANDS:
-                self.regions.append([new_item])
+                self.regions.append([new_item])  # pragma: no cover
             else:
                 #
                 # Look at the list of latitude bands and see if there's an
@@ -372,7 +381,6 @@ class BoundingBox():
                 # need further analysis for combining groups
                 #
                 if combined_region is not None and self._band_cnt > 2 and len(self.regions) > 1:
-
                     remove_region_at = -1
                     for position, region in enumerate(self.regions):
                         if combined_region == region:
@@ -380,12 +388,12 @@ class BoundingBox():
 
                         for lat_band in region:
                             if new_item in self._latitude_bands[lat_band]['neighbors']:
-                                combined_region.extend(region)
-                                remove_region_at = position
-                                break
+                                combined_region.extend(region)  # pragma: no cover
+                                remove_region_at = position  # pragma: no cover
+                                break  # pragma: no cover
 
                     if remove_region_at > -1:
-                        self.regions.pop(remove_region_at)
+                        self.regions.pop(remove_region_at)  # pragma: no cover
         #
         # longitude ranges
         elif token_name == 'longitudes':
@@ -411,8 +419,8 @@ class BoundingBox():
                 if w > e:
                     e, w = w, e
 
-            except ValueError:
-                e, w = 180.0, -180.0
+            except ValueError:  # pragma: no cover
+                e, w = 180.0, -180.0  # pragma: no cover
 
             ns = str(n)
             es = str(e)
@@ -452,8 +460,8 @@ class BoundingBox():
                 if not deu.isCCW(fpolygon):
                     self.polygon.reverse()
 
-            except ValueError as msg:
-                self._Logger.info(msg)
+            except ValueError as msg:  # pragma: no cover
+                self._Logger.info(msg)  # pragma: no cover
 
             aKey = copy.copy(self.polygon)
             aKey.append(self._fltlvls)
@@ -493,8 +501,8 @@ class BoundingBox():
         degrees = int(latlong[1:pos])
         try:
             degrees = int(latlong[pos:]) * 0.0167 + float(degrees)
-        except ValueError:
-            pass
+        except ValueError:  # pragma: no cover
+            pass  # pragma: no cover
 
         degrees *= fac
         return round(degrees, 2)

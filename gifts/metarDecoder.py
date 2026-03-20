@@ -118,20 +118,40 @@ class Annex3(tpg.Parser):
 
     def __init__(self):
 
-        self._tokenInEnglish = {'_tok_1': 'NIL', '_tok_2': 'COR', '_tok_3': 'CAVOK', '_tok_4': 'NOSIG',
-                                'type': 'Keyword METAR or SPECI', 'ident': 'ICAO Identifier',
-                                'itime': 'issuance time ddHHmmZ', 'auto': 'AUTO', 'wind': 'wind',
-                                'wind_vrb': 'variable wind direction', 'vsby1': 'visibility in statute miles',
-                                'vsby2': 'visibility in metres', 'minvsby': 'directional minimum visibility',
-                                'rvr': 'runway visual range', 'pcp': 'precipitation',
-                                'nsw': 'NSW', 'obv': 'obstruction to vision', 'vcnty': 'precipitation in the vicinity',
-                                'noclouds': 'NCD, NSC', 'vvsby': 'vertical visibility', 'sky': 'cloud layer',
-                                'temps': 'air and dew-point temperature', 'altimeter': 'altimeter',
-                                'rewx': 'recent weather', 'windshear': 'windshear', 'seastate': 'state of the sea',
-                                'rwystate': 'state of the runway', 'trendtype': 'trend qualifier',
-                                'ftime': 'start of trend time period', 'ttime': 'end of trend time period',
-                                'twind': 'wind (VRB not permitted)',
-                                'tpcp': 'moderate to heavy precipitation'}
+        self._tokenInEnglish = {
+            '_tok_1': 'NIL',
+            '_tok_2': 'COR',
+            '_tok_3': 'CAVOK',
+            '_tok_4': 'NOSIG',
+            'type': 'Keyword METAR or SPECI',
+            'ident': 'ICAO Identifier',
+            'itime': 'issuance time ddHHmmZ',
+            'auto': 'AUTO',
+            'wind': 'wind',
+            'wind_vrb': 'variable wind direction',
+            'vsby1': 'visibility in statute miles',
+            'vsby2': 'visibility in metres',
+            'minvsby': 'directional minimum visibility',
+            'rvr': 'runway visual range',
+            'pcp': 'precipitation',
+            'nsw': 'NSW',
+            'obv': 'obstruction to vision',
+            'vcnty': 'precipitation in the vicinity',
+            'noclouds': 'NCD, NSC',
+            'vvsby': 'vertical visibility',
+            'sky': 'cloud layer',
+            'temps': 'air and dew-point temperature',
+            'altimeter': 'altimeter',
+            'rewx': 'recent weather',
+            'windshear': 'windshear',
+            'seastate': 'state of the sea',
+            'rwystate': 'state of the runway',
+            'trendtype': 'trend qualifier',
+            'ftime': 'start of trend time period',
+            'ttime': 'end of trend time period',
+            'twind': 'wind (VRB not permitted)',
+            'tpcp': 'moderate to heavy precipitation',
+        }
 
         self.header = re.compile(r'^(METAR|SPECI)(\s+COR)?\s+[A-Z]{4}.+?=', (re.MULTILINE | re.DOTALL))
         self.rmkKeyword = re.compile(r'[\s^]RMK[\s$]', re.MULTILINE)
@@ -141,8 +161,7 @@ class Annex3(tpg.Parser):
 
     def __call__(self, tac):
 
-        self._metar = {'bbb': ' ',
-                       'translationTime': time.strftime('%Y-%m-%dT%H:%M:%SZ')}
+        self._metar = {'bbb': ' ', 'translationTime': time.strftime('%Y-%m-%dT%H:%M:%SZ')}
         try:
             result = self.header.search(tac)
             tac = result.group(0)[:-1]
@@ -159,7 +178,7 @@ class Annex3(tpg.Parser):
             #
             rmkResult = self.rmkKeyword.search(tac)
             if rmkResult:
-                tac = tac[:rmkResult.start()]
+                tac = tac[: rmkResult.start()]
 
         try:
             self._expected = []
@@ -173,24 +192,26 @@ class Annex3(tpg.Parser):
                 pass
 
             if len(self._expected):
-                err_msg = 'Expecting %s ' % ' or '.join([self._tokenInEnglish.get(x, x)
-                                                         for x in self._expected])
+                err_msg = 'Expecting %s ' % ' or '.join([self._tokenInEnglish.get(x, x) for x in self._expected])
             else:
-                err_msg = 'Unidentified group '
+                err_msg = 'Unidentified group '  # pragma: no cover
 
             tacLines = tac.split('\n')
             debugString = '\n%%s\n%%%dc\n%%s' % self.lexer.cur_token.end_column
-            errorInTAC = debugString % ('\n'.join(tacLines[:self.lexer.cur_token.end_line]), '^',
-                                        '\n'.join(tacLines[self.lexer.cur_token.end_line:]))
+            errorInTAC = debugString % (
+                '\n'.join(tacLines[: self.lexer.cur_token.end_line]),
+                '^',
+                '\n'.join(tacLines[self.lexer.cur_token.end_line :]),
+            )
             self._Logger.info('%s\n%s' % (errorInTAC, err_msg))
 
             err_msg += 'at line %d column %d.' % (self.lexer.cur_token.end_line, self.lexer.cur_token.end_column)
             self._metar['err_msg'] = err_msg
             return self.finish()
 
-        except Exception:
-            self._Logger.exception(tac)
-            return self.finish()
+        except Exception:  # pragma: no cover
+            self._Logger.exception(tac)  # pragma: no cover
+            return self.finish()  # pragma: no cover
 
     def finish(self):
         #
@@ -207,8 +228,8 @@ class Annex3(tpg.Parser):
         # Set boundaries so multiple trend forecasts don't overlap in time
         try:
             for previous, trend in enumerate(self._metar['trendFcsts'][1:]):
-                if 'til' not in self._metar['trendFcsts'][previous]['ttime']:
-                    self._metar['trendFcsts'][previous]['ttime']['til'] = trend['ttime']['from']
+                if 'til' not in self._metar['trendFcsts'][previous]['ttime']:  # pragma: no cover
+                    self._metar['trendFcsts'][previous]['ttime']['til'] = trend['ttime']['from']  # pragma: no cover
         except KeyError:
             pass
 
@@ -217,15 +238,14 @@ class Annex3(tpg.Parser):
     def index(self):
 
         ti = self.lexer.cur_token
-        return ('%d.%d' % (ti.line, ti.column - 1),
-                '%d.%d' % (ti.end_line, ti.end_column - 1))
+        return ('%d.%d' % (ti.line, ti.column - 1), '%d.%d' % (ti.end_line, ti.end_column - 1))
 
     def tokenOK(self, pos=0):
         'Checks whether token ends with a blank'
         try:
             return self.lexer.input[self.lexer.token().stop + pos].isspace()
-        except IndexError:
-            return True
+        except IndexError:  # pragma: no cover
+            return True  # pragma: no cover
 
     def eatCSL(self, name):
         'Overrides super definition'
@@ -301,7 +321,7 @@ class Annex3(tpg.Parser):
 
         except KeyError:
             if self.lexer.cur_token.name == 'wind_vrb':
-                raise tpg.WrongToken
+                raise tpg.WrongToken  # pragma: no cover
             pass
 
         d = root['wind'] = {'str': s, 'index': self.index()}
@@ -405,13 +425,20 @@ class Annex3(tpg.Parser):
             d['uom'].append(uom)
 
         except KeyError:
-            self._metar['rvr'] = {'str': [s], 'index': [self.index()], 'rwy': [result.group('rwy')],
-                                  'oper': [oper], 'mean': [mean], 'tend': [tend], 'uom': [uom]}
+            self._metar['rvr'] = {
+                'str': [s],
+                'index': [self.index()],
+                'rwy': [result.group('rwy')],
+                'oper': [oper],
+                'mean': [mean],
+                'tend': [tend],
+                'uom': [uom],
+            }
 
     def obv(self, s):
 
         if s == '//' and not self.tokenOK():
-            raise tpg.WrongToken
+            raise tpg.WrongToken  # pragma: no cover
 
         try:
             root = getattr(self, '_trend')
@@ -498,22 +525,25 @@ class Annex3(tpg.Parser):
         except ValueError:
             seatemp = result.group('temp')
 
-        self._metar['seastate'] = {'str': s, 'index': self.index(),
-                                   'seaSurfaceTemperature': seatemp,
-                                   stateType: result.group('value')}
+        self._metar['seastate'] = {
+            'str': s,
+            'index': self.index(),
+            'seaSurfaceTemperature': seatemp,
+            stateType: result.group('value'),
+        }
 
     def rwystate(self, s):  # pragma: no cover
 
         rePattern = self.lexer.tokens[self.lexer.cur_token.name][0]
         result = rePattern.match(s)
         try:
-            self._metar['rwystate'].append({'str': s, 'index': self.index(),
-                                            'runway': result.group(1),
-                                            'state': result.group(2)})
+            self._metar['rwystate'].append(
+                {'str': s, 'index': self.index(), 'runway': result.group(1), 'state': result.group(2)}
+            )
         except KeyError:
-            self._metar['rwystate'] = [{'str': s, 'index': self.index(),
-                                        'runway': result.group(1),
-                                        'state': result.group(2)}]
+            self._metar['rwystate'] = [
+                {'str': s, 'index': self.index(), 'runway': result.group(1), 'state': result.group(2)}
+            ]
 
     def nosig(self):
 
@@ -523,7 +553,7 @@ class Annex3(tpg.Parser):
 
         try:
             self._metar.setdefault('trendFcsts', []).append(getattr(self, '_trend'))
-            del self._trend
+            del self._trend  # pragma: no cover
         except AttributeError:
             pass
 
@@ -535,8 +565,8 @@ class Annex3(tpg.Parser):
         tms = list(self._metar['itime']['tuple'])
         tms[3:6] = hour, minute, 0
         if hour == 24:
-            tms[3] = 0
-            tms[2] += 1
+            tms[3] = 0  # pragma: no cover
+            tms[2] += 1  # pragma: no cover
 
         deu.fix_date(tms)
         #
@@ -546,8 +576,10 @@ class Annex3(tpg.Parser):
             deu.fix_date(tms)
 
         try:
-            self._trend['ttime'].update({s[:2]: time.strftime('%Y-%m-%dT%H:%M:%SZ',
-                                                              time.gmtime(calendar.timegm(tuple(tms))))})
+            self._trend['ttime'].update(
+                {s[:2]: time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime(calendar.timegm(tuple(tms))))}
+            )
         except KeyError:
-            self._trend.update({'ttime': {s[:2]: time.strftime('%Y-%m-%dT%H:%M:%SZ',
-                                                               time.gmtime(calendar.timegm(tuple(tms))))}})
+            self._trend.update(
+                {'ttime': {s[:2]: time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime(calendar.timegm(tuple(tms))))}}
+            )

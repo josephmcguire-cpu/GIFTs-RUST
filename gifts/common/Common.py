@@ -23,19 +23,21 @@ from . import xmlUtilities as deu
 # Contact Info: Mark.Oberfield@gmail.com
 #
 
-class Base(object):
 
+class Base(object):
     def __init__(self):
 
         self._re_ICAO_ID = re.compile(r'[A-Z]{4}')
         self._re_IATA_ID = re.compile(r'[A-Z]{3}')
         self._re_Alternate_ID = re.compile(r'[A-Z0-9]{3,6}')
 
-        self.NameSpaces = {'aixm': 'http://www.aixm.aero/schema/5.1.1',
-                           'iwxxm': des.IWXXM_URI,
-                           'gml': 'http://www.opengis.net/gml/3.2',
-                           'xlink': 'http://www.w3.org/1999/xlink',
-                           'xsi': 'http://www.w3.org/2001/XMLSchema-instance'}
+        self.NameSpaces = {
+            'aixm': 'http://www.aixm.aero/schema/5.1.1',
+            'iwxxm': des.IWXXM_URI,
+            'gml': 'http://www.opengis.net/gml/3.2',
+            'xlink': 'http://www.w3.org/1999/xlink',
+            'xsi': 'http://www.w3.org/2001/XMLSchema-instance',
+        }
 
     def aerodrome(self, parent, token):
 

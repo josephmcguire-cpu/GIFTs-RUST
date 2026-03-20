@@ -24,7 +24,6 @@ from . import xmlConfig as des
 
 
 class Encoder(object):
-
     def __init__(self):
         """Superclass for invoking MDL decoders and encoders for a code form."""
 
@@ -37,10 +36,10 @@ class Encoder(object):
     def encode(self, text, receiptTime=None, **attrs):
         """Parses text to extract the WMO AHL line and one or more TAC forms.
 
-           text = character string containing entire TAC message (required)
-           receiptTime = date/time stamp the TAC message was received (optional, see xmlConfig.py)
+        text = character string containing entire TAC message (required)
+        receiptTime = date/time stamp the TAC message was received (optional, see xmlConfig.py)
 
-           returns Bulletin object."""
+        returns Bulletin object."""
         #
         collection = bulletin.Bulletin()
         #
@@ -54,7 +53,6 @@ class Encoder(object):
             translatedBulletinID = AHL.group(0).replace(' ', '')
 
             for tac in self.re_TAC.findall(text):
-
                 decodedTAC = self.decoder(tac)
                 if decodedTAC['bbb'] == '':
                     decodedTAC['bbb'] = attrs['bbb']
@@ -78,7 +76,6 @@ class Encoder(object):
                     continue
 
                 if self.geoLocationsDB is not None:
-
                     try:
                         metaData = self.geoLocationsDB.get(decodedTAC['ident']['str'], '|||0.0 0.0 0')
                     except KeyError:
@@ -96,8 +93,9 @@ class Encoder(object):
 
                     decodedTAC['ident']['position'] = position
                     if position == '0.0 0.0 0':
-                        self._Logger.warning('"%s" not found in geoLocationsDB. Location missing.' %
-                                             decodedTAC['ident']['str'])
+                        self._Logger.warning(
+                            '"%s" not found in geoLocationsDB. Location missing.' % decodedTAC['ident']['str']
+                        )
                 try:
                     collection.append(self.encoder(decodedTAC, tac))
                 except SyntaxError as msg:

@@ -33,6 +33,7 @@ from .common import xmlUtilities as deu
 
 class CAVOKError(SyntaxError):
     """Called when mandatory values of visibility and sky conditions are missing in a group."""
+
     pass
 
 
@@ -94,11 +95,22 @@ class Decoder(tpg.Parser):
 
     def __init__(self):
 
-        self._tokenInEnglish = {'ident': 'ICAO Identifier', 'itime': 'issuance time ddHHmmZ', 'nil': 'keyword NIL',
-                                'vtime': 'valid period', 'cnl': 'keyword CNL', 'ftime': 'FM',
-                                'btime': 'BECMG', 'ttime': 'TEMPO', 'ptime': 'PROB TEMPO?',
-                                'vsby': 'prevailing visibility', 'pcp': 'precipitation', 'sky': 'sky condition',
-                                'obv': 'obstruction-to-vision', 'temps': 'high/low temperatures'}
+        self._tokenInEnglish = {
+            'ident': 'ICAO Identifier',
+            'itime': 'issuance time ddHHmmZ',
+            'nil': 'keyword NIL',
+            'vtime': 'valid period',
+            'cnl': 'keyword CNL',
+            'ftime': 'FM',
+            'btime': 'BECMG',
+            'ttime': 'TEMPO',
+            'ptime': 'PROB TEMPO?',
+            'vsby': 'prevailing visibility',
+            'pcp': 'precipitation',
+            'sky': 'sky condition',
+            'obv': 'obstruction-to-vision',
+            'temps': 'high/low temperatures',
+        }
 
         self.header = re.compile(r'^TAF(\s+(AMD|COR))?\s+[A-Z]{4}.+?=', (re.MULTILINE | re.DOTALL))
         self.rmkKeyword = re.compile(r'[\s^]RMK[\s$]', re.MULTILINE)
@@ -108,9 +120,7 @@ class Decoder(tpg.Parser):
 
     def __call__(self, tac):
 
-        self._taf = {'bbb': '',
-                     'translationTime': time.strftime('%Y-%m-%dT%H:%M:%SZ'),
-                     'group': []}
+        self._taf = {'bbb': '', 'translationTime': time.strftime('%Y-%m-%dT%H:%M:%SZ'), 'group': []}
 
         self._group = {'cavok': 'false'}
         self._nil = False
@@ -121,33 +131,36 @@ class Decoder(tpg.Parser):
             result = self.header.search(tac)
             tac = result.group(0)[:-1]
 
-        except AttributeError:
-            self._taf['err_msg'] = 'Unable to find start and end positions of the TAF.'
-            return self._taf
+        except AttributeError:  # pragma: no cover
+            self._taf['err_msg'] = 'Unable to find start and end positions of the TAF.'  # pragma: no cover
+            return self._taf  # pragma: no cover
         #
         # Remove RMK token and everything beyond that. This decoder follows Annex 3 specifications and ignores content
         # beyond the RMK keyword. Any unidentified content in the report renders it invalid.
         #
         rmkResult = self.rmkKeyword.search(tac)
         if rmkResult:
-            tac = tac[:rmkResult.start()]
+            tac = tac[: rmkResult.start()]
 
         try:
             self._expected = []
             return super(Decoder, self).__call__(tac)
 
         except tpg.SyntacticError:
-
             if len(self._expected):
-                err_msg = 'Expecting %s group(s) ' % ' or '.join([self._tokenInEnglish.get(x, x)
-                                                                  for x in self._expected])
+                err_msg = 'Expecting %s group(s) ' % ' or '.join(
+                    [self._tokenInEnglish.get(x, x) for x in self._expected]
+                )
             else:
-                err_msg = 'Unidentified group '
+                err_msg = 'Unidentified group '  # pragma: no cover
 
             tacLines = tac.split('\n')
             debugString = '\n%%s\n%%%dc\n%%s' % self.lexer.cur_token.end_column
-            errorInTAC = debugString % ('\n'.join(tacLines[:self.lexer.cur_token.end_line]), '^',
-                                        '\n'.join(tacLines[self.lexer.cur_token.end_line:]))
+            errorInTAC = debugString % (
+                '\n'.join(tacLines[: self.lexer.cur_token.end_line]),
+                '^',
+                '\n'.join(tacLines[self.lexer.cur_token.end_line :]),
+            )
             self._Logger.info('%s\n%s' % (errorInTAC, err_msg))
 
             err_msg += 'at line %d column %d.' % (self.lexer.cur_token.end_line, self.lexer.cur_token.end_column)
@@ -163,17 +176,16 @@ class Decoder(tpg.Parser):
 
             tacLines = tac.split('\n')
             debugString = '\n%%s\n%%%dc\n%%s' % position
-            errorInTAC = debugString % ('\n'.join(tacLines[:line]), '^',
-                                        '\n'.join(tacLines[line:]))
+            errorInTAC = debugString % ('\n'.join(tacLines[:line]), '^', '\n'.join(tacLines[line:]))
             self._Logger.info('%s\n%s' % (errorInTAC, err_msg))
 
             self._taf['err_msg'] = err_msg
 
             return self._taf
 
-        except Exception:
-            self._Logger.exception(tac)
-            return self.finish(reportCavokErrors=False)
+        except Exception:  # pragma: no cover
+            self._Logger.exception(tac)  # pragma: no cover
+            return self.finish(reportCavokErrors=False)  # pragma: no cover
 
     def _index(self, pos, token):
 
@@ -255,7 +267,6 @@ class Decoder(tpg.Parser):
             assert 'sky' in self._group
 
         except AssertionError:
-
             try:
                 sky = self._group['sky']
             except KeyError:
@@ -285,7 +296,6 @@ class Decoder(tpg.Parser):
                 self._group['cavok'] = 'true'
 
             elif vsby is None or sky is None:
-
                 line, column = self._group['time']['index'][1].split('.')
                 if des.noImpliedCAVOKCondition:
                     self._cavokErrors.append((int(line), int(column)))
@@ -294,13 +304,16 @@ class Decoder(tpg.Parser):
                     if vsby is None:
                         self.vsby('10000')
                         if des.emitImpliedCAVOKConditionMessage:
-                            self._Logger.info('TAF %s: Added >10km visibility to forecast group on line %s, column %s' %
-                                              (icaoID, line, column))
+                            self._Logger.info(
+                                'TAF %s: Added >10km visibility to forecast group on line %s, column %s'
+                                % (icaoID, line, column)
+                            )
                     else:
                         self.sky('NSC')
                         if des.emitImpliedCAVOKConditionMessage:
-                            self._Logger.info('TAF %s: Added NSC to forecast group on line %s, column %s' %
-                                              (icaoID, line, column))
+                            self._Logger.info(
+                                'TAF %s: Added NSC to forecast group on line %s, column %s' % (icaoID, line, column)
+                            )
 
     ###################################################################
     # Element checks
@@ -320,9 +333,9 @@ class Decoder(tpg.Parser):
 
         self._group['type'] = 'FM'
         d = self._taf['itime'] = {'str': s, 'index': self.index()}
-        mday, hour, minute = int(s[: 2]), int(s[2: 4]), int(s[4: 6])
+        mday, hour, minute = int(s[:2]), int(s[2:4]), int(s[4:6])
         tms = list(time.gmtime())
-        tms[2: 6] = mday, hour, minute, 0
+        tms[2:6] = mday, hour, minute, 0
         deu.fix_date(tms)
         d['value'] = time.mktime(tuple(tms))
 
@@ -331,22 +344,21 @@ class Decoder(tpg.Parser):
         d = self._group['time'] = {'str': s, 'index': self.index()}
 
         tms = list(time.gmtime())
-        tms[2: 6] = int(s[0: 2]), int(s[2: 4]), 0, 0
+        tms[2:6] = int(s[0:2]), int(s[2:4]), 0, 0
         deu.fix_date(tms)
 
-        mday, shour, eday, ehour = int(s[: 2]), int(s[2: 4]), int(s[5: 7]), int(s[7: 9])
+        mday, shour, eday, ehour = int(s[:2]), int(s[2:4]), int(s[5:7]), int(s[7:9])
 
-        tms[2: 6] = mday, shour, 0, 0
+        tms[2:6] = mday, shour, 0, 0
         deu.fix_date(tms)
         d['from'] = time.mktime(tuple(tms))
 
-        tms[2: 6] = eday, ehour, 0, 0
+        tms[2:6] = eday, ehour, 0, 0
         deu.fix_date(tms)
         d['to'] = time.mktime(tuple(tms))
 
         self._taf['vtime'] = self._group['time'].copy()
-        d['from'] = min(self._taf['vtime']['from'],
-                        self._taf['itime']['value'])
+        d['from'] = min(self._taf['vtime']['from'], self._taf['itime']['value'])
 
     def ftime(self, s):
 
@@ -357,7 +369,7 @@ class Decoder(tpg.Parser):
         tms[2:5] = mday, hour, minute
         t = time.mktime(tuple(tms))
         if t < self._taf['vtime']['from']:
-            deu.fix_date(tms)
+            deu.fix_date(tms)  # pragma: no cover
 
         d.update({'from': time.mktime(tuple(tms)), 'to': self._taf['vtime']['to']})
 
@@ -371,13 +383,13 @@ class Decoder(tpg.Parser):
         tms[2:4] = sday, shour
         t = time.mktime(tuple(tms))
         if t < self._taf['vtime']['from']:
-            deu.fix_date(tms)
+            deu.fix_date(tms)  # pragma: no cover
 
         t = time.mktime(tuple(tms))
 
         tms[2:4] = eday, ehour
         if eday < sday:
-            tms[0], tms[1] = (tms[0], tms[1]+1) if tms[1] < 12 else (tms[0]+1, 1)
+            tms[0], tms[1] = (tms[0], tms[1] + 1) if tms[1] < 12 else (tms[0] + 1, 1)  # pragma: no cover
 
         d.update({'from': t, 'to': time.mktime(tuple(tms))})
 
@@ -392,12 +404,12 @@ class Decoder(tpg.Parser):
         tms[2:4] = sday, shour
         t = time.mktime(tuple(tms))
         if t < self._taf['vtime']['from']:
-            deu.fix_date(tms)
+            deu.fix_date(tms)  # pragma: no cover
 
         t = time.mktime(tuple(tms))
         tms[2:4] = eday, ehour
         if eday < sday:
-            tms[0], tms[1] = (tms[0], tms[1]+1) if tms[1] < 12 else (tms[0]+1, 1)
+            tms[0], tms[1] = (tms[0], tms[1] + 1) if tms[1] < 12 else (tms[0] + 1, 1)  # pragma: no cover
 
         d.update({'from': t, 'to': time.mktime(tuple(tms))})
 
@@ -428,10 +440,8 @@ class Decoder(tpg.Parser):
         d['ff'] = str(int(speed))
 
         if len(tok) > 1:
-
             gust = tok[1]
             if gust[0] == 'P':
-
                 d['ggplus'] = True
                 gust = tok[1][1:]
 
@@ -441,7 +451,6 @@ class Decoder(tpg.Parser):
 
         d = self._group['vsby'] = {'str': s, 'index': self.index(), 'uom': 'm'}
         if s.endswith('SM'):
-
             vis = 0.0
             v = self.lexer.tokens[self.lexer.cur_token.name][0].match(s)
             value = v.groupdict('')

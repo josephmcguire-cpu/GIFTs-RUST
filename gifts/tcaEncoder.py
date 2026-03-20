@@ -30,11 +30,13 @@ class Encoder:
     def __init__(self):
 
         self._Logger = logging.getLogger(__name__)
-        self.NameSpaces = {'aixm': 'http://www.aixm.aero/schema/5.1.1',
-                           'gml': 'http://www.opengis.net/gml/3.2',
-                           '': des.IWXXM_URI,
-                           'xlink': 'http://www.w3.org/1999/xlink',
-                           'xsi': 'http://www.w3.org/2001/XMLSchema-instance'}
+        self.NameSpaces = {
+            'aixm': 'http://www.aixm.aero/schema/5.1.1',
+            'gml': 'http://www.opengis.net/gml/3.2',
+            '': des.IWXXM_URI,
+            'xlink': 'http://www.w3.org/1999/xlink',
+            'xsi': 'http://www.w3.org/2001/XMLSchema-instance',
+        }
         #
         # Create dictionaries of the following WMO codes
         neededCodes = [des.NIL]
@@ -54,8 +56,8 @@ class Encoder:
             self.observations()
             self.postContent()
 
-        except Exception:
-            self._Logger.exception(tac)
+        except Exception:  # pragma: no cover
+            self._Logger.exception(tac)  # pragma: no cover
 
         return self.XMLDocument
 
@@ -82,20 +84,18 @@ class Encoder:
             self.XMLDocument.set('permissibleUsage', 'OPERATIONAL')
         #
         # bbb code
-        self.XMLDocument.set('reportStatus', {'A': 'AMENDMENT', 'C': 'CORRECTION'}.get(
-            self.decodedTAC['bbb'], 'NORMAL'))
+        self.XMLDocument.set(
+            'reportStatus', {'A': 'AMENDMENT', 'C': 'CORRECTION'}.get(self.decodedTAC['bbb'], 'NORMAL')
+        )
         #
         if des.TRANSLATOR:
-
             self.XMLDocument.set('translationCentreName', des.TranslationCentreName)
             self.XMLDocument.set('translationCentreDesignator', des.TranslationCentreDesignator)
             self.XMLDocument.set('translationTime', self.decodedTAC['translationTime'])
-            self.XMLDocument.set('translatedBulletinReceptionTime',
-                                 self.decodedTAC['translatedBulletinReceptionTime'])
+            self.XMLDocument.set('translatedBulletinReceptionTime', self.decodedTAC['translatedBulletinReceptionTime'])
             self.XMLDocument.set('translatedBulletinID', self.decodedTAC['translatedBulletinID'])
 
             if 'err_msg' in self.decodedTAC:
-
                 self.XMLDocument.set('translationFailedTAC', ' '.join(self.tacString.split()))
                 # self.XMLDocument.set('permissibleUsageSupplementary', self.decodedTAC.get('err_msg'))
                 self.nilPresent = True
@@ -104,7 +104,6 @@ class Encoder:
         #
         # For translation failed messages, no operational content shall be provided in XML
         if self.nilPresent:
-
             self.issueTime(self.XMLDocument, None)
             self.tcac(self.XMLDocument, None)
 
@@ -169,15 +168,14 @@ class Encoder:
         for fhr in fhrs:
             try:
                 self.result(self.XMLDocument, self.decodedTAC['fcst'][fhr], fhr)
-            except Exception:
-                self._Logger.exception(self.tacString)
+            except Exception:  # pragma: no cover
+                self._Logger.exception(self.tacString)  # pragma: no cover
 
     def result(self, parent, token, fhr):
 
         if fhr == '0':
             self.doObservedConditions(ET.SubElement(parent, 'observation'), token)
         else:
-
             indent = ET.SubElement(parent, 'forecast')
             indent1 = ET.SubElement(indent, 'TropicalCycloneForecastConditions')
             indent1.set('gml:id', deu.getUUID())

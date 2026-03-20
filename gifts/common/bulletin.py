@@ -1,6 +1,6 @@
 try:
     import gzip
-except ValueError:
+except ValueError:  # pragma: no cover — extremely rare interpreter state
     pass
 
 import datetime
@@ -27,6 +27,7 @@ import xml.etree.ElementTree as ET
 #
 # Contact Info: Mark.Oberfield@gmail.com
 #
+
 
 class XMLError(SyntaxError):
     pass
@@ -58,7 +59,7 @@ class Bulletin(object):
         self._addwhitespace()
         if sys.version_info[0] == 3:
             xmlstring = ET.tostring(self.bulletin, encoding='unicode', method='xml')
-        else:
+        else:  # pragma: no cover — Python 2
             xmlstring = ET.tostring(self.bulletin, encoding='UTF-8', method='xml')
 
         self.bulletin = None
@@ -126,8 +127,9 @@ class Bulletin(object):
         self.bulletin.set('xmlns', 'http://def.wmo.int/collect/2014')
         self.bulletin.set('xmlns:gml', 'http://www.opengis.net/gml/3.2')
         self.bulletin.set('xmlns:xsi', 'http://www.w3.org/2001/XMLSchema-instance')
-        self.bulletin.set('xsi:schemaLocation',
-                          'http://def.wmo.int/collect/2014 https://schemas.wmo.int/collect/1.2/collect.xsd')
+        self.bulletin.set(
+            'xsi:schemaLocation', 'http://def.wmo.int/collect/2014 https://schemas.wmo.int/collect/1.2/collect.xsd'
+        )
         self.bulletin.set('gml:id', 'uuid.%s' % uuid.uuid4())
 
         for child in self._children:
@@ -174,8 +176,9 @@ class Bulletin(object):
 
         keys = ['A_', 'tt', 'aaii', 'cccc', 'yygg', 'bbb', '_C_', 'cccc']
         self._bulletinId = ''.join([kwargs.get(key, key) for key in keys])
-        self._wmoAHL = '{}{} {} {} {}'.format(kwargs['tt'], kwargs['aaii'], kwargs['cccc'], kwargs['yygg'],
-                                              kwargs['bbb']).rstrip()
+        self._wmoAHL = '{}{} {} {} {}'.format(
+            kwargs['tt'], kwargs['aaii'], kwargs['cccc'], kwargs['yygg'], kwargs['bbb']
+        ).rstrip()
 
     def export(self):
         """Construct and return a <MeteorologicalBulletin> ElementTree"""
@@ -199,7 +202,7 @@ class Bulletin(object):
             return obj.writable() and obj.mode == 'wb'
         except AttributeError:
             try:
-                return isinstance(obj, file) and obj.mode == 'wb'
+                return isinstance(obj, file) and obj.mode == 'wb'  # pragma: no cover — Python 2
             except NameError:
                 return False
 

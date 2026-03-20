@@ -26,15 +26,43 @@ import time
 import uuid
 import xml.etree.ElementTree as ET
 
-CardinalPtsToDegreesS = {'N': '360', 'NNE': '22.5', 'NE': '45', 'ENE': '67.5',
-                         'E': '90', 'ESE': '112.5', 'SE': '135', 'SSE': '157.5',
-                         'S': '180', 'SSW': '202.5', 'SW': '225', 'WSW': '247.5',
-                         'W': '270', 'WNW': '292.5', 'NW': '315', 'NNW': '337.5', }
+CardinalPtsToDegreesS = {
+    'N': '360',
+    'NNE': '22.5',
+    'NE': '45',
+    'ENE': '67.5',
+    'E': '90',
+    'ESE': '112.5',
+    'SE': '135',
+    'SSE': '157.5',
+    'S': '180',
+    'SSW': '202.5',
+    'SW': '225',
+    'WSW': '247.5',
+    'W': '270',
+    'WNW': '292.5',
+    'NW': '315',
+    'NNW': '337.5',
+}
 
-CardinalPtsToDegreesF = {'N': 360., 'NNE': 22.5, 'NE': 45., 'ENE': 67.5,
-                         'E': 90., 'ESE': 112.5, 'SE': 135., 'SSE': 157.5,
-                         'S': 180., 'SSW': 202.5, 'SW': 225., 'WSW': 247.5,
-                         'W': 270., 'WNW': 292.5, 'NW': 315., 'NNW': 337.5, }
+CardinalPtsToDegreesF = {
+    'N': 360.0,
+    'NNE': 22.5,
+    'NE': 45.0,
+    'ENE': 67.5,
+    'E': 90.0,
+    'ESE': 112.5,
+    'SE': 135.0,
+    'SSE': 157.5,
+    'S': 180.0,
+    'SSW': 202.5,
+    'SW': 225.0,
+    'WSW': 247.5,
+    'W': 270.0,
+    'WNW': 292.5,
+    'NW': 315.0,
+    'NNW': 337.5,
+}
 
 
 def parseCodeRegistryTables(srcDirectory, neededCodes, preferredLanguage='en'):
@@ -44,14 +72,17 @@ def parseCodeRegistryTables(srcDirectory, neededCodes, preferredLanguage='en'):
         neededCodes.append('nil')
     #
     # Get the list of RDF files in the srcDirectory
-    neededCodeFiles = [(needed, os.path.join(srcDirectory, rdfFile)) for rdfFile in os.listdir(srcDirectory)
-                       for needed in neededCodes if needed in rdfFile]
+    neededCodeFiles = [
+        (needed, os.path.join(srcDirectory, rdfFile))
+        for rdfFile in os.listdir(srcDirectory)
+        for needed in neededCodes
+        if needed in rdfFile
+    ]
     #
     events = 'start', 'start-ns'
     codes = {}
     #
     for containerId, fname in neededCodeFiles:
-
         top = None
         nameSpaces = {'xml': 'http://www.w3.org/XML/1998/namespace'}
         neededNS = ['skos', 'rdf', 'rdfs']
@@ -76,20 +107,20 @@ def parseCodeRegistryTables(srcDirectory, neededCodes, preferredLanguage='en'):
         for concept in root.iter(Concept):
             try:
                 uri = concept.get(about)
-                key = uri[uri.rfind('/') + 1:]
+                key = uri[uri.rfind('/') + 1 :]
                 text = ''
                 try:
                     text = concept.find(label).text
                 except AttributeError:
                     if preferredLanguage != 'en':
-                        text = concept.find(enlabel).text
+                        text = concept.find(enlabel).text  # pragma: no cover
                     else:
                         text = concept.find(nolang).text
                 finally:
                     kvp.append((key, (uri, text)))
 
-            except AttributeError:
-                pass
+            except AttributeError:  # pragma: no cover
+                pass  # pragma: no cover
 
         codes[containerId] = dict(kvp)
     return codes
@@ -101,12 +132,12 @@ def fix_date(tms):
 
     now = time.time()
     t = time.mktime(tuple(tms))
-    if t > now + 3*86400.0:       # previous month
+    if t > now + 3 * 86400.0:  # previous month
         if tms[1] > 1:
             tms[1] -= 1
         else:
-            tms[1] = 12
-            tms[0] -= 1
+            tms[1] = 12  # pragma: no cover
+            tms[0] -= 1  # pragma: no cover
     elif t < now - 25 * 86400.0:  # next month
         if tms[1] < 12:
             tms[1] += 1
@@ -123,7 +154,7 @@ def getUUID(prefix='uuid.'):
     return '%s%s' % (prefix, uuid.uuid4())
 
 
-def computeLatLon(lat, lon, bearing, distance, radius=3440.):
+def computeLatLon(lat, lon, bearing, distance, radius=3440.0):
     #
     # Assumes flat earth, "far" from singularities, i.e. the poles, and small distances.
     #
@@ -133,9 +164,9 @@ def computeLatLon(lat, lon, bearing, distance, radius=3440.):
     nlon = lon + math.degrees(z.real / (radius * math.cos(math.radians(lat))))
 
     if nlon < -180:
-        nlon += 360
+        nlon += 360  # pragma: no cover
     elif nlon > 180:
-        nlon -= 360
+        nlon -= 360  # pragma: no cover
 
     return '%.3f %.3f' % (nlat, nlon)
 
@@ -144,10 +175,13 @@ def checkVisibility(value, uom='m'):
     #
     # Returns values (in meters) according to Annex 3 Amd 77
     if isinstance(value, str):
+
         def returnFunction(x):
             return str(x)
+
         value = float(value)
     else:
+
         def returnFunction(x):
             return int(x)
 
@@ -173,15 +207,18 @@ def checkVisibility(value, uom='m'):
 def checkRVR(value, uom='m'):
 
     if isinstance(value, str):
+
         def returnFunction(x):
             return str(x)
+
         value = float(value)
     else:
+
         def returnFunction(x):
             return int(x)
 
     if uom == '[mi_i]':
-        value *= 1609.34
+        value *= 1609.34  # pragma: no cover
     elif uom == '[ft_i]':
         value *= 0.3048
 

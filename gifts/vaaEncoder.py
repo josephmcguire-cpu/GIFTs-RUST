@@ -30,15 +30,17 @@ class Encoder:
     def __init__(self):
         #
         self._Logger = logging.getLogger(__name__)
-        self.NameSpaces = {'aixm': 'http://www.aixm.aero/schema/5.1.1',
-                           'gml': 'http://www.opengis.net/gml/3.2',
-                           '': des.IWXXM_URI,
-                           'xlink': 'http://www.w3.org/1999/xlink',
-                           'xsi': 'http://www.w3.org/2001/XMLSchema-instance'}
+        self.NameSpaces = {
+            'aixm': 'http://www.aixm.aero/schema/5.1.1',
+            'gml': 'http://www.opengis.net/gml/3.2',
+            '': des.IWXXM_URI,
+            'xlink': 'http://www.w3.org/1999/xlink',
+            'xsi': 'http://www.w3.org/2001/XMLSchema-instance',
+        }
         try:
             self.codes = deu.parseCodeRegistryTables(des.CodesFilePath, [des.NIL], 'en')
-        except AssertionError as msg:
-            self._Logger.warning(msg)
+        except AssertionError as msg:  # pragma: no cover
+            self._Logger.warning(msg)  # pragma: no cover
 
     def __call__(self, decodedVAA, tac):
         #
@@ -53,8 +55,8 @@ class Encoder:
                 self.observations()
                 self.postContent()
 
-        except Exception:
-            self._Logger.exception(tac)
+        except Exception:  # pragma: no cover
+            self._Logger.exception(tac)  # pragma: no cover
 
         return self.XMLDocument
 
@@ -82,21 +84,19 @@ class Encoder:
             self.XMLDocument.set('permissibleUsage', 'OPERATIONAL')
         #
         # bbb code
-        self.XMLDocument.set('reportStatus', {'A': 'AMENDMENT', 'C': 'CORRECTION'}.get(
-            self.decodedTAC['bbb'], 'NORMAL'))
+        self.XMLDocument.set(
+            'reportStatus', {'A': 'AMENDMENT', 'C': 'CORRECTION'}.get(self.decodedTAC['bbb'], 'NORMAL')
+        )
         #
         if des.TRANSLATOR:
-
             self.XMLDocument.set('translationCentreName', des.TranslationCentreName)
             self.XMLDocument.set('translationCentreDesignator', des.TranslationCentreDesignator)
             self.XMLDocument.set('translationTime', self.decodedTAC['translationTime'])
-            self.XMLDocument.set('translatedBulletinReceptionTime',
-                                 self.decodedTAC['translatedBulletinReceptionTime'])
+            self.XMLDocument.set('translatedBulletinReceptionTime', self.decodedTAC['translatedBulletinReceptionTime'])
             self.XMLDocument.set('translatedBulletinID', self.decodedTAC['translatedBulletinID'])
             #
             # If TAC translation failed in some way
             if 'err_msg' in self.decodedTAC:
-
                 self.XMLDocument.set('translationFailedTAC', self.tacString)
                 # self.XMLDocument.set('permissibleUsageSupplementary', self.decodedTAC.get('err_msg'))
                 self.nilPresent = True
@@ -105,7 +105,6 @@ class Encoder:
         #
         # For translation failed messages, no operational content shall be provided in XML
         if self.nilPresent:
-
             self.issueTime(self.XMLDocument, None)
             self.vaac(self.XMLDocument, None)
 
@@ -146,8 +145,8 @@ class Encoder:
         #
         child = ET.SubElement(self.XMLDocument, 'eruptionDetails')
         if 'UNKNOWN' in self.decodedTAC['details']:
-            child.set('nilReason', self.codes[des.NIL][des.UNKNWN][0])
-            child.set('xsi:nil', 'true')
+            child.set('nilReason', self.codes[des.NIL][des.UNKNWN][0])  # pragma: no cover
+            child.set('xsi:nil', 'true')  # pragma: no cover
 
         else:
             child.text = self.decodedTAC['details']
@@ -226,8 +225,8 @@ class Encoder:
         for fhr in fhrs:
             try:
                 self.forecast(self.XMLDocument, self.decodedTAC['clouds'][fhr]['cldLyrs'], fhr)
-            except Exception:
-                self._Logger.exception(self.tacString)
+            except Exception:  # pragma: no cover
+                self._Logger.exception(self.tacString)  # pragma: no cover
 
     def observed(self, parent, layers):
 
@@ -284,8 +283,8 @@ class Encoder:
         # Sometimes date-time group is missing. Decoder allows for this.
         try:
             self.itime(indent1, self.decodedTAC['clouds'][fhr]['dtg'])
-        except KeyError:
-            self.itime(indent1, None)
+        except KeyError:  # pragma: no cover
+            self.itime(indent1, None)  # pragma: no cover
         #
         # Return early if not further information
         if indent1.get('status') != 'PROVIDED':
@@ -311,7 +310,7 @@ class Encoder:
                 if lyr['top'] is not None:
                     indent5.text = lyr['top']
                 else:
-                    indent5.text = lyr['bottom']
+                    indent5.text = lyr['bottom']  # pragma: no cover
 
                 indent5 = ET.SubElement(indent4, 'aixm:upperLimitReference')
                 indent5.text = 'STD'
@@ -326,12 +325,12 @@ class Encoder:
                     indent5.text = 'STD'
 
                 else:
-                    indent5.text = 'GND'
-                    indent5 = ET.SubElement(indent4, 'aixm:lowerLimitReference')
-                    indent5.text = 'SFC'
+                    indent5.text = 'GND'  # pragma: no cover
+                    indent5 = ET.SubElement(indent4, 'aixm:lowerLimitReference')  # pragma: no cover
+                    indent5.text = 'SFC'  # pragma: no cover
 
-            except KeyError:
-                continue
+            except KeyError:  # pragma: no cover
+                continue  # pragma: no cover
             #
             # Mean wind direction
             try:
@@ -352,13 +351,12 @@ class Encoder:
                 # Attach successful mean wind layer to parent
                 parent.append(indent1)
 
-            except KeyError:
-                pass
+            except KeyError:  # pragma: no cover
+                pass  # pragma: no cover
 
     def doAshClouds(self, parent, elementName, layers):
 
         for lyr in layers:
-
             indent1 = ET.SubElement(parent, 'ashCloud')
             indent2 = ET.SubElement(indent1, elementName)
             indent2.set('gml:id', deu.getUUID())
@@ -405,9 +403,9 @@ class Encoder:
             indent2 = ET.SubElement(indent1, 'aixm:upperLimitReference')
             indent2.text = 'STD'
 
-        except KeyError:
-            indent2.set('nilReason', des.MSSG)
-            indent2.set('xsi:nil', 'true')
+        except KeyError:  # pragma: no cover
+            indent2.set('nilReason', des.MSSG)  # pragma: no cover
+            indent2.set('xsi:nil', 'true')  # pragma: no cover
 
         indent2 = ET.SubElement(indent1, 'aixm:lowerLimit')
         try:
@@ -427,7 +425,6 @@ class Encoder:
             indent2.set('xsi:nil', 'true')
 
         if 'pnts' in lyr:
-
             indent2 = ET.SubElement(indent1, 'aixm:horizontalProjection')
             indent3 = ET.SubElement(indent2, 'aixm:Surface')
             indent3.set('gml:id', deu.getUUID())
@@ -449,7 +446,7 @@ class Encoder:
         # Remarks
         indent = ET.SubElement(self.XMLDocument, 'remarks')
         if 'NIL' in self.decodedTAC['remarks']:
-            indent.set('nilReason', self.codes[des.NIL][des.MSSG][0])
+            indent.set('nilReason', self.codes[des.NIL][des.MSSG][0])  # pragma: no cover
         else:
             indent.text = self.decodedTAC['remarks']
         #

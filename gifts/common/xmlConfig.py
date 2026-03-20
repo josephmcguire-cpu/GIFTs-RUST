@@ -8,6 +8,7 @@
 # Contact Info: Mark.Oberfield@noaa.gov
 #
 import os
+
 # -----------------------------------------------------------------------------------
 #
 # If this centre or office is performing bulk TAC->XML translations, or TAC->XML
@@ -117,9 +118,14 @@ NIL_SNOCLO_URL = 'http://codes.wmo.int/bufr4/codeflag/0-20-085/1'
 RunwayDeposit = 1 << 4
 AffectedRunwayCoverage = 1 << 5
 RunwayFriction = 1 << 6
-RunwayFrictionValues = {'91': 'Braking action poor', '92': 'Braking action medium to poor',
-                        '93': 'Braking action medium', '94': 'Braking action medium to good',
-                        '95': 'Braking action good', '99': 'Unreliable'}
+RunwayFrictionValues = {
+    '91': 'Braking action poor',
+    '92': 'Braking action medium to poor',
+    '93': 'Braking action medium',
+    '94': 'Braking action medium to good',
+    '95': 'Braking action good',
+    '99': 'Unreliable',
+}
 #
 # If prevailing horizontal visibility falls below this value (metres), RVR information
 # should be supplied

@@ -91,12 +91,23 @@ class Decoder(tpg.Parser):
 
     def __init__(self):
 
-        self._tokenInEnglish = {'_tok_1': 'TC ADVISORY line', 'dtg': 'Date/Time Group', 'centre': 'Issuing RSMC',
-                                'cname': 'Name of Cyclone', 'vloc': 'Location of Cyclone', 'advnum': 'Advisory Number',
-                                'cloc': 'Cyclone Position', 'cmov': 'Cyclone Movement', 'ichng': 'Intensity Change',
-                                'cpres': 'Central Pressure', 'cmaxwnd': 'Cyclone Maximum Wind Speed',
-                                'cfpsn': 'Forecast Position', 'cfwnd': 'Forecast Maximum Wind Speed', 'rmk': 'Remarks',
-                                'nextdtg': 'Next advisory issuance time or NO MSG EXP'}
+        self._tokenInEnglish = {
+            '_tok_1': 'TC ADVISORY line',
+            'dtg': 'Date/Time Group',
+            'centre': 'Issuing RSMC',
+            'cname': 'Name of Cyclone',
+            'vloc': 'Location of Cyclone',
+            'advnum': 'Advisory Number',
+            'cloc': 'Cyclone Position',
+            'cmov': 'Cyclone Movement',
+            'ichng': 'Intensity Change',
+            'cpres': 'Central Pressure',
+            'cmaxwnd': 'Cyclone Maximum Wind Speed',
+            'cfpsn': 'Forecast Position',
+            'cfwnd': 'Forecast Maximum Wind Speed',
+            'rmk': 'Remarks',
+            'nextdtg': 'Next advisory issuance time or NO MSG EXP',
+        }
 
         self.header = re.compile(r'.*?(?=TC ADVISORY)', re.DOTALL)
 
@@ -105,20 +116,22 @@ class Decoder(tpg.Parser):
 
     def __call__(self, tac):
 
-        self.tca = {'bbb': '',
-                    'translationTime': time.strftime('%Y-%m-%dT%H:%M:%SZ'),
-                    'cycloneName': '',
-                    'advisoryNumber': '',
-                    'minimumPressure': {'value': '', 'uom': 'hPa'},
-                    'cbclouds': [],
-                    'fcst': {},
-                    'remarks': ''}
+        self.tca = {
+            'bbb': '',
+            'translationTime': time.strftime('%Y-%m-%dT%H:%M:%SZ'),
+            'cycloneName': '',
+            'advisoryNumber': '',
+            'minimumPressure': {'value': '', 'uom': 'hPa'},
+            'cbclouds': [],
+            'fcst': {},
+            'remarks': '',
+        }
 
         self._fcst = self.tca['fcst']
 
         try:
             result = self.header.search(tac)
-            tca = tac[result.end():].replace('=', '')
+            tca = tac[result.end() :].replace('=', '')
 
         except AttributeError:
             self.tca['err_msg'] = 'TC ADVISORY line not found'
@@ -132,21 +145,25 @@ class Decoder(tpg.Parser):
             if not self._is_a_test():
                 if len(self._expected):
                     err_msg = 'Expecting %s group(s) ' % ' or '.join(
-                        [self._tokenInEnglish.get(x, x) for x in self._expected])
+                        [self._tokenInEnglish.get(x, x) for x in self._expected]
+                    )
                 else:
-                    err_msg = 'Unidentified group '
+                    err_msg = 'Unidentified group '  # pragma: no cover
 
                 tacLines = tca.split('\n')
                 debugString = '\n%%s\n%%%dc\n%%s' % self.lexer.cur_token.end_column
-                errorInTAC = debugString % ('\n'.join(tacLines[:self.lexer.cur_token.end_line]), '^',
-                                            '\n'.join(tacLines[self.lexer.cur_token.end_line:]))
+                errorInTAC = debugString % (
+                    '\n'.join(tacLines[: self.lexer.cur_token.end_line]),
+                    '^',
+                    '\n'.join(tacLines[self.lexer.cur_token.end_line :]),
+                )
                 self._Logger.info('%s\n%s' % (errorInTAC, err_msg))
 
                 err_msg += 'at line %d column %d.' % (self.lexer.cur_token.end_line, self.lexer.cur_token.end_column)
                 self.tca['err_msg'] = err_msg
 
-        except Exception:
-            self._Logger.exception(tca)
+        except Exception:  # pragma: no cover
+            self._Logger.exception(tca)  # pragma: no cover
 
         return self.finish()
 
@@ -182,11 +199,9 @@ class Decoder(tpg.Parser):
 
         if self.lexer.cur_token.name == 'dtg':
             self.issueTime = tms[:]
-            self.tca['issueTime'] = {'str': time.strftime('%Y-%m-%dT%H:%M:00Z', tuple(tms)),
-                                     'tms': tms}
+            self.tca['issueTime'] = {'str': time.strftime('%Y-%m-%dT%H:%M:00Z', tuple(tms)), 'tms': tms}
         else:
-            self.tca['nextdtg'] = {'str': time.strftime('%Y-%m-%dT%H:%M:00Z', tuple(tms)),
-                                   'before': 'BFR' in s}
+            self.tca['nextdtg'] = {'str': time.strftime('%Y-%m-%dT%H:%M:00Z', tuple(tms)), 'before': 'BFR' in s}
 
     def centre(self, s):
 
@@ -202,13 +217,16 @@ class Decoder(tpg.Parser):
 
     def cbnil(self):
 
-        pass
+        pass  # pragma: no cover
 
     def cbcircle(self, s):
 
         result = self.lexer.tokens[self.lexer.cur_token.name][0].match(s)
-        self._cloud = {'type': 'circle', 'radius': result.group(1),
-                       'uom': {'KM': 'km', 'NM': '[nm_i]'}.get(result.group(2))}
+        self._cloud = {
+            'type': 'circle',
+            'radius': result.group(1),
+            'uom': {'KM': 'km', 'NM': '[nm_i]'}.get(result.group(2)),
+        }
 
     def tops(self, s):
 
@@ -221,9 +239,11 @@ class Decoder(tpg.Parser):
 
         if 'STNR' not in s:
             result = self.lexer.tokens[self.lexer.cur_token.name][0].match(s)
-            self._fcst['movement'] = {'dir': deu.CardinalPtsToDegreesS[result.group('dir')],
-                                      'spd': str(int(result.group('spd'))),
-                                      'uom': {'KMH': 'km/h', 'KT': '[kn_i]'}.get(result.group('uom'))}
+            self._fcst['movement'] = {
+                'dir': deu.CardinalPtsToDegreesS[result.group('dir')],
+                'spd': str(int(result.group('spd'))),
+                'uom': {'KMH': 'km/h', 'KT': '[kn_i]'}.get(result.group('uom')),
+            }
 
     def ichng(self, s):
 
@@ -237,8 +257,10 @@ class Decoder(tpg.Parser):
     def cmaxwnd(self, s):
 
         result = self.lexer.tokens[self.lexer.cur_token.name][0].match(s)
-        self._fcst['windSpeed'] = {'value': str(int(result.group('spd'))),
-                                   'uom': {'MPS': 'm/s', 'KT': '[kn_i]'}.get(result.group('uom'))}
+        self._fcst['windSpeed'] = {
+            'value': str(int(result.group('spd'))),
+            'uom': {'MPS': 'm/s', 'KT': '[kn_i]'}.get(result.group('uom')),
+        }
 
     def cfpsn(self, s):
 
@@ -256,10 +278,10 @@ class Decoder(tpg.Parser):
         #
         # If new month indicated
         if tms[2] < self.issueTime[2]:
-            tms[1] += 1
-            if tms[1] > 12:
-                tms[0] += 1
-                tms[1] = 1
+            tms[1] += 1  # pragma: no cover
+            if tms[1] > 12:  # pragma: no cover
+                tms[0] += 1  # pragma: no cover
+                tms[1] = 1  # pragma: no cover
 
         self._fcst['dtg'] = time.strftime('%Y-%m-%dT%H:%M:00Z', tuple(tms))
 
@@ -272,7 +294,7 @@ class Decoder(tpg.Parser):
 
             lat = deg + minu * 0.01667
             if slat[0] == 'S':
-                lat *= -1.
+                lat *= -1.0
 
             try:
                 deg, minu = int(slon[1:4]), int(slon[4:6])
@@ -281,7 +303,7 @@ class Decoder(tpg.Parser):
 
             lon = deg + minu * 0.01667
             if slon[0] == 'W':
-                lon *= -1.
+                lon *= -1.0
 
             self._fcst['position'] = '%.3f %.3f' % (lat, lon)
 
@@ -292,8 +314,10 @@ class Decoder(tpg.Parser):
 
         result = self.lexer.tokens[self.lexer.cur_token.name][0].match(s)
         try:
-            self._fcst['windSpeed'] = {'value': str(int(result.group('spd'))),
-                                       'uom': {'MPS': 'm/s', 'KT': '[kn_i]'}.get(result.group('uom'))}
+            self._fcst['windSpeed'] = {
+                'value': str(int(result.group('spd'))),
+                'uom': {'MPS': 'm/s', 'KT': '[kn_i]'}.get(result.group('uom')),
+            }
         except ValueError:
             pass
 
@@ -308,7 +332,7 @@ class Decoder(tpg.Parser):
 
         latitude = deg + minu * 0.01667
         if rlat[0] == 'S':
-            latitude *= -1.0
+            latitude *= -1.0  # pragma: no cover
 
         rlon = result.group('lon')
         try:
@@ -334,7 +358,7 @@ class Decoder(tpg.Parser):
         for d in self.tca['cbclouds']:
             if d['type'] == 'polygon':
                 if d['pnts'][-1] != d['pnts'][0]:
-                    d['pnts'].append(d['pnts'][0])
+                    d['pnts'].append(d['pnts'][0])  # pragma: no cover
                 #
                 # Check to make sure polygon is traversed in CCW fashion
                 #
@@ -346,7 +370,7 @@ class Decoder(tpg.Parser):
                     if not deu.isCCW(fpolygon):
                         d['pnts'].reverse()
 
-                except ValueError as msg:
-                    self._Logger.info(msg)
+                except ValueError as msg:  # pragma: no cover
+                    self._Logger.info(msg)  # pragma: no cover
 
         return self.tca

@@ -35,7 +35,6 @@ __python_version__ = sys.version_info[0]
 
 
 class Encoder(Common.Base):
-
     def __init__(self):
         #
         # Initialize the base class
@@ -45,9 +44,14 @@ class Encoder(Common.Base):
 
         self._re_cloudLyr = re.compile(r'(?P<AMT>VV|FEW|SCT|BKN|OVC)(?P<HGT>\d{3})?')
         #
-        self._changeIndicator = {'BECMG': 'BECOMING', 'TEMPO': 'TEMPORARY_FLUCTUATIONS', 'PROB30': 'PROBABILITY_30',
-                                 'PROB40': 'PROBABILITY_40', 'PROB30 TEMPO': 'PROBABILITY_30_TEMPORARY_FLUCTUATIONS',
-                                 'PROB40 TEMPO': 'PROBABILITY_40_TEMPORARY_FLUCTUATIONS'}
+        self._changeIndicator = {
+            'BECMG': 'BECOMING',
+            'TEMPO': 'TEMPORARY_FLUCTUATIONS',
+            'PROB30': 'PROBABILITY_30',
+            'PROB40': 'PROBABILITY_40',
+            'PROB30 TEMPO': 'PROBABILITY_30_TEMPORARY_FLUCTUATIONS',
+            'PROB40 TEMPO': 'PROBABILITY_40_TEMPORARY_FLUCTUATIONS',
+        }
 
         self._bbbCodes = {'A': 'AMENDMENT', 'C': 'CORRECTION'}
         #
@@ -75,7 +79,7 @@ class Encoder(Common.Base):
         #
         for prefix, uri in self.NameSpaces.items():
             if prefix == '':
-                self.XMLDocument.set('xmlns', uri)
+                self.XMLDocument.set('xmlns', uri)  # pragma: no cover
             else:
                 self.XMLDocument.set('xmlns:%s' % prefix, uri)
 
@@ -111,7 +115,6 @@ class Encoder(Common.Base):
             #
             # If there was a decoding problem
             if decodingError:
-
                 self.XMLDocument.set('translationFailedTAC', self.tacString)
                 # self.XMLDocument.set('permissibleUsageSupplementary', self.decodedTAC['err_msg'])
 
@@ -134,7 +137,7 @@ class Encoder(Common.Base):
                     killChild = self.XMLDocument.find('iwxxm:validPeriod')
                     self.XMLDocument.remove(killChild)
                 else:
-                    self.XMLDocument._children.pop()
+                    self.XMLDocument._children.pop()  # pragma: no cover
         #
         # No additional information in the TAC TAF shall be provided in XML when there's a decoding error
         if decodingError:
@@ -158,8 +161,8 @@ class Encoder(Common.Base):
                 except KeyError:
                     pass
 
-        except Exception:
-            self._Logger.exception(self.tacString)
+        except Exception:  # pragma: no cover
+            self._Logger.exception(self.tacString)  # pragma: no cover
 
         return self.XMLDocument
 
@@ -263,7 +266,6 @@ class Encoder(Common.Base):
         indent2.set('uom', token['uom'])
 
         if 'ffplus' in token:
-
             indent2 = ET.SubElement(indent1, 'iwxxm:meanWindSpeedOperator')
             indent2.text = 'ABOVE'
 
@@ -273,7 +275,6 @@ class Encoder(Common.Base):
             indent2.set('uom', token['uom'])
             indent1.append(indent2)
             if 'ggplus' in token:
-
                 indent2 = ET.SubElement(indent1, 'iwxxm:windGustSpeedOperator')
                 indent2.text = 'ABOVE'
 
@@ -300,7 +301,7 @@ class Encoder(Common.Base):
                 indent = ET.SubElement(parent, 'iwxxm:weather')
                 uri, title = self.codes[des.WEATHER][ww]
                 indent.set('xlink:href', uri)
-                if (des.TITLES & des.Weather):
+                if des.TITLES & des.Weather:
                     indent.set('xlink:title', title)
             #
             # Weather phenomenon token not matched
@@ -308,14 +309,13 @@ class Encoder(Common.Base):
                 if ww == 'NSW':
                     indent.set('nilReason', self.codes[des.NIL][des.NOOPRSIG][0])
                 else:
-                    indent.set('nilReason', self.codes[des.NIL][des.UNKNWN][0])
+                    indent.set('nilReason', self.codes[des.NIL][des.UNKNWN][0])  # pragma: no cover
 
     def sky(self, parent, token):
 
         indent = ET.SubElement(parent, 'iwxxm:cloud')
         for numberLyr, layer in enumerate(token['str'].split()):
             if layer[:2] == 'VV':
-
                 indent1 = ET.SubElement(indent, 'iwxxm:AerodromeCloudForecast')
                 indent1.set('gml:id', deu.getUUID())
                 indent2 = ET.SubElement(indent1, 'iwxxm:verticalVisibility')
@@ -350,7 +350,7 @@ class Encoder(Common.Base):
         indent2 = ET.SubElement(indent1, 'iwxxm:amount')
         uri, title = self.codes[des.CLDAMTS][amount]
         indent2.set('xlink:href', uri)
-        if (des.TITLES & des.CloudAmt):
+        if des.TITLES & des.CloudAmt:
             indent2.set('xlink:title', title)
 
         indent2 = ET.SubElement(indent1, 'iwxxm:base')
@@ -362,26 +362,24 @@ class Encoder(Common.Base):
             indent2 = ET.SubElement(indent1, 'iwxxm:cloudType')
             uri, title = self.codes[des.CVCTNCLDS]['CB']
             indent2.set('xlink:href', uri)
-            if (des.TITLES & des.CloudType):
+            if des.TITLES & des.CloudType:
                 indent2.set('xlink:title', title)
 
         if layer.endswith('TCU'):
             indent2 = ET.SubElement(indent1, 'iwxxm:cloudType')
             uri, title = self.codes[des.CVCTNCLDS]['TCU']
             indent2.set('xlink:href', uri)
-            if (des.TITLES & des.CloudType):
+            if des.TITLES & des.CloudType:
                 indent2.set('xlink:title', title)
 
     def temps(self, parent, token):
 
         for maxTemp, minTemp in zip(token['max'], token['min']):
-
             indent = ET.SubElement(parent, 'iwxxm:temperature')
             indent1 = ET.SubElement(indent, 'iwxxm:AerodromeAirTemperatureForecast')
 
             elementName = 'iwxxm:maximumAirTemperature'
             for xTemp in [maxTemp, minTemp]:
-
                 value = ET.SubElement(indent1, elementName)
                 value.text = str(xTemp['value'])
                 value.set('uom', 'Cel')

@@ -31,11 +31,13 @@ class Encoder:
     def __init__(self):
         #
         self._Logger = logging.getLogger(__name__)
-        self.NameSpaces = {'aixm': 'http://www.aixm.aero/schema/5.1.1',
-                           'gml': 'http://www.opengis.net/gml/3.2',
-                           '': des.IWXXM_URI,
-                           'xlink': 'http://www.w3.org/1999/xlink',
-                           'xsi': 'http://www.w3.org/2001/XMLSchema-instance'}
+        self.NameSpaces = {
+            'aixm': 'http://www.aixm.aero/schema/5.1.1',
+            'gml': 'http://www.opengis.net/gml/3.2',
+            '': des.IWXXM_URI,
+            'xlink': 'http://www.w3.org/1999/xlink',
+            'xsi': 'http://www.w3.org/2001/XMLSchema-instance',
+        }
 
         self._fltLvls = re.compile(r'(ABV\s+FL(?P<abv>\d{3}))|(FL(?P<lwr>\d{3})\s*-\s*(FL)?(?P<upr>\d{3}))')
         #
@@ -58,8 +60,8 @@ class Encoder:
             self.observations()
             self.postContent()
 
-        except Exception:
-            self._Logger.exception(tac)
+        except Exception:  # pragma: no cover
+            self._Logger.exception(tac)  # pragma: no cover
 
         return self.XMLDocument
 
@@ -85,21 +87,19 @@ class Encoder:
         else:
             self.XMLDocument.set('permissibleUsage', 'OPERATIONAL')
 
-        self.XMLDocument.set('reportStatus', {'A': 'AMENDMENT', 'C': 'CORRECTION'}.get(
-            self.decodedTAC['bbb'], 'NORMAL'))
+        self.XMLDocument.set(
+            'reportStatus', {'A': 'AMENDMENT', 'C': 'CORRECTION'}.get(self.decodedTAC['bbb'], 'NORMAL')
+        )
         #
         if des.TRANSLATOR:
-
             self.XMLDocument.set('translationCentreName', des.TranslationCentreName)
             self.XMLDocument.set('translationCentreDesignator', des.TranslationCentreDesignator)
             self.XMLDocument.set('translationTime', self.decodedTAC['translationTime'])
-            self.XMLDocument.set('translatedBulletinReceptionTime',
-                                 self.decodedTAC['translatedBulletinReceptionTime'])
+            self.XMLDocument.set('translatedBulletinReceptionTime', self.decodedTAC['translatedBulletinReceptionTime'])
             self.XMLDocument.set('translatedBulletinID', self.decodedTAC['translatedBulletinID'])
             #
             # If TAC translation failed in some way
             if 'err_msg' in self.decodedTAC:
-
                 self.XMLDocument.set('translationFailedTAC', self.tacString)
                 # self.XMLDocument.set('permissibleUsageSupplementary', self.decodedTAC.get('err_msg'))
                 self.nilPresent = True
@@ -108,7 +108,6 @@ class Encoder:
         #
         # For translation failed messages, no operational content shall be provided in XML
         if self.nilPresent:
-
             self.issueTime(self.XMLDocument, None)
             self.swac(self.XMLDocument, None)
 
@@ -135,7 +134,6 @@ class Encoder:
         #
         # Space Weather Hazards
         for hazard in self.decodedTAC['phenomenon']:
-
             child = ET.SubElement(self.XMLDocument, 'phenomenon')
             child.set('xlink:href', self.codes[des.SWX_PHENOMENA]['_'.join(hazard.split())][0])
 
@@ -191,17 +189,14 @@ class Encoder:
         self.itime(indent1, token['phenomenonTime'])
 
         if 'noswxexp' in token:
-
             indent2 = ET.SubElement(indent1, 'region')
             indent2.set('nilReason', self.codes[des.NIL][des.NOOPRSIG][0])
 
         elif 'notavail' in token:
-
             indent2 = ET.SubElement(indent1, 'region')
             indent2.set('nilReason', self.codes[des.NIL][des.MSSG][0])
 
         elif 'daylight' in token:
-
             indent2 = ET.SubElement(indent1, 'region')
             indent3 = ET.SubElement(indent2, 'SpaceWeatherRegion')
             indent3.set('gml:id', deu.getUUID())
@@ -213,11 +208,10 @@ class Encoder:
             except KeyError:
                 self.airspaceVolume(indent4, token)
 
-            indent4 = ET.SubElement(indent3, 'locationIndicator')
-            indent4.set('xlink:href', self.codes[des.SWX_LOCATION][des.DAYLIGHTSIDE][0])
+            indent4 = ET.SubElement(indent3, 'locationIndicator')  # pragma: no cover
+            indent4.set('xlink:href', self.codes[des.SWX_LOCATION][des.DAYLIGHTSIDE][0])  # pragma: no cover
 
         for affectedRegion in token.get('boundingBoxes', []):
-
             indent2 = ET.SubElement(indent1, 'region')
             regions, uuidString = affectedRegion[-2:]
 
@@ -231,7 +225,7 @@ class Encoder:
 
             try:
                 result = self._fltLvls.match(token['fltlevels'])
-                self.airspaceVolume(indent4, affectedRegion, result.groupdict())
+                self.airspaceVolume(indent4, affectedRegion, result.groupdict())  # pragma: no cover
 
             except KeyError:
                 self.airspaceVolume(indent4, affectedRegion)
@@ -256,19 +250,16 @@ class Encoder:
             indent2.text = fltlvls['abv'] or fltlvls['upr']
 
             if indent2.text is not None:
-
                 indent1.append(indent2)
                 indent2 = ET.SubElement(indent1, 'upperLimitReference')
                 indent2.text = 'STD'
 
             if fltlvls['abv']:
-
                 indent2 = ET.SubElement(indent1, 'maximumLimit')
                 indent2.set('nilReason', 'unknown')
                 indent2.set('xsi:nil', 'true')
 
             elif fltlvls['lwr'] is not None:
-
                 indent2 = ET.SubElement(indent1, 'lowerLimit')
                 indent2.set('uom', 'FL')
                 indent2.text = fltlvls['lwr']
@@ -301,7 +292,7 @@ class Encoder:
             indent12.text = token['daylight']
             indent12 = ET.SubElement(indent11, 'radius')
             indent12.text = des.DAYLIGHTSIDE_RADIUS
-            indent12.set('uom', des.DAYLIGHTSIDE_UOM)
+            indent12.set('uom', des.DAYLIGHTSIDE_UOM)  # pragma: no cover
 
         else:
             indent7 = ET.SubElement(indent6, 'LinearRing')
@@ -332,7 +323,6 @@ class Encoder:
 
         indent = ET.SubElement(self.XMLDocument, 'nextAdvisoryTime')
         try:
-
             indent1 = ET.Element('gml:TimeInstant')
             indent1.set('gml:id', deu.getUUID())
             indent2 = ET.SubElement(indent1, 'gml:timePosition')

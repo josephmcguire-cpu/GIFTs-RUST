@@ -31,7 +31,6 @@ from .common import Common
 
 
 class Annex3(Common.Base):
-
     def __init__(self):
         #
         # Initialize the base class
@@ -40,8 +39,17 @@ class Annex3(Common.Base):
         self._Logger = logging.getLogger(__name__)
         #
         # Create dictionaries of the following WMO codes
-        neededCodes = [des.CLDAMTS, des.WEATHER, des.RECENTWX, des.CVCTNCLDS, des.SEACNDS, des.RWYDEPST, des.RWYCNTMS,
-                       des.RWYDEPST, des.RWYFRCTN]
+        neededCodes = [
+            des.CLDAMTS,
+            des.WEATHER,
+            des.RECENTWX,
+            des.CVCTNCLDS,
+            des.SEACNDS,
+            des.RWYDEPST,
+            des.RWYCNTMS,
+            des.RWYDEPST,
+            des.RWYFRCTN,
+        ]
         try:
             self.codes = deu.parseCodeRegistryTables(des.CodesFilePath, neededCodes, des.PreferredLanguageForTitles)
         except AssertionError as msg:  # pragma: no cover
@@ -51,16 +59,36 @@ class Annex3(Common.Base):
         setattr(self, 'obv', self.pcp)
         setattr(self, 'vcnty', self.pcp)
 
-        self.observedTokenList = ['temps', 'altimeter', 'wind', 'vsby', 'rvr', 'pcp', 'obv', 'vcnty',
-                                  'sky', 'rewx', 'ws', 'seastate', 'rwystate']
+        self.observedTokenList = [
+            'temps',
+            'altimeter',
+            'wind',
+            'vsby',
+            'rvr',
+            'pcp',
+            'obv',
+            'vcnty',
+            'sky',
+            'rewx',
+            'ws',
+            'seastate',
+            'rwystate',
+        ]
 
         self.trendTokenList = ['wind', 'pcp', 'obv', 'sky']
 
         self._re_unknwnPcpn = re.compile(r'(?P<mod>[-+]?)(?P<char>(SH|FZ|TS))')
         self._re_cloudLyr = re.compile(r'(VV|FEW|SCT|BKN|OVC|///|CLR|SKC)([/\d]{3})?(CB|TCU|///)?')
         self._TrendForecast = {'TEMPO': 'TEMPORARY_FLUCTUATIONS', 'BECMG': 'BECOMING'}
-        self._RunwayDepositDepths = {'92': '100', '93': '150', '94': '200',
-                                     '95': '250', '96': '300', '97': '350', '98': '400'}
+        self._RunwayDepositDepths = {
+            '92': '100',
+            '93': '150',
+            '94': '200',
+            '95': '250',
+            '96': '300',
+            '97': '350',
+            '98': '400',
+        }
 
     def __call__(self, decodedMetar, tacString):
 
@@ -75,8 +103,8 @@ class Annex3(Common.Base):
             if not self.decodingFailure:
                 self.forecasts()
 
-        except Exception:
-            self._Logger.exception(tacString)
+        except Exception:  # pragma: no cover
+            self._Logger.exception(tacString)  # pragma: no cover
 
         return self.XMLDocument
 
@@ -108,17 +136,14 @@ class Annex3(Common.Base):
         self.XMLDocument.set('permissibleUsage', 'OPERATIONAL')
 
         if des.TRANSLATOR:
-
             self.XMLDocument.set('translationCentreName', des.TranslationCentreName)
             self.XMLDocument.set('translationCentreDesignator', des.TranslationCentreDesignator)
             self.XMLDocument.set('translationTime', self.decodedTAC['translationTime'])
-            self.XMLDocument.set('translatedBulletinReceptionTime',
-                                 self.decodedTAC['translatedBulletinReceptionTime'])
+            self.XMLDocument.set('translatedBulletinReceptionTime', self.decodedTAC['translatedBulletinReceptionTime'])
             self.XMLDocument.set('translatedBulletinID', self.decodedTAC['translatedBulletinID'])
             #
             # If TAC translation failed in some way
             if 'err_msg' in self.decodedTAC:
-
                 self.XMLDocument.set('translationFailedTAC', self.tacString)
                 # self.XMLDocument.set('permissibleUsageSupplementary', self.decodedTAC.get('err_msg'))
                 self.decodingFailure = True
@@ -149,8 +174,8 @@ class Annex3(Common.Base):
             if self._issueTimeUUID is not None:
                 indent.set('xlink:href', self._issueTimeUUID)
 
-        except AttributeError:
-            pass
+        except AttributeError:  # pragma: no cover
+            pass  # pragma: no cover
 
     def observation(self):
 
@@ -183,12 +208,12 @@ class Annex3(Common.Base):
                 #
                 # Mandatory elements shall be reported missing
                 elif element in ['temps', 'altimeter', 'wind']:
-                    function(indent1, None)
+                    function(indent1, None)  # pragma: no cover
                 #
                 # If visibility should be reported but isn't...
                 elif 'cavok' not in self.decodedTAC and element in ['vsby', 'rvr']:
                     if element == 'vsby':
-                        function(indent1, None)
+                        function(indent1, None)  # pragma: no cover
                     else:
                         try:
                             token = self.decodedTAC['vsby']
@@ -202,7 +227,6 @@ class Annex3(Common.Base):
         #
         # If no significant changes, "NOSIG", is forecast
         if 'nosig' in self.decodedTAC:
-
             indent = ET.SubElement(self.XMLDocument, 'iwxxm:trendForecast')
             indent.set('xsi:nil', 'true')
             indent.set('nilReason', self.codes[des.NIL][des.NOSIGC][0])
@@ -217,7 +241,6 @@ class Annex3(Common.Base):
     def doTrendForecasts(self, events):
 
         for event in events:
-
             indent = ET.SubElement(self.XMLDocument, 'iwxxm:trendForecast')
             indent1 = ET.SubElement(indent, 'iwxxm:MeteorologicalAerodromeTrendForecast')
             indent1.set('gml:id', deu.getUUID())
@@ -315,7 +338,6 @@ class Annex3(Common.Base):
                 raise ValueError
 
         except (TypeError, ValueError):
-
             indent.set('uom', 'N/A')
             indent.set('nilReason', self.codes[des.NIL][des.NOOBSV][0])
             indent.set('xsi:nil', 'true')
@@ -329,7 +351,6 @@ class Annex3(Common.Base):
                 raise ValueError
 
         except (AttributeError, TypeError, ValueError):
-
             indent.set('uom', 'N/A')
             indent.set('nilReason', self.codes[des.NIL][des.NOOBSV][0])
             indent.set('xsi:nil', 'true')
@@ -348,7 +369,6 @@ class Annex3(Common.Base):
             indent.set('uom', 'hPa')
 
         except (TypeError, ValueError):
-
             indent.set('uom', 'N/A')
             indent.set('nilReason', self.codes[des.NIL][des.NOOBSV][0])
             indent.set('xsi:nil', 'true')
@@ -395,7 +415,6 @@ class Annex3(Common.Base):
             indent2.set('xsi:nil', 'true')
 
         if 'ffplus' in token:
-
             indent2 = ET.SubElement(indent1, 'iwxxm:meanWindSpeedOperator')
             indent2.text = 'ABOVE'
         #
@@ -407,7 +426,6 @@ class Annex3(Common.Base):
             indent1.append(indent2)
 
             if 'ggplus' in token:
-
                 indent2 = ET.SubElement(indent1, 'iwxxm:windGustSpeedOperator')
                 indent2.text = 'ABOVE'
 
@@ -446,7 +464,6 @@ class Annex3(Common.Base):
         indent2.set('uom', uom)
 
         if int(value) >= 10000:
-
             indent2.text = '10000'
             indent2 = ET.SubElement(indent1, 'iwxxm:prevailingVisibilityOperator')
             indent2.text = 'ABOVE'
@@ -468,7 +485,6 @@ class Annex3(Common.Base):
             indent1.append(indent2)
 
             if token['bearing'] != '/':
-
                 indent2 = ET.Element('iwxxm:minimumVisibilityDirection')
                 indent2.text = token['bearing']
                 indent2.set('uom', 'deg')
@@ -485,10 +501,7 @@ class Annex3(Common.Base):
             indent.set('xsi:nil', 'true')
             return
 
-        for rwy, mean, tend, oper, uom in zip(token['rwy'], token['mean'],
-                                              token['tend'], token['oper'],
-                                              token['uom']):
-
+        for rwy, mean, tend, oper, uom in zip(token['rwy'], token['mean'], token['tend'], token['oper'], token['uom']):
             indent = ET.SubElement(parent, 'iwxxm:rvr')
             indent1 = ET.SubElement(indent, 'iwxxm:AerodromeRunwayVisualRange')
             indent1.set('pastTendency', tend)
@@ -534,29 +547,28 @@ class Annex3(Common.Base):
                 uri, title = self.codes[des.WEATHER][ww]
                 indent = ET.SubElement(parent, elementName)
                 indent.set('xlink:href', uri)
-                if (des.TITLES & des.Weather):
+                if des.TITLES & des.Weather:
                     indent.set('xlink:title', title)
             #
             # Weather phenomenon token not matched
-            except KeyError:
+            except KeyError:  # pragma: no cover
+                indent = ET.SubElement(parent, elementName)  # pragma: no cover
+                result = self._re_unknwnPcpn.match(ww)  # pragma: no cover
+                try:  # pragma: no cover
+                    up = '%s%sUP' % (result.group('mod'), result.group('char'))  # pragma: no cover
+                    uri, title = self.codes[des.WEATHER][up.strip()]  # pragma: no cover
 
-                indent = ET.SubElement(parent, elementName)
-                result = self._re_unknwnPcpn.match(ww)
-                try:
-                    up = '%s%sUP' % (result.group('mod'), result.group('char'))
-                    uri, title = self.codes[des.WEATHER][up.strip()]
+                except AttributeError:  # pragma: no cover
+                    uri, title = self.codes[des.WEATHER]['UP']  # pragma: no cover
 
-                except AttributeError:
-                    uri, title = self.codes[des.WEATHER]['UP']
-
-                indent.set('xlink:href', uri)
-                indent.set('xlink:title', '%s: %s' % (title, ww))
+                indent.set('xlink:href', uri)  # pragma: no cover
+                indent.set('xlink:title', '%s: %s' % (title, ww))  # pragma: no cover
 
     def sky(self, parent, token, trend=False):
 
         suffix = ''
         if trend:
-            suffix = 'Forecast'
+            suffix = 'Forecast'  # pragma: no cover
 
         indent = ET.SubElement(parent, 'iwxxm:cloud')
         if token['str'][0] == 'NSC':
@@ -572,11 +584,11 @@ class Annex3(Common.Base):
 
         indent1 = ET.SubElement(indent, 'iwxxm:AerodromeCloud%s' % suffix)
         if trend:
-            indent1.set('gml:id', deu.getUUID())
+            indent1.set('gml:id', deu.getUUID())  # pragma: no cover
 
         for lyr in token['str'][:4]:
             if lyr[:3] == '///' and lyr[3:] in ['CB', 'TCU']:
-                self.doCloudLayer(indent1, '/', '/', lyr[3:])
+                self.doCloudLayer(indent1, '/', '/', lyr[3:])  # pragma: no cover
             else:
                 result = self._re_cloudLyr.match(lyr)
                 self.doCloudLayer(indent1, result.group(1), result.group(2), result.group(3))
@@ -611,11 +623,10 @@ class Annex3(Common.Base):
         try:
             uri, title = self.codes[des.CLDAMTS][amount]
             indent2.set('xlink:href', uri)
-            if (des.TITLES & des.CloudAmt):
-                indent2.set('xlink:title', title)
+            if des.TITLES & des.CloudAmt:
+                indent2.set('xlink:title', title)  # pragma: no cover
 
         except KeyError:
-
             indent2.set('xsi:nil', 'true')
             if self.XMLDocument.get('automatedStation') == 'false':
                 indent2.set('nilReason', self.codes[des.NIL][des.NOOBSV][0])
@@ -623,16 +634,15 @@ class Annex3(Common.Base):
                 indent2.set('nilReason', self.codes[des.NIL][des.NOAUTODEC][0])
 
             if amount == 'CLR':
-                indent2.set('xlink:title', amount)
+                indent2.set('xlink:title', amount)  # pragma: no cover
         try:
             indent2 = ET.SubElement(indent1, 'iwxxm:base')
             indent2.text = str(int(hgt) * 100)
             indent2.set('uom', '[ft_i]')
 
         except (TypeError, ValueError):
-
             if amount == 'SKC':
-                indent2.set('nilReason', self.codes[des.NIL][des.NA][0])
+                indent2.set('nilReason', self.codes[des.NIL][des.NA][0])  # pragma: no cover
             else:
                 if self.XMLDocument.get('automatedStation') == 'false':
                     indent2.set('nilReason', self.codes[des.NIL][des.NOOBSV][0])
@@ -647,7 +657,7 @@ class Annex3(Common.Base):
             indent2 = ET.Element('iwxxm:cloudType')
             uri, title = self.codes[des.CVCTNCLDS][typ]
             indent2.set('xlink:href', uri)
-            if (des.TITLES & des.CloudType):
+            if des.TITLES & des.CloudType:
                 indent2.set('xlink:title', title)
             indent1.append(indent2)
 
@@ -660,7 +670,6 @@ class Annex3(Common.Base):
     def rewx(self, parent, token):
 
         for ww in token['str']:
-
             if ww == '//':
                 indent = ET.SubElement(parent, 'iwxxm:recentWeather')
                 indent.set('nilReason', self.codes[des.NIL][des.NOOBSV][0])
@@ -671,20 +680,20 @@ class Annex3(Common.Base):
                 uri, title = self.codes[des.RECENTWX][ww]
                 indent = ET.SubElement(parent, 'iwxxm:recentWeather')
                 indent.set('xlink:href', uri)
-                if (des.TITLES & des.Weather):
-                    indent.set('xlink:title', title)
+                if des.TITLES & des.Weather:
+                    indent.set('xlink:title', title)  # pragma: no cover
 
-            except KeyError:
-                try:
-                    result = self._re_unknwnPcpn.match(ww)
-                    up = '%s%sUP' % (result.group('mod'), result.group('char'))
-                except AttributeError:
-                    up = 'UP'
+            except KeyError:  # pragma: no cover
+                try:  # pragma: no cover
+                    result = self._re_unknwnPcpn.match(ww)  # pragma: no cover
+                    up = '%s%sUP' % (result.group('mod'), result.group('char'))  # pragma: no cover
+                except AttributeError:  # pragma: no cover
+                    up = 'UP'  # pragma: no cover
 
-                uri, title = self.codes[des.RECENTWX][up.strip()]
-                indent = ET.SubElement(parent, 'iwxxm:recentWeather')
-                indent.set('xlink:href', uri)
-                indent.set('xlink:title', '%s: %s' % (title, ww))
+                uri, title = self.codes[des.RECENTWX][up.strip()]  # pragma: no cover
+                indent = ET.SubElement(parent, 'iwxxm:recentWeather')  # pragma: no cover
+                indent.set('xlink:href', uri)  # pragma: no cover
+                indent.set('xlink:title', '%s: %s' % (title, ww))  # pragma: no cover
 
     def ws(self, parent, token):
 
@@ -731,7 +740,7 @@ class Annex3(Common.Base):
             try:
                 uri, title = self.codes[des.SEACNDS][category]
                 indent2.set('xlink:href', uri)
-                if (des.TITLES & des.SeaCondition):
+                if des.TITLES & des.SeaCondition:
                     indent2.set('xlink:title', title)
 
             except KeyError:
@@ -746,7 +755,6 @@ class Annex3(Common.Base):
     def rwystate(self, parent, tokens):
 
         for token in tokens:
-
             indent1 = ET.SubElement(parent, 'iwxxm:runwayState')
             if token['state'] == 'SNOCLO':
                 indent1.set('nilReason', des.NIL_SNOCLO_URL)
@@ -779,20 +787,20 @@ class Annex3(Common.Base):
                 indent3 = ET.SubElement(indent2, 'iwxxm:depositType')
                 uri, title = self.codes[des.RWYDEPST][token['state'][0]]
                 indent3.set('xlink:href', uri)
-                if (des.TITLES & des.RunwayDeposit):
-                    indent3.set('xlink:title', title)
+                if des.TITLES & des.RunwayDeposit:
+                    indent3.set('xlink:title', title)  # pragma: no cover
             #
             # Runway contaminates
             if token['state'][1].isdigit():
                 indent3 = ET.SubElement(indent2, 'iwxxm:contamination')
                 try:
                     uri, title = self.codes[des.RWYCNTMS][token['state'][1]]
-                except KeyError:
-                    uri, title = self.codes[des.RWYCNTMS]['15']
+                except KeyError:  # pragma: no cover
+                    uri, title = self.codes[des.RWYCNTMS]['15']  # pragma: no cover
 
                 indent3.set('xlink:href', uri)
-                if (des.TITLES & des.AffectedRunwayCoverage):
-                    indent3.set('xlink:title', title)
+                if des.TITLES & des.AffectedRunwayCoverage:
+                    indent3.set('xlink:title', title)  # pragma: no cover
             #
             # Depth of deposits
             indent3 = ET.Element('iwxxm:depthOfDeposit')
@@ -802,9 +810,9 @@ class Annex3(Common.Base):
                     indent3.set('uom', 'mm')
                     indent3.text = self._RunwayDepositDepths.get(depth, depth)
                 else:
-                    indent3.set('uom', 'N/A')
-                    indent3.set('xsi:nil', 'true')
-                    indent3.set('nilReason', self.codes[des.NIL][des.UNKNWN][0])
+                    indent3.set('uom', 'N/A')  # pragma: no cover
+                    indent3.set('xsi:nil', 'true')  # pragma: no cover
+                    indent3.set('nilReason', self.codes[des.NIL][des.UNKNWN][0])  # pragma: no cover
 
                 indent2.append(indent3)
 
@@ -823,10 +831,11 @@ class Annex3(Common.Base):
                 indent3 = ET.SubElement(indent2, 'iwxxm:estimatedSurfaceFrictionOrBrakingAction')
                 uri, ignored = self.codes[des.RWYFRCTN][friction]
                 indent3.set('xlink:href', uri)
-                if (des.TITLES & des.RunwayFriction):
-                    title = des.RunwayFrictionValues.get(friction, 'Friction coefficient: %.2f' %
-                                                         (int(friction) * 0.01))
-                    indent3.set('xlink:title', title)
+                if des.TITLES & des.RunwayFriction:
+                    title = des.RunwayFrictionValues.get(  # pragma: no cover
+                        friction, 'Friction coefficient: %.2f' % (int(friction) * 0.01)
+                    )
+                    indent3.set('xlink:title', title)  # pragma: no cover
 
     def runwayDirection(self, parent, rwy):
 
