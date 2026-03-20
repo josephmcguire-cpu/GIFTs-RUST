@@ -1,0 +1,54 @@
+---
+description: Encoder.encode, Bulletin, decoded TAC dicts, geo DB — gifts Python API
+globs: gifts/**/*.py
+alwaysApply: false
+---
+
+# GIFTs — encoders (`gifts/`)
+
+Normative product behavior: root **`README.md`**. TAC layout / AHL regex summary: **`demo/README.md`** (link patterns; do not paste huge regex into answers). After changing IWXXM output, validate with **`validation/iwxxmValidator.py`** (see **`validation/README.md`**, **`gifts/common/xmlConfig.py`** for IWXXM version vs `-v`).
+
+## `Encoder.encode` (base: `gifts/common/Encoder.py`)
+
+| | |
+|--|--|
+| **Signature** | `encode(self, text, receiptTime=None, **attrs)` → **`bulletin.Bulletin`** |
+| **`text`** | `str`: full message; must match product **`re_AHL`** and TAC bodies per **`re_TAC`** (see e.g. `gifts/METAR.py`). Sets `TZ` to GMT. |
+| **`receiptTime`** | Optional; when `xmlConfig.TRANSLATOR` is True, feeds `translatedBulletinReceptionTime` on decoded dicts. |
+| **AHL** | `AHL.groupdict()` merged into `attrs`; `attrs['tt']` from subclass `T1T2`; passed to **`Bulletin.set_bulletinIdentifier`**. |
+| **Pipeline** | For each TAC match: `decodedTAC = self.decoder(tac)` → optional geo lookup → `self.encoder(decodedTAC, tac)` appended to bulletin. |
+
+## `Bulletin` (`gifts/common/bulletin.py`)
+
+- Container of **`xml.etree.ElementTree.Element`** children (one IWXXM root per report, homogeneous `document.tag`).
+- **`set_bulletinIdentifier(**kwargs)`** builds `_bulletinId` from keys in order: `A_`, `tt`, `aaii`, `cccc`, `yygg`, `bbb`, `_C_`, `cccc`.
+- **`append(document)`** — Element; all children must share the same tag/kind.
+- **`write()`** / **`str`** — `<MeteorologicalBulletin>` wrapper; **`write(compress=True)`** for gzip per root `README.md`.
+
+## Decoded TAC dict (METAR reference: `metarDecoder.Annex3` → `metarEncoder`)
+
+Other products (TAF, TCA, VAA, SWA): **same decode→encode idea**; **keys differ** — open that product’s `*Decoder` / `*Encoder`.
+
+| Situation | Fields |
+|-----------|--------|
+| Base | `bbb` (str), `translationTime` (str) |
+| Error / skip | `err_msg` — encode may skip IWXXM for some products (`T1T2` / logging) |
+| Success | `type`, `ident`: often `{'str', 'index'}`; `itime`: includes `'value'` (ISO) for IWXXM issue time |
+| Groups | `wind`, `vsby`, `rvr`, … — typically token dicts with `'str'` / `'index'` and structured extras; see `metarDecoder` / `metarEncoder` |
+| Trends | `trendFcsts`: list |
+| Translator | `translatedBulletinID`, `translatedBulletinReceptionTime` when `TRANSLATOR` True |
+| Geo DB | `ident` may gain `name`, `alternate`, `iataID`, `position` (`lat lon elev` string) after lookup |
+
+## `geoLocationsDB`
+
+Object with **`.get(icao_id, default)`**. Return string split in `Encoder.encode` as:  
+`fullname, iataID, alternateID, position = metaData.split('|')`  
+Default fallback example: `'|||0.0 0.0 0'`. Pipe-separated metadata per `gifts/METAR.py` / `Encoder` docstrings.
+
+## Encoder callable
+
+**`encoder(decodedTAC, tac)`** — IWXXM builder gets **decoded dict** + **original TAC substring** `str`.
+
+## Config
+
+**`gifts/common/xmlConfig.py`** — `TRANSLATOR`, IWXXM URIs/version, CRS (`srsName`), elevation flags, code-registry paths under `gifts/data/`. Do not hardcode site toggles the config owns.

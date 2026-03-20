@@ -1,0 +1,40 @@
+---
+description: IWXXM validation — CRUX, iwxxmValidator.py, schemas (validation/README.md)
+globs: validation/**/*
+alwaysApply: true
+---
+
+# GIFTs — `validation/` (IWXXM XML)
+
+Normative doc: **`validation/README.md`**. This subtree validates **IWXXM XML files on disk**, not raw TAC. Do not treat **`externalSchemas/`** as unused bulk; schemas may be **refreshed** from WMO/OGC sources.
+
+## Stack
+
+- **CRUX** (Java, `validation/bin`) — XML well-formedness, **XML Schema**, **Schematron** “business rules.”
+- **Python** — `lxml`, `requests`; scripts build catalogs, optional GML/code-registry checks.
+
+## `iwxxmValidator.py`
+
+| | |
+|--|--|
+| **Input** | Positional **`directory`** — folder containing **IWXXM `.xml`** files to validate (required). |
+| **Help** | `-h` / `--help` for full option list. |
+| **Common flags** | `-f` / `--fetch` — refresh local IWXXM schema/schematron from WMO; `-u` / `--useInternet` — GML checks may query registries; `--noGMLChecks` — skip GML reference pass; `-k` / `--keep` — keep OASIS **`catalog-VERSION.xml`**; `-v` / `--version` — IWXXM major.minor (default **2023-1** per README; align with **`gifts/common/xmlConfig.py`** when validating GIFTs output). |
+| **Artifacts** | Optional **`catalog-VERSION.xml`** (with `-k`); Schematron cache **`cruxcache`** under Java temp; **`ignoredURLs.txt`** — list URLs to ignore for `<extension>` warnings. |
+| **Runtime** | **Python** and **Java** on **`PATH`** (per README). |
+
+## Other Python modules (brief)
+
+- **`checkGMLReferences.py`** — GML/link checking used by the validation flow.
+- **`codeListsToSchematron.py`** — codelist / Schematron tooling.
+
+## Layout
+
+- **`validation/externalSchemas/`** — local OGC, WMO, AIXM, IWXXM trees; first run may **download** missing pieces; **Internet** may be needed initially or when switching IWXXM versions.
+- **Schematron** — CRUX is invoked with **`validation/schematrons/<IWXXM version>/iwxxm.sch`** (see `iwxxmValidator.py`); keep this path aligned with the IWXXM version you validate against (often **`2023-1`**, matching `gifts/common/xmlConfig.py`).
+
+## Ground truth
+
+Prefer **schema + Schematron + local `externalSchemas`** over invented XML. For TAC semantics, Annex 3 applies; for XML correctness, this validator path applies.
+
+CRUX messages can be **cryptic**; this is a **basic** helper, not a full XML IDE (see `validation/README.md`).

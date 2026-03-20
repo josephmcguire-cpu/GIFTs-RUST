@@ -1,0 +1,36 @@
+---
+description: demo GUI (demo1), iwxxmd daemon, sample TAC — demo/README.md
+globs: demo/**/*
+alwaysApply: true
+---
+
+# GIFTs — `demo/`
+
+Normative doc: **`demo/README.md`**. Sample TAC shapes: **`demo/metars.txt`**, **`tafs.txt`**, **`tca.txt`**, **`vaa.txt`**.
+
+## `demo1.py` (Tkinter)
+
+- Window title: **“Generate IWXXM From TAC Demonstrator”**; needs **Tk** (Python 3.9+).
+- **Geo database**: `pickle.load` — **`aerodromes.db`** (Unix-like) vs **`aerodromes.win.db`** (Windows).
+- Picks **`gifts.METAR` / `TAF` / `TCA` / `VAA`** `Encoder` by regex match on the **WMO AHL** line; METAR/TAF get the pickled aerodromes dict.
+- Calls **`encoder.encode(tacText[result.start():])`** — substring from **start of AHL match** through end of file (library encoders use `re_AHL.search` on the same combined AHL+TAC string; behaviorally “message from AHL onward”).
+- Iterates **`bulletin`** children; logs SUCCESS using **AIXM** `locationIndicatorICAO` where present; **`bulletin.write()`** writes the Meteorological Bulletin; **`demo.log`** receives logging.
+
+## TAC file expectations (see `demo/README.md`)
+
+- **One WMO AHL line** appropriate to the embedded TAC.
+- METAR/SPECI/TAF products run from keyword to **`=`**; advisories: **one advisory per file** in this tooling narrative.
+- Decoder **caret** errors refer to **Annex 3** expectations (e.g. issuance time, token typos).
+- Bulletin **filename** for output follows **WMO No. 368** / GTS aviation XML conventions (see demo README).
+
+## `iwxxmd.py` + `iwxxmd.cfg`
+
+- Requires **`pip install watchdog`**.
+- Start: **`iwxxmd.py`** with a **config file** (e.g. copy of **`iwxxmd.cfg`**).
+- **`[internals]`** — **`product`**: `metar` (includes SPECI), `taf`, `vaa`, `tca`, `swa`; **`delete_after_read`**; **`wmo_ahl_line`** — if true, output uses **`.txt`** (AHL as first line); if false, **`.xml`**; **`geo_locations_file`** — pickled ICAO map for **metar/taf** only (else empty).
+- **`[directories]`** — **`input`**, **`output`**, **`logs`** must **pre-exist**.
+- Logs: pattern like **`product_iwxxmd_<DOW>`**; **`kill -USR1`** toggles DEBUG logging; observer health check (see **`demo/README.md`**).
+
+## Post-demo validation
+
+After **`bulletin.write()`**, copy generated XML into a directory and run **`validation/iwxxmValidator.py`** (see **`validation/README.md`**).

@@ -1,0 +1,24 @@
+---
+description: GIFTs project identity, normative READMEs, and validation expectations
+alwaysApply: true
+---
+
+# GIFTs — project context
+
+This repository is **Python GIFTs**: **Traditional Alphanumeric Code (TAC) → ICAO IWXXM XML** for aviation weather products (METAR/SPECI, TAF, advisories, etc.). The workspace name may include “RUST”; **there is no Rust application or `Cargo.toml` here** unless one is added explicitly.
+
+## Normative documentation (do not contradict)
+
+When describing user-facing or operational behavior, align with these files. If **code and a README disagree**, **say so** instead of guessing.
+
+- **Root `README.md`** — TAC→IWXXM; **Python ≥3.9**; Annex 3–oriented decoders; **`gifts/common/xmlConfig.py`** for site/XML options; **`gifts/database/`** (or equivalent) for **ICAO→location** when using METAR/TAF encoders; **`Bulletin`** after encode; **`Bulletin.write()`** for `<MeteorologicalBulletin>` / AMHS-style output; **`compress=True`** for gzip; **`validation/`** for **IWXXM validation** (CRUX) before dissemination; caveats when TAC deviates from Annex 3.
+- **`demo/README.md`** — Demo GUI, WMO AHL + TAC file layout, regex expectations (see that file), **`iwxxmd`** daemon behavior.
+- **`validation/README.md`** — **`iwxxmValidator.py`**, CRUX (Java), schema + Schematron, dependencies, flags, `externalSchemas/`.
+
+## API shape
+
+There is **no HTTP/OpenAPI surface** in the core library. The programmatic API is **Python classes**: product **`Encoder`** subclasses, **`encode(...)` → `Bulletin`**, and **`validation/iwxxmValidator.py`** for XML on disk.
+
+## Cross-cutting rule
+
+**Validate IWXXM output** using **`validation/`** before treating XML as correct for dissemination (see root `README.md`, `validation/README.md`). When editing encoders, prefer recommending **`validation/iwxxmValidator.py`** on a directory of generated `.xml` files.
