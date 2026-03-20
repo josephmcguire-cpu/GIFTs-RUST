@@ -92,7 +92,8 @@ def test_daemon_start_invokes_daemonize_and_run(monkeypatch):
 
 
 def test_dow_check_file_time_unlinks_stale(tmp_path, monkeypatch):
-    logf = tmp_path / "base_Mon"
+    # Match DOWFileHandler.__checkFileTime: baseFilename is "<dir>/base_<weekday>".
+    logf = tmp_path / f"base_{m.time.strftime('%a')}"
     logf.write_text("old", encoding="utf-8")
     past = 0.0
     monkeypatch.setattr(m.time, "time", lambda: past + 90000.0)
@@ -103,9 +104,8 @@ def test_dow_check_file_time_unlinks_stale(tmp_path, monkeypatch):
         unlinked.append(p)
 
     monkeypatch.setattr(m.os, "unlink", capture_unlink)
-    h = m.DOWFileHandler(directory=str(tmp_path), basename="base")
-    h.baseFilename = str(logf)
-    assert str(logf) in unlinked or unlinked
+    m.DOWFileHandler(directory=str(tmp_path), basename="base")
+    assert str(logf) in unlinked
 
 
 def test_dispatcher_header_uses_txt_ext(tmp_path):
