@@ -30,6 +30,7 @@ test = [
   "pytest>=8.3",
   "pytest-cov>=4.0",
   "pytest-benchmark>=4.0",
+  "freezegun>=1.5",
   "ruff>=0.8.0",
   "lxml>=4.9",
   "requests>=2.28",
@@ -54,11 +55,12 @@ gifts = ["data/codes.wmo.int-*.rdf"]
 [tool.pytest.ini_options]
 minversion = "8.0"
 addopts = "-v --strict-markers --import-mode=importlib"
-pythonpath = ["validation", "demo"]
+pythonpath = ["validation", "demo", "."]
 testpaths = [
   "gifts/tests",
   "validation/tests",
   "demo/tests",
+  "tests/pipeline",
   "tests/e2e",
   "tests/perf",
 ]
@@ -80,6 +82,7 @@ omit = [
   "validation/tests/*",
   "validation/externalSchemas/*",
   "demo/tests/*",
+  "tests/pipeline/*",
 ]
 
 [tool.coverage.report]

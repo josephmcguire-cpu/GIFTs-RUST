@@ -1,0 +1,128 @@
+{
+  "ahl": {
+    "aaii": "PQ30",
+    "bbb": "",
+    "cccc": "RJTD",
+    "tt": "LK",
+    "yygg": "111800"
+  },
+  "case_id": "tca_tokyo_exer",
+  "freeze_time": "2015-01-15T12:00:00Z",
+  "geo_db": {},
+  "input": "FKPQ30 RJTD 111800\nTC ADVISORY\nSTATUS:               EXER\nDTG:                  20180911/1800Z\nTCAC:                 TOKYO\nTC:                   MANGKHUT\nADVISORY NR:          2018/19\nOBS PSN:              11/1800Z N1400 E13725\nCB:                   WI 180NM OF TC CENTRE TOP ABV FL450\nMOV:                  W 12KT\nINTST CHANGE:         INTSF\nC:                    905HPA\nMAX WIND:             110KT\nFCST PSN +6 HR:       12/0000Z N1405 E13620\nFCST MAX WIND +6 HR:  110KT\nFCST PSN +12 HR:      12/0600Z N1420 E13510\nFCST MAX WIND +12 HR: 110KT\nFCST PSN +18 HR:      12/1200Z N1430 E134\nFCST MAX WIND +18 HR: 110KT\nFCST PSN +24 HR:      12/1800Z N1450 E13250\nFCST MAX WIND +24 HR: 110KT\nRMK:                  NIL\nNXT MSG:              BFR 20180912/0000Z=\n",
+  "iwxxm_validator_version": "2025-2",
+  "notes": "TCA exercise advisory (from gifts/tests/test_tca_encoding.py).",
+  "product": "TCA",
+  "reports": [
+    {
+      "decoded": {
+        "advisoryNumber": "2018/19",
+        "bbb": "",
+        "cbclouds": [
+          {
+            "radius": "180",
+            "top": {
+              "cnd": "ABV",
+              "lvl": "450"
+            },
+            "type": "circle",
+            "uom": "[nm_i]"
+          }
+        ],
+        "centre": "TOKYO",
+        "cycloneName": "MANGKHUT",
+        "fcst": {
+          "0": {
+            "dtg": "2018-09-11T18:00:00Z",
+            "movement": {
+              "dir": "270",
+              "spd": "12",
+              "uom": "[kn_i]"
+            },
+            "position": "14.000 137.417",
+            "windSpeed": {
+              "uom": "[kn_i]",
+              "value": "110"
+            }
+          },
+          "12": {
+            "dtg": "2018-09-12T06:00:00Z",
+            "position": "14.333 135.167",
+            "windSpeed": {
+              "uom": "[kn_i]",
+              "value": "110"
+            }
+          },
+          "18": {
+            "dtg": "2018-09-12T12:00:00Z",
+            "position": "14.500 134.000",
+            "windSpeed": {
+              "uom": "[kn_i]",
+              "value": "110"
+            }
+          },
+          "24": {
+            "dtg": "2018-09-12T18:00:00Z",
+            "position": "14.834 132.833",
+            "windSpeed": {
+              "uom": "[kn_i]",
+              "value": "110"
+            }
+          },
+          "6": {
+            "dtg": "2018-09-12T00:00:00Z",
+            "position": "14.083 136.333",
+            "windSpeed": {
+              "uom": "[kn_i]",
+              "value": "110"
+            }
+          }
+        },
+        "intstChange": "INTSF",
+        "issueTime": {
+          "str": "2018-09-11T18:00:00Z",
+          "tms": [
+            2018,
+            9,
+            11,
+            18,
+            0,
+            0,
+            0,
+            0,
+            0
+          ]
+        },
+        "minimumPressure": {
+          "uom": "hPa",
+          "value": "905"
+        },
+        "nextdtg": {
+          "before": true,
+          "str": "2018-09-12T00:00:00Z"
+        },
+        "remarks": "NIL",
+        "status": "EXER",
+        "translationTime": "2015-01-15T12:00:00Z"
+      },
+      "iwxxm_xml": "<ns0:TropicalCycloneAdvisory xmlns:ns0=\"http://icao.int/iwxxm/2025-2\" xmlns:ns2=\"http://www.opengis.net/gml/3.2\" xmlns:ns3=\"http://www.aixm.aero/schema/5.1.1\" xmlns:ns4=\"http://def.wmo.int/metce/2013\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://icao.int/iwxxm/2025-2 https://schemas.wmo.int/iwxxm/2025-2RC1/iwxxm.xsd\" permissibleUsage=\"NON-OPERATIONAL\" permissibleUsageReason=\"EXERCISE\" reportStatus=\"NORMAL\" ns2:id=\"uuid.00000001-0000-4000-8000-000000000001\">\n  <ns0:issueTime>\n    <ns2:TimeInstant ns2:id=\"uuid.00000002-0000-4000-8000-000000000002\">\n      <ns2:timePosition>2018-09-11T18:00:00Z</ns2:timePosition>\n    </ns2:TimeInstant>\n  </ns0:issueTime>\n  <ns0:issuingTropicalCycloneAdvisoryCentre>\n    <ns3:Unit ns2:id=\"uuid.00000003-0000-4000-8000-000000000003\">\n      <ns3:timeSlice>\n        <ns3:UnitTimeSlice ns2:id=\"uuid.00000004-0000-4000-8000-000000000004\">\n          <ns2:validTime />\n          <ns3:interpretation>SNAPSHOT</ns3:interpretation>\n          <ns3:type>OTHER:TCAC</ns3:type>\n          <ns3:designator>TOKYO</ns3:designator>\n        </ns3:UnitTimeSlice>\n      </ns3:timeSlice>\n    </ns3:Unit>\n  </ns0:issuingTropicalCycloneAdvisoryCentre>\n  <ns0:tropicalCycloneName>\n    <ns4:TropicalCyclone ns2:id=\"uuid.00000005-0000-4000-8000-000000000005\">\n      <ns4:name>MANGKHUT</ns4:name>\n    </ns4:TropicalCyclone>\n  </ns0:tropicalCycloneName>\n  <ns0:advisoryNumber>2018/19</ns0:advisoryNumber>\n  <ns0:observation>\n    <ns0:TropicalCycloneObservedConditions ns2:id=\"uuid.00000006-0000-4000-8000-000000000006\">\n      <ns0:phenomenonTime>\n        <ns2:TimeInstant ns2:id=\"uuid.00000007-0000-4000-8000-000000000007\">\n          <ns2:timePosition>2018-09-11T18:00:00Z</ns2:timePosition>\n        </ns2:TimeInstant>\n      </ns0:phenomenonTime>\n      <ns0:tropicalCyclonePosition>\n        <ns2:Point ns2:id=\"uuid.00000008-0000-4000-8000-000000000008\" axisLabels=\"Lat Long\" srsName=\"http://www.opengis.net/def/crs/EPSG/0/4326\" srsDimension=\"2\">\n          <ns2:pos>14.000 137.417</ns2:pos>\n        </ns2:Point>\n      </ns0:tropicalCyclonePosition>\n      <ns0:cumulonimbusCloudLocation>\n        <ns3:AirspaceVolume ns2:id=\"uuid.00000009-0000-4000-8000-000000000009\">\n          <ns3:upperLimit uom=\"FL\">450</ns3:upperLimit>\n          <ns3:upperLimitReference>STD</ns3:upperLimitReference>\n          <ns3:maximumLimit nilReason=\"unknown\" xsi:nil=\"true\" />\n          <ns3:horizontalProjection>\n            <ns3:Surface ns2:id=\"uuid.0000000a-0000-4000-8000-00000000000a\" axisLabels=\"Lat Long\" srsName=\"http://www.opengis.net/def/crs/EPSG/0/4326\" srsDimension=\"2\">\n              <ns2:patches>\n                <ns2:PolygonPatch>\n                  <ns2:exterior>\n                    <ns2:Ring>\n                      <ns2:curveMember>\n                        <ns2:Curve ns2:id=\"uuid.0000000b-0000-4000-8000-00000000000b\">\n                          <ns2:segments>\n                            <ns2:CircleByCenterPoint numArc=\"1\">\n                              <ns2:pos>14.000 137.417</ns2:pos>\n                              <ns2:radius uom=\"[nm_i]\">180</ns2:radius>\n                            </ns2:CircleByCenterPoint>\n                          </ns2:segments>\n                        </ns2:Curve>\n                      </ns2:curveMember>\n                    </ns2:Ring>\n                  </ns2:exterior>\n                </ns2:PolygonPatch>\n              </ns2:patches>\n            </ns3:Surface>\n          </ns3:horizontalProjection>\n        </ns3:AirspaceVolume>\n      </ns0:cumulonimbusCloudLocation>\n      <ns0:movement>MOVING</ns0:movement>\n      <ns0:movementDirection uom=\"deg\">270</ns0:movementDirection>\n      <ns0:movementSpeed uom=\"[kn_i]\">12</ns0:movementSpeed>\n      <ns0:intensityChange>INTENSIFY</ns0:intensityChange>\n      <ns0:centralPressure uom=\"hPa\">905</ns0:centralPressure>\n      <ns0:maximumSurfaceWindSpeed uom=\"[kn_i]\">110</ns0:maximumSurfaceWindSpeed>\n    </ns0:TropicalCycloneObservedConditions>\n  </ns0:observation>\n  <ns0:forecast>\n    <ns0:TropicalCycloneForecastConditions ns2:id=\"uuid.0000000c-0000-4000-8000-00000000000c\">\n      <ns0:phenomenonTime>\n        <ns2:TimeInstant ns2:id=\"uuid.0000000d-0000-4000-8000-00000000000d\">\n          <ns2:timePosition>2018-09-12T00:00:00Z</ns2:timePosition>\n        </ns2:TimeInstant>\n      </ns0:phenomenonTime>\n      <ns0:tropicalCyclonePosition>\n        <ns2:Point ns2:id=\"uuid.0000000e-0000-4000-8000-00000000000e\" axisLabels=\"Lat Long\" srsName=\"http://www.opengis.net/def/crs/EPSG/0/4326\" srsDimension=\"2\">\n          <ns2:pos>14.083 136.333</ns2:pos>\n        </ns2:Point>\n      </ns0:tropicalCyclonePosition>\n      <ns0:maximumSurfaceWindSpeed uom=\"[kn_i]\">110</ns0:maximumSurfaceWindSpeed>\n    </ns0:TropicalCycloneForecastConditions>\n  </ns0:forecast>\n  <ns0:forecast>\n    <ns0:TropicalCycloneForecastConditions ns2:id=\"uuid.0000000f-0000-4000-8000-00000000000f\">\n      <ns0:phenomenonTime>\n        <ns2:TimeInstant ns2:id=\"uuid.00000010-0000-4000-8000-000000000010\">\n          <ns2:timePosition>2018-09-12T06:00:00Z</ns2:timePosition>\n        </ns2:TimeInstant>\n      </ns0:phenomenonTime>\n      <ns0:tropicalCyclonePosition>\n        <ns2:Point ns2:id=\"uuid.00000011-0000-4000-8000-000000000011\" axisLabels=\"Lat Long\" srsName=\"http://www.opengis.net/def/crs/EPSG/0/4326\" srsDimension=\"2\">\n          <ns2:pos>14.333 135.167</ns2:pos>\n        </ns2:Point>\n      </ns0:tropicalCyclonePosition>\n      <ns0:maximumSurfaceWindSpeed uom=\"[kn_i]\">110</ns0:maximumSurfaceWindSpeed>\n    </ns0:TropicalCycloneForecastConditions>\n  </ns0:forecast>\n  <ns0:forecast>\n    <ns0:TropicalCycloneForecastConditions ns2:id=\"uuid.00000012-0000-4000-8000-000000000012\">\n      <ns0:phenomenonTime>\n        <ns2:TimeInstant ns2:id=\"uuid.00000013-0000-4000-8000-000000000013\">\n          <ns2:timePosition>2018-09-12T12:00:00Z</ns2:timePosition>\n        </ns2:TimeInstant>\n      </ns0:phenomenonTime>\n      <ns0:tropicalCyclonePosition>\n        <ns2:Point ns2:id=\"uuid.00000014-0000-4000-8000-000000000014\" axisLabels=\"Lat Long\" srsName=\"http://www.opengis.net/def/crs/EPSG/0/4326\" srsDimension=\"2\">\n          <ns2:pos>14.500 134.000</ns2:pos>\n        </ns2:Point>\n      </ns0:tropicalCyclonePosition>\n      <ns0:maximumSurfaceWindSpeed uom=\"[kn_i]\">110</ns0:maximumSurfaceWindSpeed>\n    </ns0:TropicalCycloneForecastConditions>\n  </ns0:forecast>\n  <ns0:forecast>\n    <ns0:TropicalCycloneForecastConditions ns2:id=\"uuid.00000015-0000-4000-8000-000000000015\">\n      <ns0:phenomenonTime>\n        <ns2:TimeInstant ns2:id=\"uuid.00000016-0000-4000-8000-000000000016\">\n          <ns2:timePosition>2018-09-12T18:00:00Z</ns2:timePosition>\n        </ns2:TimeInstant>\n      </ns0:phenomenonTime>\n      <ns0:tropicalCyclonePosition>\n        <ns2:Point ns2:id=\"uuid.00000017-0000-4000-8000-000000000017\" axisLabels=\"Lat Long\" srsName=\"http://www.opengis.net/def/crs/EPSG/0/4326\" srsDimension=\"2\">\n          <ns2:pos>14.834 132.833</ns2:pos>\n        </ns2:Point>\n      </ns0:tropicalCyclonePosition>\n      <ns0:maximumSurfaceWindSpeed uom=\"[kn_i]\">110</ns0:maximumSurfaceWindSpeed>\n    </ns0:TropicalCycloneForecastConditions>\n  </ns0:forecast>\n  <ns0:remarks nilReason=\"http://codes.wmo.int/common/nil/inapplicable\" xsi:nil=\"true\" />\n  <ns0:nextAdvisoryTime>\n    <ns2:TimeInstant ns2:id=\"uuid.00000018-0000-4000-8000-000000000018\">\n      <ns2:timePosition indeterminatePosition=\"before\">2018-09-12T00:00:00Z</ns2:timePosition>\n    </ns2:TimeInstant>\n  </ns0:nextAdvisoryTime>\n</ns0:TropicalCycloneAdvisory>",
+      "tac": "TC ADVISORY\nSTATUS:               EXER\nDTG:                  20180911/1800Z\nTCAC:                 TOKYO\nTC:                   MANGKHUT\nADVISORY NR:          2018/19\nOBS PSN:              11/1800Z N1400 E13725\nCB:                   WI 180NM OF TC CENTRE TOP ABV FL450\nMOV:                  W 12KT\nINTST CHANGE:         INTSF\nC:                    905HPA\nMAX WIND:             110KT\nFCST PSN +6 HR:       12/0000Z N1405 E13620\nFCST MAX WIND +6 HR:  110KT\nFCST PSN +12 HR:      12/0600Z N1420 E13510\nFCST MAX WIND +12 HR: 110KT\nFCST PSN +18 HR:      12/1200Z N1430 E134\nFCST MAX WIND +18 HR: 110KT\nFCST PSN +24 HR:      12/1800Z N1450 E13250\nFCST MAX WIND +24 HR: 110KT\nRMK:                  NIL\nNXT MSG:              BFR 20180912/0000Z=\n"
+    }
+  ],
+  "schema": 1,
+  "validation_profile": {
+    "description": "CRUX jar validates IWXXM XML (schema + Schematron); see validation/README.md",
+    "recommended_argv": [
+      "--noGMLChecks",
+      "-v",
+      "2025-2",
+      "<directory>"
+    ],
+    "tool": "iwxxmValidator.py",
+    "working_directory_relative": "validation"
+  },
+  "xml_config_overrides": {
+    "TITLES": 0,
+    "TRANSLATOR": false
+  }
+}

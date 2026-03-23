@@ -1,0 +1,74 @@
+<ns0:SpaceWeatherAdvisory xmlns:ns0="http://icao.int/iwxxm/2025-2" xmlns:ns2="http://www.opengis.net/gml/3.2" xmlns:ns3="http://www.aixm.aero/schema/5.1.1" xmlns:ns4="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icao.int/iwxxm/2025-2 https://schemas.wmo.int/iwxxm/2025-2RC1/iwxxm.xsd" permissibleUsage="NON-OPERATIONAL" permissibleUsageReason="EXERCISE" reportStatus="NORMAL" ns2:id="uuid.00000001-0000-4000-8000-000000000001">
+  <ns0:issueTime>
+    <ns2:TimeInstant ns2:id="uuid.00000002-0000-4000-8000-000000000002">
+      <ns2:timePosition>2020-05-30T12:00:00Z</ns2:timePosition>
+    </ns2:TimeInstant>
+  </ns0:issueTime>
+  <ns0:issuingSpaceWeatherCentre>
+    <ns3:Unit ns2:id="uuid.00000003-0000-4000-8000-000000000003">
+      <ns3:timeSlice>
+        <ns3:UnitTimeSlice ns2:id="uuid.00000004-0000-4000-8000-000000000004">
+          <ns2:validTime />
+          <ns3:interpretation>SNAPSHOT</ns3:interpretation>
+          <ns3:type>OTHER:SWXC</ns3:type>
+          <ns3:designator>BOULDER</ns3:designator>
+        </ns3:UnitTimeSlice>
+      </ns3:timeSlice>
+    </ns3:Unit>
+  </ns0:issuingSpaceWeatherCentre>
+  <ns0:advisoryNumber>2020/1</ns0:advisoryNumber>
+  <ns0:phenomenon ns4:href="http://codes.wmo.int/49-2/SpaceWxPhenomena/HF_COM_MOD" />
+  <ns0:phenomenon ns4:href="http://codes.wmo.int/49-2/SpaceWxPhenomena/GNSS_MOD" />
+  <ns0:analysis>
+    <ns0:SpaceWeatherAnalysis ns2:id="uuid.00000005-0000-4000-8000-000000000005" timeIndicator="OBSERVATION">
+      <ns0:phenomenonTime>
+        <ns2:TimeInstant ns2:id="uuid.00000006-0000-4000-8000-000000000006">
+          <ns2:timePosition>2020-06-30T12:00:00Z</ns2:timePosition>
+        </ns2:TimeInstant>
+      </ns0:phenomenonTime>
+      <ns0:region nilReason="http://codes.wmo.int/common/nil/nothingOfOperationalSignificance" />
+    </ns0:SpaceWeatherAnalysis>
+  </ns0:analysis>
+  <ns0:analysis>
+    <ns0:SpaceWeatherAnalysis ns2:id="uuid.00000007-0000-4000-8000-000000000007" timeIndicator="FORECAST">
+      <ns0:phenomenonTime>
+        <ns2:TimeInstant ns2:id="uuid.00000008-0000-4000-8000-000000000008">
+          <ns2:timePosition>2020-07-30T18:00:00Z</ns2:timePosition>
+        </ns2:TimeInstant>
+      </ns0:phenomenonTime>
+      <ns0:region nilReason="http://codes.wmo.int/common/nil/missing" />
+    </ns0:SpaceWeatherAnalysis>
+  </ns0:analysis>
+  <ns0:analysis>
+    <ns0:SpaceWeatherAnalysis ns2:id="uuid.00000009-0000-4000-8000-000000000009" timeIndicator="FORECAST">
+      <ns0:phenomenonTime>
+        <ns2:TimeInstant ns2:id="uuid.0000000a-0000-4000-8000-00000000000a">
+          <ns2:timePosition>2020-08-01T00:00:00Z</ns2:timePosition>
+        </ns2:TimeInstant>
+      </ns0:phenomenonTime>
+      <ns0:region nilReason="http://codes.wmo.int/common/nil/missing" />
+    </ns0:SpaceWeatherAnalysis>
+  </ns0:analysis>
+  <ns0:analysis>
+    <ns0:SpaceWeatherAnalysis ns2:id="uuid.0000000b-0000-4000-8000-00000000000b" timeIndicator="FORECAST">
+      <ns0:phenomenonTime>
+        <ns2:TimeInstant ns2:id="uuid.0000000c-0000-4000-8000-00000000000c">
+          <ns2:timePosition>2020-09-01T06:00:00Z</ns2:timePosition>
+        </ns2:TimeInstant>
+      </ns0:phenomenonTime>
+      <ns0:region nilReason="http://codes.wmo.int/common/nil/nothingOfOperationalSignificance" />
+    </ns0:SpaceWeatherAnalysis>
+  </ns0:analysis>
+  <ns0:analysis>
+    <ns0:SpaceWeatherAnalysis ns2:id="uuid.0000000d-0000-4000-8000-00000000000d" timeIndicator="FORECAST">
+      <ns0:phenomenonTime>
+        <ns2:TimeInstant ns2:id="uuid.0000000e-0000-4000-8000-00000000000e">
+          <ns2:timePosition>2020-10-01T12:00:00Z</ns2:timePosition>
+        </ns2:TimeInstant>
+      </ns0:phenomenonTime>
+      <ns0:region nilReason="http://codes.wmo.int/common/nil/nothingOfOperationalSignificance" />
+    </ns0:SpaceWeatherAnalysis>
+  </ns0:analysis>
+  <ns0:remarks nilReason="http://codes.wmo.int/common/nil/inapplicable" xsi:nil="true" />
+  <ns0:nextAdvisoryTime nilReason="http://codes.wmo.int/common/nil/inapplicable" />
+</ns0:SpaceWeatherAdvisory>

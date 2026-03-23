@@ -1,0 +1,140 @@
+<ns0:TropicalCycloneAdvisory xmlns:ns0="http://icao.int/iwxxm/2025-2" xmlns:ns2="http://www.opengis.net/gml/3.2" xmlns:ns3="http://www.aixm.aero/schema/5.1.1" xmlns:ns4="http://def.wmo.int/metce/2013" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icao.int/iwxxm/2025-2 https://schemas.wmo.int/iwxxm/2025-2RC1/iwxxm.xsd" permissibleUsage="NON-OPERATIONAL" permissibleUsageReason="EXERCISE" reportStatus="NORMAL" ns2:id="uuid.00000001-0000-4000-8000-000000000001">
+  <ns0:issueTime>
+    <ns2:TimeInstant ns2:id="uuid.00000002-0000-4000-8000-000000000002">
+      <ns2:timePosition>2018-09-11T18:00:00Z</ns2:timePosition>
+    </ns2:TimeInstant>
+  </ns0:issueTime>
+  <ns0:issuingTropicalCycloneAdvisoryCentre>
+    <ns3:Unit ns2:id="uuid.00000003-0000-4000-8000-000000000003">
+      <ns3:timeSlice>
+        <ns3:UnitTimeSlice ns2:id="uuid.00000004-0000-4000-8000-000000000004">
+          <ns2:validTime />
+          <ns3:interpretation>SNAPSHOT</ns3:interpretation>
+          <ns3:type>OTHER:TCAC</ns3:type>
+          <ns3:designator>TOKYO</ns3:designator>
+        </ns3:UnitTimeSlice>
+      </ns3:timeSlice>
+    </ns3:Unit>
+  </ns0:issuingTropicalCycloneAdvisoryCentre>
+  <ns0:tropicalCycloneName>
+    <ns4:TropicalCyclone ns2:id="uuid.00000005-0000-4000-8000-000000000005">
+      <ns4:name>MANGKHUT</ns4:name>
+    </ns4:TropicalCyclone>
+  </ns0:tropicalCycloneName>
+  <ns0:advisoryNumber>2018/19</ns0:advisoryNumber>
+  <ns0:observation>
+    <ns0:TropicalCycloneObservedConditions ns2:id="uuid.00000006-0000-4000-8000-000000000006">
+      <ns0:phenomenonTime>
+        <ns2:TimeInstant ns2:id="uuid.00000007-0000-4000-8000-000000000007">
+          <ns2:timePosition>2018-09-11T18:00:00Z</ns2:timePosition>
+        </ns2:TimeInstant>
+      </ns0:phenomenonTime>
+      <ns0:tropicalCyclonePosition>
+        <ns2:Point ns2:id="uuid.00000008-0000-4000-8000-000000000008" axisLabels="Lat Long" srsName="http://www.opengis.net/def/crs/EPSG/0/4326" srsDimension="2">
+          <ns2:pos>14.000 137.417</ns2:pos>
+        </ns2:Point>
+      </ns0:tropicalCyclonePosition>
+      <ns0:cumulonimbusCloudLocation>
+        <ns3:AirspaceVolume ns2:id="uuid.00000009-0000-4000-8000-000000000009">
+          <ns3:upperLimit uom="FL">450</ns3:upperLimit>
+          <ns3:upperLimitReference>STD</ns3:upperLimitReference>
+          <ns3:maximumLimit nilReason="unknown" xsi:nil="true" />
+          <ns3:horizontalProjection>
+            <ns3:Surface ns2:id="uuid.0000000a-0000-4000-8000-00000000000a" axisLabels="Lat Long" srsName="http://www.opengis.net/def/crs/EPSG/0/4326" srsDimension="2">
+              <ns2:patches>
+                <ns2:PolygonPatch>
+                  <ns2:exterior>
+                    <ns2:Ring>
+                      <ns2:curveMember>
+                        <ns2:Curve ns2:id="uuid.0000000b-0000-4000-8000-00000000000b">
+                          <ns2:segments>
+                            <ns2:CircleByCenterPoint numArc="1">
+                              <ns2:pos>14.000 137.417</ns2:pos>
+                              <ns2:radius uom="[nm_i]">180</ns2:radius>
+                            </ns2:CircleByCenterPoint>
+                          </ns2:segments>
+                        </ns2:Curve>
+                      </ns2:curveMember>
+                    </ns2:Ring>
+                  </ns2:exterior>
+                </ns2:PolygonPatch>
+              </ns2:patches>
+            </ns3:Surface>
+          </ns3:horizontalProjection>
+        </ns3:AirspaceVolume>
+      </ns0:cumulonimbusCloudLocation>
+      <ns0:movement>MOVING</ns0:movement>
+      <ns0:movementDirection uom="deg">270</ns0:movementDirection>
+      <ns0:movementSpeed uom="[kn_i]">12</ns0:movementSpeed>
+      <ns0:intensityChange>INTENSIFY</ns0:intensityChange>
+      <ns0:centralPressure uom="hPa">905</ns0:centralPressure>
+      <ns0:maximumSurfaceWindSpeed uom="[kn_i]">110</ns0:maximumSurfaceWindSpeed>
+    </ns0:TropicalCycloneObservedConditions>
+  </ns0:observation>
+  <ns0:forecast>
+    <ns0:TropicalCycloneForecastConditions ns2:id="uuid.0000000c-0000-4000-8000-00000000000c">
+      <ns0:phenomenonTime>
+        <ns2:TimeInstant ns2:id="uuid.0000000d-0000-4000-8000-00000000000d">
+          <ns2:timePosition>2018-09-12T00:00:00Z</ns2:timePosition>
+        </ns2:TimeInstant>
+      </ns0:phenomenonTime>
+      <ns0:tropicalCyclonePosition>
+        <ns2:Point ns2:id="uuid.0000000e-0000-4000-8000-00000000000e" axisLabels="Lat Long" srsName="http://www.opengis.net/def/crs/EPSG/0/4326" srsDimension="2">
+          <ns2:pos>14.083 136.333</ns2:pos>
+        </ns2:Point>
+      </ns0:tropicalCyclonePosition>
+      <ns0:maximumSurfaceWindSpeed uom="[kn_i]">110</ns0:maximumSurfaceWindSpeed>
+    </ns0:TropicalCycloneForecastConditions>
+  </ns0:forecast>
+  <ns0:forecast>
+    <ns0:TropicalCycloneForecastConditions ns2:id="uuid.0000000f-0000-4000-8000-00000000000f">
+      <ns0:phenomenonTime>
+        <ns2:TimeInstant ns2:id="uuid.00000010-0000-4000-8000-000000000010">
+          <ns2:timePosition>2018-09-12T06:00:00Z</ns2:timePosition>
+        </ns2:TimeInstant>
+      </ns0:phenomenonTime>
+      <ns0:tropicalCyclonePosition>
+        <ns2:Point ns2:id="uuid.00000011-0000-4000-8000-000000000011" axisLabels="Lat Long" srsName="http://www.opengis.net/def/crs/EPSG/0/4326" srsDimension="2">
+          <ns2:pos>14.333 135.167</ns2:pos>
+        </ns2:Point>
+      </ns0:tropicalCyclonePosition>
+      <ns0:maximumSurfaceWindSpeed uom="[kn_i]">110</ns0:maximumSurfaceWindSpeed>
+    </ns0:TropicalCycloneForecastConditions>
+  </ns0:forecast>
+  <ns0:forecast>
+    <ns0:TropicalCycloneForecastConditions ns2:id="uuid.00000012-0000-4000-8000-000000000012">
+      <ns0:phenomenonTime>
+        <ns2:TimeInstant ns2:id="uuid.00000013-0000-4000-8000-000000000013">
+          <ns2:timePosition>2018-09-12T12:00:00Z</ns2:timePosition>
+        </ns2:TimeInstant>
+      </ns0:phenomenonTime>
+      <ns0:tropicalCyclonePosition>
+        <ns2:Point ns2:id="uuid.00000014-0000-4000-8000-000000000014" axisLabels="Lat Long" srsName="http://www.opengis.net/def/crs/EPSG/0/4326" srsDimension="2">
+          <ns2:pos>14.500 134.000</ns2:pos>
+        </ns2:Point>
+      </ns0:tropicalCyclonePosition>
+      <ns0:maximumSurfaceWindSpeed uom="[kn_i]">110</ns0:maximumSurfaceWindSpeed>
+    </ns0:TropicalCycloneForecastConditions>
+  </ns0:forecast>
+  <ns0:forecast>
+    <ns0:TropicalCycloneForecastConditions ns2:id="uuid.00000015-0000-4000-8000-000000000015">
+      <ns0:phenomenonTime>
+        <ns2:TimeInstant ns2:id="uuid.00000016-0000-4000-8000-000000000016">
+          <ns2:timePosition>2018-09-12T18:00:00Z</ns2:timePosition>
+        </ns2:TimeInstant>
+      </ns0:phenomenonTime>
+      <ns0:tropicalCyclonePosition>
+        <ns2:Point ns2:id="uuid.00000017-0000-4000-8000-000000000017" axisLabels="Lat Long" srsName="http://www.opengis.net/def/crs/EPSG/0/4326" srsDimension="2">
+          <ns2:pos>14.834 132.833</ns2:pos>
+        </ns2:Point>
+      </ns0:tropicalCyclonePosition>
+      <ns0:maximumSurfaceWindSpeed uom="[kn_i]">110</ns0:maximumSurfaceWindSpeed>
+    </ns0:TropicalCycloneForecastConditions>
+  </ns0:forecast>
+  <ns0:remarks nilReason="http://codes.wmo.int/common/nil/inapplicable" xsi:nil="true" />
+  <ns0:nextAdvisoryTime>
+    <ns2:TimeInstant ns2:id="uuid.00000018-0000-4000-8000-000000000018">
+      <ns2:timePosition indeterminatePosition="before">2018-09-12T00:00:00Z</ns2:timePosition>
+    </ns2:TimeInstant>
+  </ns0:nextAdvisoryTime>
+</ns0:TropicalCycloneAdvisory>

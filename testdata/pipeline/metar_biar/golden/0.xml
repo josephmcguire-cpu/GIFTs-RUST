@@ -1,0 +1,58 @@
+<ns0:METAR xmlns:ns0="http://icao.int/iwxxm/2025-2" xmlns:ns2="http://www.opengis.net/gml/3.2" xmlns:ns3="http://www.aixm.aero/schema/5.1.1" xmlns:ns4="http://www.w3.org/1999/xlink" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icao.int/iwxxm/2025-2 https://schemas.wmo.int/iwxxm/2025-2RC1/iwxxm.xsd" reportStatus="NORMAL" automatedStation="false" permissibleUsage="OPERATIONAL" ns2:id="uuid.00000001-0000-4000-8000-000000000001">
+  <ns0:issueTime>
+    <ns2:TimeInstant ns2:id="uuid.00000002-0000-4000-8000-000000000002">
+      <ns2:timePosition>2026-03-01T00:00:00Z</ns2:timePosition>
+    </ns2:TimeInstant>
+  </ns0:issueTime>
+  <ns0:aerodrome>
+    <ns3:AirportHeliport ns2:id="uuid.00000003-0000-4000-8000-000000000003">
+      <ns3:timeSlice>
+        <ns3:AirportHeliportTimeSlice ns2:id="uuid.00000004-0000-4000-8000-000000000004">
+          <ns2:validTime />
+          <ns3:interpretation>SNAPSHOT</ns3:interpretation>
+          <ns3:designator>AKI</ns3:designator>
+          <ns3:name>AKUREYRI</ns3:name>
+          <ns3:locationIndicatorICAO>BIAR</ns3:locationIndicatorICAO>
+          <ns3:designatorIATA>AEY</ns3:designatorIATA>
+          <ns3:ARP>
+            <ns3:ElevatedPoint srsDimension="2" srsName="http://www.opengis.net/def/crs/EPSG/0/4326" axisLabels="Lat Long" ns2:id="uuid.00000005-0000-4000-8000-000000000005">
+              <ns2:pos>65.67 -18.07</ns2:pos>
+            </ns3:ElevatedPoint>
+          </ns3:ARP>
+        </ns3:AirportHeliportTimeSlice>
+      </ns3:timeSlice>
+    </ns3:AirportHeliport>
+  </ns0:aerodrome>
+  <ns0:observationTime ns4:href="#uuid.00000002-0000-4000-8000-000000000002" />
+  <ns0:observation>
+    <ns0:MeteorologicalAerodromeObservation ns2:id="uuid.00000006-0000-4000-8000-000000000006" cloudAndVisibilityOK="false">
+      <ns0:airTemperature uom="Cel">4</ns0:airTemperature>
+      <ns0:dewpointTemperature uom="Cel">0</ns0:dewpointTemperature>
+      <ns0:qnh uom="hPa">1023</ns0:qnh>
+      <ns0:surfaceWind>
+        <ns0:AerodromeSurfaceWind variableWindDirection="true">
+          <ns0:meanWindDirection uom="deg">330</ns0:meanWindDirection>
+          <ns0:meanWindSpeed uom="[kn_i]">3</ns0:meanWindSpeed>
+          <ns0:extremeClockwiseWindDirection uom="deg">10</ns0:extremeClockwiseWindDirection>
+          <ns0:extremeCounterClockwiseWindDirection uom="deg">280</ns0:extremeCounterClockwiseWindDirection>
+        </ns0:AerodromeSurfaceWind>
+      </ns0:surfaceWind>
+      <ns0:visibility>
+        <ns0:AerodromeHorizontalVisibility>
+          <ns0:prevailingVisibility uom="m">10000</ns0:prevailingVisibility>
+          <ns0:prevailingVisibilityOperator>ABOVE</ns0:prevailingVisibilityOperator>
+        </ns0:AerodromeHorizontalVisibility>
+      </ns0:visibility>
+      <ns0:cloud>
+        <ns0:AerodromeCloud>
+          <ns0:layer>
+            <ns0:CloudLayer>
+              <ns0:amount ns4:href="http://codes.wmo.int/49-2/CloudAmountReportedAtAerodrome/OVC" />
+              <ns0:base uom="[ft_i]">3200</ns0:base>
+            </ns0:CloudLayer>
+          </ns0:layer>
+        </ns0:AerodromeCloud>
+      </ns0:cloud>
+    </ns0:MeteorologicalAerodromeObservation>
+  </ns0:observation>
+</ns0:METAR>

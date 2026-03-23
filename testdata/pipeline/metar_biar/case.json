@@ -1,0 +1,136 @@
+{
+  "ahl": {
+    "aaii": "AXX99",
+    "bbb": "",
+    "cccc": "XXXX",
+    "tt": "L",
+    "yygg": "151200"
+  },
+  "case_id": "metar_biar",
+  "freeze_time": "2015-01-15T12:00:00Z",
+  "geo_db": {
+    "BIAR": "AKUREYRI|AEY|AKI|65.67 -18.07 27"
+  },
+  "input": "SAXX99 XXXX 151200\nMETAR BIAR 290000Z 33003KT 280V010 9999 OVC032 04/M00 Q1023=\n",
+  "iwxxm_validator_version": "2025-2",
+  "notes": "METAR with geo DB; aligns with tests/e2e METAR smoke sample.",
+  "product": "METAR",
+  "reports": [
+    {
+      "decoded": {
+        "altimeter": {
+          "index": [
+            "1.54",
+            "1.59"
+          ],
+          "str": "Q1023",
+          "uom": "hPa",
+          "value": "1023"
+        },
+        "bbb": " ",
+        "ident": {
+          "alternate": "AKI",
+          "iataID": "AEY",
+          "index": [
+            "1.6",
+            "1.10"
+          ],
+          "name": "AKUREYRI",
+          "position": "65.67 -18.07 27",
+          "str": "BIAR"
+        },
+        "itime": {
+          "index": [
+            "1.11",
+            "1.18"
+          ],
+          "intTime": 1772323200,
+          "str": "290000Z",
+          "tuple": [
+            2026,
+            3,
+            1,
+            0,
+            0,
+            0,
+            6,
+            60,
+            0
+          ],
+          "value": "2026-03-01T00:00:00Z"
+        },
+        "sky": {
+          "index": [
+            [
+              "1.40",
+              "1.46"
+            ]
+          ],
+          "str": [
+            "OVC032"
+          ]
+        },
+        "temps": {
+          "air": "4",
+          "dewpoint": "0",
+          "index": [
+            "1.47",
+            "1.53"
+          ],
+          "str": "04/M00",
+          "uom": "Cel"
+        },
+        "translationTime": "2015-01-15T12:00:00Z",
+        "type": {
+          "index": [
+            "1.0",
+            "1.5"
+          ],
+          "str": "METAR"
+        },
+        "vsby": {
+          "index": [
+            [
+              "1.35",
+              "1.40"
+            ]
+          ],
+          "oper": null,
+          "str": "9999 ",
+          "uom": "m",
+          "value": "9999"
+        },
+        "wind": {
+          "ccw": "280",
+          "cw": "010",
+          "dd": "330",
+          "ff": "03",
+          "index": [
+            "1.19",
+            "1.34"
+          ],
+          "str": "33003KT 280V010",
+          "uom": "[kn_i]"
+        }
+      },
+      "iwxxm_xml": "<ns0:METAR xmlns:ns0=\"http://icao.int/iwxxm/2025-2\" xmlns:ns2=\"http://www.opengis.net/gml/3.2\" xmlns:ns3=\"http://www.aixm.aero/schema/5.1.1\" xmlns:ns4=\"http://www.w3.org/1999/xlink\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://icao.int/iwxxm/2025-2 https://schemas.wmo.int/iwxxm/2025-2RC1/iwxxm.xsd\" reportStatus=\"NORMAL\" automatedStation=\"false\" permissibleUsage=\"OPERATIONAL\" ns2:id=\"uuid.00000001-0000-4000-8000-000000000001\">\n  <ns0:issueTime>\n    <ns2:TimeInstant ns2:id=\"uuid.00000002-0000-4000-8000-000000000002\">\n      <ns2:timePosition>2026-03-01T00:00:00Z</ns2:timePosition>\n    </ns2:TimeInstant>\n  </ns0:issueTime>\n  <ns0:aerodrome>\n    <ns3:AirportHeliport ns2:id=\"uuid.00000003-0000-4000-8000-000000000003\">\n      <ns3:timeSlice>\n        <ns3:AirportHeliportTimeSlice ns2:id=\"uuid.00000004-0000-4000-8000-000000000004\">\n          <ns2:validTime />\n          <ns3:interpretation>SNAPSHOT</ns3:interpretation>\n          <ns3:designator>AKI</ns3:designator>\n          <ns3:name>AKUREYRI</ns3:name>\n          <ns3:locationIndicatorICAO>BIAR</ns3:locationIndicatorICAO>\n          <ns3:designatorIATA>AEY</ns3:designatorIATA>\n          <ns3:ARP>\n            <ns3:ElevatedPoint srsDimension=\"2\" srsName=\"http://www.opengis.net/def/crs/EPSG/0/4326\" axisLabels=\"Lat Long\" ns2:id=\"uuid.00000005-0000-4000-8000-000000000005\">\n              <ns2:pos>65.67 -18.07</ns2:pos>\n            </ns3:ElevatedPoint>\n          </ns3:ARP>\n        </ns3:AirportHeliportTimeSlice>\n      </ns3:timeSlice>\n    </ns3:AirportHeliport>\n  </ns0:aerodrome>\n  <ns0:observationTime ns4:href=\"#uuid.00000002-0000-4000-8000-000000000002\" />\n  <ns0:observation>\n    <ns0:MeteorologicalAerodromeObservation ns2:id=\"uuid.00000006-0000-4000-8000-000000000006\" cloudAndVisibilityOK=\"false\">\n      <ns0:airTemperature uom=\"Cel\">4</ns0:airTemperature>\n      <ns0:dewpointTemperature uom=\"Cel\">0</ns0:dewpointTemperature>\n      <ns0:qnh uom=\"hPa\">1023</ns0:qnh>\n      <ns0:surfaceWind>\n        <ns0:AerodromeSurfaceWind variableWindDirection=\"true\">\n          <ns0:meanWindDirection uom=\"deg\">330</ns0:meanWindDirection>\n          <ns0:meanWindSpeed uom=\"[kn_i]\">3</ns0:meanWindSpeed>\n          <ns0:extremeClockwiseWindDirection uom=\"deg\">10</ns0:extremeClockwiseWindDirection>\n          <ns0:extremeCounterClockwiseWindDirection uom=\"deg\">280</ns0:extremeCounterClockwiseWindDirection>\n        </ns0:AerodromeSurfaceWind>\n      </ns0:surfaceWind>\n      <ns0:visibility>\n        <ns0:AerodromeHorizontalVisibility>\n          <ns0:prevailingVisibility uom=\"m\">10000</ns0:prevailingVisibility>\n          <ns0:prevailingVisibilityOperator>ABOVE</ns0:prevailingVisibilityOperator>\n        </ns0:AerodromeHorizontalVisibility>\n      </ns0:visibility>\n      <ns0:cloud>\n        <ns0:AerodromeCloud>\n          <ns0:layer>\n            <ns0:CloudLayer>\n              <ns0:amount ns4:href=\"http://codes.wmo.int/49-2/CloudAmountReportedAtAerodrome/OVC\" />\n              <ns0:base uom=\"[ft_i]\">3200</ns0:base>\n            </ns0:CloudLayer>\n          </ns0:layer>\n        </ns0:AerodromeCloud>\n      </ns0:cloud>\n    </ns0:MeteorologicalAerodromeObservation>\n  </ns0:observation>\n</ns0:METAR>",
+      "tac": "METAR BIAR 290000Z 33003KT 280V010 9999 OVC032 04/M00 Q1023="
+    }
+  ],
+  "schema": 1,
+  "validation_profile": {
+    "description": "CRUX jar validates IWXXM XML (schema + Schematron); see validation/README.md",
+    "recommended_argv": [
+      "--noGMLChecks",
+      "-v",
+      "2025-2",
+      "<directory>"
+    ],
+    "tool": "iwxxmValidator.py",
+    "working_directory_relative": "validation"
+  },
+  "xml_config_overrides": {
+    "TITLES": 0,
+    "TRANSLATOR": false
+  }
+}

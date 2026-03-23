@@ -1,0 +1,77 @@
+{
+  "ahl": {
+    "aaii": "TXX01",
+    "bbb": "",
+    "cccc": "LFKJ",
+    "tt": "L",
+    "yygg": "072000"
+  },
+  "case_id": "taf_sbaf_nil",
+  "freeze_time": "2015-01-15T12:00:00Z",
+  "geo_db": {
+    "SBAF": "AFONSOS ARPT MI|||-22.87 -43.37"
+  },
+  "input": "FTXX01 LFKJ 072000\nTAF SBAF 072000Z NIL=\n",
+  "iwxxm_validator_version": "2025-2",
+  "notes": "NIL TAF with aerodrome geo metadata.",
+  "product": "TAF",
+  "reports": [
+    {
+      "decoded": {
+        "bbb": "",
+        "group": [
+          {
+            "prevailing": {
+              "cavok": "false",
+              "type": "FM"
+            }
+          }
+        ],
+        "ident": {
+          "index": [
+            "1.4",
+            "1.8"
+          ],
+          "name": "AFONSOS ARPT MI",
+          "position": "-22.87 -43.37",
+          "str": "SBAF"
+        },
+        "itime": {
+          "index": [
+            "1.9",
+            "1.16"
+          ],
+          "str": "072000Z",
+          "value": 1772913600.0
+        },
+        "state": "nil",
+        "translationTime": "2015-01-15T12:00:00Z",
+        "type": {
+          "index": [
+            "1.0",
+            "1.3"
+          ],
+          "str": "TAF"
+        }
+      },
+      "iwxxm_xml": "<ns0:TAF xmlns:ns0=\"http://icao.int/iwxxm/2025-2\" xmlns:ns2=\"http://www.opengis.net/gml/3.2\" xmlns:ns3=\"http://www.aixm.aero/schema/5.1.1\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://icao.int/iwxxm/2025-2 https://schemas.wmo.int/iwxxm/2025-2RC1/iwxxm.xsd\" reportStatus=\"NORMAL\" permissibleUsage=\"OPERATIONAL\" ns2:id=\"uuid.00000001-0000-4000-8000-000000000001\">\n  <ns0:issueTime>\n    <ns2:TimeInstant ns2:id=\"uuid.00000002-0000-4000-8000-000000000002\">\n      <ns2:timePosition>2026-03-07T20:00:00Z</ns2:timePosition>\n    </ns2:TimeInstant>\n  </ns0:issueTime>\n  <ns0:aerodrome>\n    <ns3:AirportHeliport ns2:id=\"uuid.00000003-0000-4000-8000-000000000003\">\n      <ns3:timeSlice>\n        <ns3:AirportHeliportTimeSlice ns2:id=\"uuid.00000004-0000-4000-8000-000000000004\">\n          <ns2:validTime />\n          <ns3:interpretation>SNAPSHOT</ns3:interpretation>\n          <ns3:name>AFONSOS ARPT MI</ns3:name>\n          <ns3:locationIndicatorICAO>SBAF</ns3:locationIndicatorICAO>\n          <ns3:ARP>\n            <ns3:ElevatedPoint srsDimension=\"2\" srsName=\"http://www.opengis.net/def/crs/EPSG/0/4326\" axisLabels=\"Lat Long\" ns2:id=\"uuid.00000005-0000-4000-8000-000000000005\">\n              <ns2:pos>-22.87 -43.37</ns2:pos>\n            </ns3:ElevatedPoint>\n          </ns3:ARP>\n        </ns3:AirportHeliportTimeSlice>\n      </ns3:timeSlice>\n    </ns3:AirportHeliport>\n  </ns0:aerodrome>\n  <ns0:baseForecast nilReason=\"http://codes.wmo.int/common/nil/missing\" />\n</ns0:TAF>",
+      "tac": "TAF SBAF 072000Z NIL="
+    }
+  ],
+  "schema": 1,
+  "validation_profile": {
+    "description": "CRUX jar validates IWXXM XML (schema + Schematron); see validation/README.md",
+    "recommended_argv": [
+      "--noGMLChecks",
+      "-v",
+      "2025-2",
+      "<directory>"
+    ],
+    "tool": "iwxxmValidator.py",
+    "working_directory_relative": "validation"
+  },
+  "xml_config_overrides": {
+    "TITLES": 0,
+    "TRANSLATOR": false
+  }
+}

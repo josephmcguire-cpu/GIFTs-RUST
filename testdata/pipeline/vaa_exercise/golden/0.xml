@@ -1,0 +1,64 @@
+<ns0:VolcanicAshAdvisory xmlns:ns0="http://icao.int/iwxxm/2025-2" xmlns:ns2="http://www.opengis.net/gml/3.2" xmlns:ns3="http://www.aixm.aero/schema/5.1.1" xmlns:ns4="http://def.wmo.int/metce/2013" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icao.int/iwxxm/2025-2 https://schemas.wmo.int/iwxxm/2025-2RC1/iwxxm.xsd" permissibleUsage="NON-OPERATIONAL" permissibleUsageReason="EXERCISE" reportStatus="NORMAL" ns2:id="uuid.00000001-0000-4000-8000-000000000001">
+  <ns0:issueTime>
+    <ns2:TimeInstant ns2:id="uuid.00000002-0000-4000-8000-000000000002">
+      <ns2:timePosition>2025-12-15T00:00:00Z</ns2:timePosition>
+    </ns2:TimeInstant>
+  </ns0:issueTime>
+  <ns0:issuingVolcanicAshAdvisoryCentre>
+    <ns3:Unit ns2:id="uuid.00000003-0000-4000-8000-000000000003">
+      <ns3:timeSlice>
+        <ns3:UnitTimeSlice ns2:id="uuid.00000004-0000-4000-8000-000000000004">
+          <ns2:validTime />
+          <ns3:interpretation>SNAPSHOT</ns3:interpretation>
+          <ns3:name>NONE</ns3:name>
+          <ns3:type>OTHER:VAAC</ns3:type>
+        </ns3:UnitTimeSlice>
+      </ns3:timeSlice>
+    </ns3:Unit>
+  </ns0:issuingVolcanicAshAdvisoryCentre>
+  <ns0:volcano>
+    <ns4:Volcano ns2:id="uuid.00000005-0000-4000-8000-000000000005">
+      <ns4:name>UNKNOWN</ns4:name>
+      <ns4:position nilReason="http://codes.wmo.int/common/nil/unknown" xsi:nil="true" />
+    </ns4:Volcano>
+  </ns0:volcano>
+  <ns0:stateOrRegion nilReason="http://codes.wmo.int/common/nil/unknown" xsi:nil="true" />
+  <ns0:sourceElevationAMSL xsi:nil="true" nilReason="http://codes.wmo.int/common/nil/unknown" />
+  <ns0:advisoryNumber>0000/0</ns0:advisoryNumber>
+  <ns0:informationSource>NONE</ns0:informationSource>
+  <ns0:eruptionDetails>NONE</ns0:eruptionDetails>
+  <ns0:observation>
+    <ns0:VolcanicAshObservedOrEstimatedConditions status="NOT_PROVIDED" isEstimated="true" ns2:id="uuid.00000006-0000-4000-8000-000000000006">
+      <ns0:phenomenonTime nilReason="http://codes.wmo.int/common/nil/missing" />
+    </ns0:VolcanicAshObservedOrEstimatedConditions>
+  </ns0:observation>
+  <ns0:forecast>
+    <ns0:VolcanicAshForecastConditions ns2:id="uuid.00000007-0000-4000-8000-000000000007" status="NOT_PROVIDED">
+      <ns0:phenomenonTime>
+        <ns2:TimeInstant ns2:id="uuid.00000008-0000-4000-8000-000000000008">
+          <ns2:timePosition>2025-12-15T06:00:00Z</ns2:timePosition>
+        </ns2:TimeInstant>
+      </ns0:phenomenonTime>
+    </ns0:VolcanicAshForecastConditions>
+  </ns0:forecast>
+  <ns0:forecast>
+    <ns0:VolcanicAshForecastConditions ns2:id="uuid.00000009-0000-4000-8000-000000000009" status="NOT_AVAILABLE">
+      <ns0:phenomenonTime>
+        <ns2:TimeInstant ns2:id="uuid.0000000a-0000-4000-8000-00000000000a">
+          <ns2:timePosition>2025-12-15T12:00:00Z</ns2:timePosition>
+        </ns2:TimeInstant>
+      </ns0:phenomenonTime>
+    </ns0:VolcanicAshForecastConditions>
+  </ns0:forecast>
+  <ns0:forecast>
+    <ns0:VolcanicAshForecastConditions ns2:id="uuid.0000000b-0000-4000-8000-00000000000b" status="NO_VOLCANIC_ASH_EXPECTED">
+      <ns0:phenomenonTime>
+        <ns2:TimeInstant ns2:id="uuid.0000000c-0000-4000-8000-00000000000c">
+          <ns2:timePosition>2025-12-15T18:00:00Z</ns2:timePosition>
+        </ns2:TimeInstant>
+      </ns0:phenomenonTime>
+    </ns0:VolcanicAshForecastConditions>
+  </ns0:forecast>
+  <ns0:remarks>NONE</ns0:remarks>
+  <ns0:nextAdvisoryTime nilReason="http://codes.wmo.int/common/nil/inapplicable" />
+</ns0:VolcanicAshAdvisory>

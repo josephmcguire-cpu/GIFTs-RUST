@@ -1,0 +1,25 @@
+<ns0:TAF xmlns:ns0="http://icao.int/iwxxm/2025-2" xmlns:ns2="http://www.opengis.net/gml/3.2" xmlns:ns3="http://www.aixm.aero/schema/5.1.1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://icao.int/iwxxm/2025-2 https://schemas.wmo.int/iwxxm/2025-2RC1/iwxxm.xsd" reportStatus="NORMAL" permissibleUsage="OPERATIONAL" ns2:id="uuid.00000001-0000-4000-8000-000000000001">
+  <ns0:issueTime>
+    <ns2:TimeInstant ns2:id="uuid.00000002-0000-4000-8000-000000000002">
+      <ns2:timePosition>2026-03-07T20:00:00Z</ns2:timePosition>
+    </ns2:TimeInstant>
+  </ns0:issueTime>
+  <ns0:aerodrome>
+    <ns3:AirportHeliport ns2:id="uuid.00000003-0000-4000-8000-000000000003">
+      <ns3:timeSlice>
+        <ns3:AirportHeliportTimeSlice ns2:id="uuid.00000004-0000-4000-8000-000000000004">
+          <ns2:validTime />
+          <ns3:interpretation>SNAPSHOT</ns3:interpretation>
+          <ns3:name>AFONSOS ARPT MI</ns3:name>
+          <ns3:locationIndicatorICAO>SBAF</ns3:locationIndicatorICAO>
+          <ns3:ARP>
+            <ns3:ElevatedPoint srsDimension="2" srsName="http://www.opengis.net/def/crs/EPSG/0/4326" axisLabels="Lat Long" ns2:id="uuid.00000005-0000-4000-8000-000000000005">
+              <ns2:pos>-22.87 -43.37</ns2:pos>
+            </ns3:ElevatedPoint>
+          </ns3:ARP>
+        </ns3:AirportHeliportTimeSlice>
+      </ns3:timeSlice>
+    </ns3:AirportHeliport>
+  </ns0:aerodrome>
+  <ns0:baseForecast nilReason="http://codes.wmo.int/common/nil/missing" />
+</ns0:TAF>

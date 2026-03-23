@@ -1,0 +1,100 @@
+{
+  "ahl": {
+    "aaii": "AU03",
+    "bbb": "",
+    "cccc": "ADRM",
+    "tt": "LU",
+    "yygg": "150252"
+  },
+  "case_id": "vaa_exercise",
+  "freeze_time": "2015-01-15T12:00:00Z",
+  "geo_db": {},
+  "input": "FVAU03 ADRM 150252\nVA ADVISORY\nSTATUS: EXERCISE\nDTG: 20251215/0000Z\nVAAC: NONE\nVOLCANO: UNKNOWN\nPSN: UNKNOWN\nAREA: UNKNOWN\nSOURCE ELEV: UNKNOWN\nADVISORY NR: 0000/0\nINFO SOURCE: NONE\nERUPTION DETAILS: NONE\nEST VA DTG: NOT PROVIDED\nEST VA CLD: NOT PROVIDED\nFCST VA CLD +6HR: 15/0600ZNOT PROVIDED\nFCST VA CLD +12HR: 15/1200Z NOT AVBL\nFCST VA CLD +18HR: 15/1800Z NO VA EXP\nRMK: NONE\nNXT ADVISORY: NO FURTHER ADVISORIES",
+  "iwxxm_validator_version": "2025-2",
+  "notes": "VAA exercise (from gifts/tests/test_vaa_encoding.py).",
+  "product": "VAA",
+  "reports": [
+    {
+      "decoded": {
+        "advisoryNumber": "0000/0",
+        "bbb": "",
+        "centre": "NONE",
+        "clouds": {
+          "0": {
+            "cldLyrs": [
+              {
+                "nil": "notprvd"
+              }
+            ]
+          },
+          "12": {
+            "cldLyrs": [
+              {
+                "nil": "notavbl"
+              }
+            ],
+            "dtg": "2025-12-15T12:00:00Z"
+          },
+          "18": {
+            "cldLyrs": [
+              {
+                "nil": "noashexp"
+              }
+            ],
+            "dtg": "2025-12-15T18:00:00Z"
+          },
+          "6": {
+            "cldLyrs": [
+              {
+                "nil": "notprvd"
+              }
+            ],
+            "dtg": "2025-12-15T06:00:00Z"
+          }
+        },
+        "details": "NONE",
+        "estimated": true,
+        "issueTime": {
+          "str": "2025-12-15T00:00:00Z",
+          "tms": [
+            2025,
+            12,
+            15,
+            0,
+            0,
+            0,
+            0,
+            82,
+            0
+          ]
+        },
+        "region": "UNKNOWN",
+        "remarks": "NONE",
+        "source": null,
+        "sources": "NONE",
+        "status": "EXERCISE",
+        "translationTime": "2015-01-15T12:00:00Z",
+        "volcanoLocation": "UNKNOWN",
+        "volcanoName": "UNKNOWN"
+      },
+      "iwxxm_xml": "<ns0:VolcanicAshAdvisory xmlns:ns0=\"http://icao.int/iwxxm/2025-2\" xmlns:ns2=\"http://www.opengis.net/gml/3.2\" xmlns:ns3=\"http://www.aixm.aero/schema/5.1.1\" xmlns:ns4=\"http://def.wmo.int/metce/2013\" xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\" xsi:schemaLocation=\"http://icao.int/iwxxm/2025-2 https://schemas.wmo.int/iwxxm/2025-2RC1/iwxxm.xsd\" permissibleUsage=\"NON-OPERATIONAL\" permissibleUsageReason=\"EXERCISE\" reportStatus=\"NORMAL\" ns2:id=\"uuid.00000001-0000-4000-8000-000000000001\">\n  <ns0:issueTime>\n    <ns2:TimeInstant ns2:id=\"uuid.00000002-0000-4000-8000-000000000002\">\n      <ns2:timePosition>2025-12-15T00:00:00Z</ns2:timePosition>\n    </ns2:TimeInstant>\n  </ns0:issueTime>\n  <ns0:issuingVolcanicAshAdvisoryCentre>\n    <ns3:Unit ns2:id=\"uuid.00000003-0000-4000-8000-000000000003\">\n      <ns3:timeSlice>\n        <ns3:UnitTimeSlice ns2:id=\"uuid.00000004-0000-4000-8000-000000000004\">\n          <ns2:validTime />\n          <ns3:interpretation>SNAPSHOT</ns3:interpretation>\n          <ns3:name>NONE</ns3:name>\n          <ns3:type>OTHER:VAAC</ns3:type>\n        </ns3:UnitTimeSlice>\n      </ns3:timeSlice>\n    </ns3:Unit>\n  </ns0:issuingVolcanicAshAdvisoryCentre>\n  <ns0:volcano>\n    <ns4:Volcano ns2:id=\"uuid.00000005-0000-4000-8000-000000000005\">\n      <ns4:name>UNKNOWN</ns4:name>\n      <ns4:position nilReason=\"http://codes.wmo.int/common/nil/unknown\" xsi:nil=\"true\" />\n    </ns4:Volcano>\n  </ns0:volcano>\n  <ns0:stateOrRegion nilReason=\"http://codes.wmo.int/common/nil/unknown\" xsi:nil=\"true\" />\n  <ns0:sourceElevationAMSL xsi:nil=\"true\" nilReason=\"http://codes.wmo.int/common/nil/unknown\" />\n  <ns0:advisoryNumber>0000/0</ns0:advisoryNumber>\n  <ns0:informationSource>NONE</ns0:informationSource>\n  <ns0:eruptionDetails>NONE</ns0:eruptionDetails>\n  <ns0:observation>\n    <ns0:VolcanicAshObservedOrEstimatedConditions status=\"NOT_PROVIDED\" isEstimated=\"true\" ns2:id=\"uuid.00000006-0000-4000-8000-000000000006\">\n      <ns0:phenomenonTime nilReason=\"http://codes.wmo.int/common/nil/missing\" />\n    </ns0:VolcanicAshObservedOrEstimatedConditions>\n  </ns0:observation>\n  <ns0:forecast>\n    <ns0:VolcanicAshForecastConditions ns2:id=\"uuid.00000007-0000-4000-8000-000000000007\" status=\"NOT_PROVIDED\">\n      <ns0:phenomenonTime>\n        <ns2:TimeInstant ns2:id=\"uuid.00000008-0000-4000-8000-000000000008\">\n          <ns2:timePosition>2025-12-15T06:00:00Z</ns2:timePosition>\n        </ns2:TimeInstant>\n      </ns0:phenomenonTime>\n    </ns0:VolcanicAshForecastConditions>\n  </ns0:forecast>\n  <ns0:forecast>\n    <ns0:VolcanicAshForecastConditions ns2:id=\"uuid.00000009-0000-4000-8000-000000000009\" status=\"NOT_AVAILABLE\">\n      <ns0:phenomenonTime>\n        <ns2:TimeInstant ns2:id=\"uuid.0000000a-0000-4000-8000-00000000000a\">\n          <ns2:timePosition>2025-12-15T12:00:00Z</ns2:timePosition>\n        </ns2:TimeInstant>\n      </ns0:phenomenonTime>\n    </ns0:VolcanicAshForecastConditions>\n  </ns0:forecast>\n  <ns0:forecast>\n    <ns0:VolcanicAshForecastConditions ns2:id=\"uuid.0000000b-0000-4000-8000-00000000000b\" status=\"NO_VOLCANIC_ASH_EXPECTED\">\n      <ns0:phenomenonTime>\n        <ns2:TimeInstant ns2:id=\"uuid.0000000c-0000-4000-8000-00000000000c\">\n          <ns2:timePosition>2025-12-15T18:00:00Z</ns2:timePosition>\n        </ns2:TimeInstant>\n      </ns0:phenomenonTime>\n    </ns0:VolcanicAshForecastConditions>\n  </ns0:forecast>\n  <ns0:remarks>NONE</ns0:remarks>\n  <ns0:nextAdvisoryTime nilReason=\"http://codes.wmo.int/common/nil/inapplicable\" />\n</ns0:VolcanicAshAdvisory>",
+      "tac": "VA ADVISORY\nSTATUS: EXERCISE\nDTG: 20251215/0000Z\nVAAC: NONE\nVOLCANO: UNKNOWN\nPSN: UNKNOWN\nAREA: UNKNOWN\nSOURCE ELEV: UNKNOWN\nADVISORY NR: 0000/0\nINFO SOURCE: NONE\nERUPTION DETAILS: NONE\nEST VA DTG: NOT PROVIDED\nEST VA CLD: NOT PROVIDED\nFCST VA CLD +6HR: 15/0600ZNOT PROVIDED\nFCST VA CLD +12HR: 15/1200Z NOT AVBL\nFCST VA CLD +18HR: 15/1800Z NO VA EXP\nRMK: NONE\nNXT ADVISORY: NO FURTHER ADVISORIES"
+    }
+  ],
+  "schema": 1,
+  "validation_profile": {
+    "description": "CRUX jar validates IWXXM XML (schema + Schematron); see validation/README.md",
+    "recommended_argv": [
+      "--noGMLChecks",
+      "-v",
+      "2025-2",
+      "<directory>"
+    ],
+    "tool": "iwxxmValidator.py",
+    "working_directory_relative": "validation"
+  },
+  "xml_config_overrides": {
+    "TITLES": 0,
+    "TRANSLATOR": false
+  }
+}

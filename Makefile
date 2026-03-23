@@ -1,7 +1,7 @@
 SHELL=/bin/sh
 VENV=.gifts
 
-.PHONY: all build dev lint lint-fix test test-gifts test-validation test-demo test-e2e test-perf clean distclean
+.PHONY: all build dev lint lint-fix test test-cov test-gifts test-validation test-demo test-e2e test-perf clean distclean
 
 all: build
 
@@ -16,16 +16,23 @@ dev: ${VENV}
 	source ${VENV}/bin/activate; pip install -e ".[test]"
 
 lint: dev
-	${VENV}/bin/ruff check gifts/tests validation/tests demo/tests tests/e2e tests/perf
-	${VENV}/bin/ruff format --check gifts/tests validation/tests demo/tests tests/e2e tests/perf
+	${VENV}/bin/ruff check conftest.py gifts/tests validation/tests demo/tests tests/pipeline tests/e2e tests/perf tools/freeze_pipeline_cases.py
+	${VENV}/bin/ruff format --check conftest.py gifts/tests validation/tests demo/tests tests/pipeline tests/e2e tests/perf tools/freeze_pipeline_cases.py
 
 lint-fix: dev
-	${VENV}/bin/ruff check --fix gifts/tests validation/tests demo/tests tests/e2e tests/perf
-	${VENV}/bin/ruff format gifts/tests validation/tests demo/tests tests/e2e tests/perf
+	${VENV}/bin/ruff check --fix conftest.py gifts/tests validation/tests demo/tests tests/pipeline tests/e2e tests/perf tools/freeze_pipeline_cases.py
+	${VENV}/bin/ruff format conftest.py gifts/tests validation/tests demo/tests tests/pipeline tests/e2e tests/perf tools/freeze_pipeline_cases.py
 
 # Per-area coverage gates match CI (see pyproject.toml / .github/workflows).
 test: dev
-	${VENV}/bin/pytest gifts/tests validation/tests demo/tests tests/e2e tests/perf -m "not perf" -q
+	${VENV}/bin/pytest gifts/tests validation/tests demo/tests tests/pipeline tests/e2e tests/perf -m "not perf" -q
+
+# Combined coverage (gifts + validation/*.py + demo); htmlcov/index.html after run.
+test-cov: dev
+	${VENV}/bin/coverage erase
+	${VENV}/bin/pytest gifts/tests validation/tests demo/tests tests/pipeline tests/e2e tests/perf -m "not perf" \
+		--cov=gifts --cov=demo --cov=./validation \
+		--cov-report=term-missing --cov-report=html
 
 test-gifts: dev
 	${VENV}/bin/coverage erase
