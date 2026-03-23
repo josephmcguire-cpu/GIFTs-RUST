@@ -6,6 +6,7 @@
 [![test-validation](https://github.com/josephmcguire-cpu/GIFTs-RUST/actions/workflows/test-validation.yml/badge.svg)](https://github.com/josephmcguire-cpu/GIFTs-RUST/actions/workflows/test-validation.yml)
 [![test-demo](https://github.com/josephmcguire-cpu/GIFTs-RUST/actions/workflows/test-demo.yml/badge.svg)](https://github.com/josephmcguire-cpu/GIFTs-RUST/actions/workflows/test-demo.yml)
 [![e2e](https://github.com/josephmcguire-cpu/GIFTs-RUST/actions/workflows/e2e.yml/badge.svg)](https://github.com/josephmcguire-cpu/GIFTs-RUST/actions/workflows/e2e.yml)
+[![docs](https://github.com/josephmcguire-cpu/GIFTs-RUST/actions/workflows/docs.yml/badge.svg)](https://github.com/josephmcguire-cpu/GIFTs-RUST/actions/workflows/docs.yml)
 
 -------------------------------------------------------------------------------
 # Generate IWXXM From TAC
@@ -26,10 +27,12 @@ It should be understood that the software provided here is a short-term solution
 
 ## Testing & quality
 
-- **Layout**: unit tests under `gifts/tests/`, `validation/tests/`, `demo/tests/`; cross-area tests under `tests/e2e` and `tests/perf` (see `tests/README.md`).
+- **Layout**: unit tests under `gifts/tests/`, `validation/tests/`, `demo/tests/`; cross-area tests under `tests/pipeline` (frozen **testdata/** IWXXM goldens), `tests/e2e`, and `tests/perf` (see `tests/README.md`, `testdata/README.md`).
 - **Lint**: Ruff on test trees (`make lint`); GitHub **lint** workflow is non-blocking (phase 1) until the whole repo is cleaned up.
+- **Combined coverage**: `make test-cov` runs the same suite as `make test` with `gifts` + `validation/` + `demo` coverage and writes `htmlcov/index.html`.
 - **Coverage gates** (enforced CI baselines **≥99%** line coverage on each Python tree): `gifts/`, `validation/*.py`, `demo/*.py` — see `Makefile` `test-gifts` / `test-validation` / `test-demo` and `.github/workflows/test-*.yml`. Rare branches may be marked `# pragma: no cover` (see `scripts/annotate_coverage_misses.py` workflow).
 - **Docker**: `docker compose build` builds `Dockerfile.gifts`, `Dockerfile.validation`, `Dockerfile.demo` (see `docker-compose.yml`).
+- **Documentation site** (Docusaurus, TRD / use cases / Mermaid diagrams): sources under `docs-site/`; after Pages is enabled, the deployed site is at [https://josephmcguire-cpu.github.io/GIFTs-RUST/](https://josephmcguire-cpu.github.io/GIFTs-RUST/) (see `docs-site/README.md` and `.github/workflows/docs.yml`).
 
 ## Prequisites
 This software is written entirely in the Python language. Python interpreter v3.9 or better is required.
