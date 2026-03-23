@@ -33,6 +33,9 @@ _release = '2025-2RC1'
 IWXXM_URI = 'http://icao.int/iwxxm/%s' % _iwxxm
 IWXXM_URL = 'https://schemas.wmo.int/iwxxm/%s/iwxxm.xsd' % _release
 #
+# Directory name under validation/schemas/ and validation/schematrons/ for iwxxmValidator.py -v
+IWXXM_VALIDATOR_VERSION = _iwxxm
+#
 # Path to file containing codes obtained from WMO Code Registry in RDF/XML format.
 #
 CodesFilePath = os.path.join(os.path.dirname(__file__), '../data')

@@ -10,6 +10,11 @@ def test_encode_no_ahl_returns_empty_bulletin():
     assert len(out) == 0
 
 
+def test_iter_encode_stages_no_ahl_yields_nothing():
+    enc = ME.Encoder({"XXXX": "|||0.0 0.0 0"})
+    assert list(enc.iter_encode_stages("no ahl line here")) == []
+
+
 def test_encode_skips_tac_when_translator_off_and_err_msg(monkeypatch):
     enc = ME.Encoder({"USTR": "N|I|A|0 0 0"})
     des.TRANSLATOR = False
@@ -57,3 +62,14 @@ METAR USTR 290000Z 00000KT CAVOK 19/16 Q1019=
     monkeypatch.setattr(enc._Logger, "warning", lambda m: logs.append(m))
     enc.encode(text)
     assert logs
+
+
+def test_iter_encode_stages_non_none_elements_match_encode():
+    enc = ME.Encoder({"USTR": "N|I|A|61.33 73.42 44"})
+    text = """SAXX99 XXXX 151200
+METAR USTR 290000Z 00000KT CAVOK 19/16 Q1019=
+"""
+    bulletin = enc.encode(text)
+    stages = list(enc.iter_encode_stages(text))
+    elements = [s["element"] for s in stages if s["element"] is not None]
+    assert len(bulletin) == len(elements)
