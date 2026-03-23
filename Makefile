@@ -1,7 +1,8 @@
 SHELL=/bin/sh
 VENV=.gifts
 
-.PHONY: all build dev lint lint-fix test test-cov test-gifts test-validation test-demo test-e2e test-perf clean distclean
+.PHONY: all build dev lint lint-fix test test-cov test-gifts test-validation test-demo test-e2e test-perf \
+	docs docs-install docs-build docs-serve docs-dev docs-docker-build docs-clean clean distclean
 
 all: build
 
@@ -52,6 +53,39 @@ test-e2e: dev
 test-perf: dev
 	${VENV}/bin/pytest tests/perf -m perf -v
 
+# Docusaurus documentation site (docs-site/).
+# Prefer: bash scripts/docs-with-npm.sh (NOT ./scripts/...) — see scripts/docs-with-npm.sh.
+# Fallback with no local Node: make docs-docker-build  (requires Docker).
+export NPM
+DOCS_NPM = bash "$(CURDIR)/scripts/docs-with-npm.sh"
+
+docs-install:
+	$(DOCS_NPM) sh -ec 'cd "$(CURDIR)/docs-site" && if [ -f package-lock.json ]; then npm ci; else npm install; fi'
+
+docs-build: docs-install
+	$(DOCS_NPM) sh -ec 'cd "$(CURDIR)/docs-site" && npm run build'
+
+# Preview the production build (run after docs-build, or use this target which builds first).
+docs-serve: docs-build
+	$(DOCS_NPM) sh -ec 'cd "$(CURDIR)/docs-site" && npm run serve'
+
+# Live-reload dev server for editing docs (does not require a prior build).
+docs-dev: docs-install
+	$(DOCS_NPM) sh -ec 'cd "$(CURDIR)/docs-site" && npm start'
+
+docs: docs-build
+
+# Build static site using Node in Docker (no host npm required). Writes docs-site/node_modules + build via bind mount.
+docs-docker-build:
+	docker run --rm \
+		-v "$(CURDIR)/docs-site:/app" \
+		-w /app \
+		node:20-bookworm-slim \
+		sh -ec 'if [ -f package-lock.json ]; then npm ci; else npm install; fi && npm run build'
+
+docs-clean:
+	rm -rf docs-site/node_modules docs-site/build docs-site/.docusaurus
+
 clean: distclean
 	rm -rf ${VENV}
 	find . -name '*.py[co~]' -exec rm -f {} +
@@ -59,4 +93,5 @@ clean: distclean
 
 distclean:
 	find . -name '*.egg-info' -exec rm -rf {} +
-	rm -rf .cache .eggs .pytest_cache build dist .coverage htmlcov .ruff_cache
+	rm -rf .cache .eggs .pytest_cache build dist .coverage htmlcov .ruff_cache \
+		docs-site/build docs-site/.docusaurus
