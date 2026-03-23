@@ -22,3 +22,5 @@ jobs:
         run: |
           python -m coverage erase
           python -m pytest gifts/tests --cov=gifts --cov-report=term-missing --cov-fail-under=99
+      - name: Pipeline frozen goldens
+        run: python -m pytest tests/pipeline -v

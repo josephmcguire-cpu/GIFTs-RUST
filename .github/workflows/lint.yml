@@ -22,6 +22,6 @@ jobs:
           pip install -e ".[test]"
       # Phase 1: enforce style on tests + small modules; expand to full trees after cleanup.
       - name: Ruff check
-        run: python -m ruff check gifts/tests validation/tests demo/tests tests/e2e tests/perf
+        run: python -m ruff check conftest.py gifts/tests validation/tests demo/tests tests/pipeline tests/e2e tests/perf tools/freeze_pipeline_cases.py
       - name: Ruff format
-        run: python -m ruff format --check gifts/tests validation/tests demo/tests tests/e2e tests/perf
+        run: python -m ruff format --check conftest.py gifts/tests validation/tests demo/tests tests/pipeline tests/e2e tests/perf tools/freeze_pipeline_cases.py
